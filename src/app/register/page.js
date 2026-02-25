@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient.js";
 
 export default function LogMeal() {
   const [dishName, setDishName] = useState("");

@@ -1,20 +1,17 @@
 import Link from "next/link";
-import { supabase } from "../lib/supabaseClient.js";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6">
-      <div className="max-w-md w-full text-center space-y-8">
+    <div className="min-w-md min-h-screen bg-[url('/images/index.png')] bg-cover bg-center flex items-center justify-center px-6">
+      <div className="max-w-md w-full text-center space-y-8 p-8">
         
-        {/* Logo */}
+        {/* Main */}
         <div className="space-y-4">
-          <div className="w-20 h-20 bg-green-800 rounded-2xl m-auto flex items-center justify-center shadow-lg">
-            <span className="text-4xl text-white">🥗</span>
-          </div>
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
             Welcome to <span className="text-green-800">SimplePlate</span>
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-800">
             A gentle, gamified way to build healthier eating habits without the pressure of calorie counting.
           </p>
         </div>
@@ -36,8 +33,8 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Disclaimer */}
-        <div className="pt-8 text-sm text-gray-400">
+        {/* Disclaimer / SDG Support */}
+        <div className="pt-8 text-sm text-gray-800 border-t border-gray-100">
           <p>Supporting SDG 3: Good Health and Well-being</p>
         </div>
 
