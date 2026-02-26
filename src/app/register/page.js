@@ -1,94 +1,144 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../lib/supabaseClient.js";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { supabase } from "../../lib/supabaseClient";
 
-export default function LogMeal() {
-  const [dishName, setDishName] = useState("");
-  const [portionSize, setPortionSize] = useState("");
-  const [status, setStatus] = useState({ type: "", message: "" });
+export default function Register() {
+  const router = useRouter();
+  //const [username, setUsername] = useState("");
+  //const [gender, setGender] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [consent, setConsent] = useState(false);
+  
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const portionOptions = ["Bowl", "Spoon", "Handful"];
-
-  const handleLogMeal = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    
-    if (!dishName || !portionSize) {
-      setStatus({ type: "error", message: "Please enter a dish and select a portion size." });
+    setError("");
+
+    // Basic Validation
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (!consent) {
+      setError("You must agree to the privacy policy.");
       return;
     }
 
-    setIsLoading(true);
-    setStatus({ type: "", message: "" });
+    //Need to add username validation
 
-    // Insert data into Supabase
-    const { data, error } = await supabase
-      .from("meals")
-      .insert([{ dish_name: dishName, portion_size: portionSize }]);
+    setIsLoading(true);
+
+    // Create user in Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
     if (error) {
-      setStatus({ type: "error", message: "Failed to log meal. Please try again." });
-      console.error("Supabase Error:", error);
+      setError(error.message);
+      setIsLoading(false);
     } else {
-      setStatus({ type: "success", message: "Meal logged successfully!" });
-      // Clear the form
-      setDishName("");
-      setPortionSize("");
+      // Registration successful, send them to the dashboard
+      router.push("/dashboard");
     }
-    
-    setIsLoading(false);
   };
 
+    const genderOptions = [
+    { id: "male", label: "Male" },
+    { id: "female", label: "Female" },
+  ];
+
   return (
-    <div className="min-h-screen bg-black-50 flex flex-col items-center pt-12 px-4">
-      <div className="w-full max-w-md bg-gray rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Log Your Meal</h1>
-        <form onSubmit={handleLogMeal} className="space-y-6">
-          {/* Dish Name Input */}
+    <div className="min-h-screen bg-gray-300 flex flex-col items-center justify-center px-4">
+      <div className="bg-white rounded-3xl mx-10 px-7 py-5">   
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
+          <p className="text-gray-500 mt-2">Start building healthier habits today.</p>
+        </div>
+
+        <form onSubmit={handleRegister} className="space-y-5">
+          {/* Email */}
           <div>
-            <label htmlFor="dishName" className="block text-sm font-medium text-gray-700 mb-2">
-              What did you eat?
-            </label>
+            <label className="block text-sm text-black font-medium mb-1">Email</label>
             <input
-              type="text"
-              id="dishName"
-              placeholder="e.g., Nasi Lemak, Chicken Rice"
-              value={dishName}
-              onChange={(e) => setDishName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
+              placeholder="you@example.com"
             />
           </div>
 
-          {/* Portion Size Presets */}
+          {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Estimated Portion
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {portionOptions.map((option) => (
-                <button
-                  type="button"
-                  key={option}
-                  onClick={() => setPortionSize(option)}
-                  className={`py-3 rounded-xl font-medium transition-all duration-200 ${
-                    portionSize === option
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
+            <label className="block text-sm text-black font-medium mb-1"> Username </label>
+            <input
+            className="rounded-xl w-full border px-4 py-3 text-black border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            placeholder="Username"
+            />
           </div>
 
-          {/* Status Messages */}
-          {status.message && (
-            <div className={`p-3 rounded-lg text-sm text-center ${
-              status.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
-            }`}>
-              {status.message}
+          {/* Gender */}
+          <div>
+            <label className="block text-sm text-black font-medium mb-1"> Gender </label>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm text-black font-medium mb-1">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
+              placeholder="*******"
+            />
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm font-medium text-black mb-1">Confirm Password</label>
+            <input
+              type="password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
+              placeholder="*******"
+            />
+          </div>
+
+          {/* Privacy Consent */}
+          <div className="flex items-start mt-4">
+            <input
+              type="checkbox"
+              id="consent"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label htmlFor="consent" className="ml-2 text-sm text-gray-600">
+              I understand that SimplePlate stores only minimal meal data for educational purposes, and I consent to the privacy policy.
+            </label>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 rounded-lg text-sm bg-red-50 text-red-600 text-center">
+              {error}
             </div>
           )}
 
@@ -96,12 +146,19 @@ export default function LogMeal() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:bg-green-700 disabled:opacity-70 transition-colors"
+            className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:bg-green-800 disabled:opacity-70 transition-colors mt-2"
           >
-            {isLoading ? "Saving..." : "Log Meal"}
+            {isLoading ? "Creating account..." : "Register"}
           </button>
         </form>
+
+        <p className="text-center text-sm text-gray-600 mt-6">
+          Already have an account?{" "}
+          <Link href="/login" className="text-green-600 font-semibold hover:underline">
+            Sign in
+          </Link>
+        </p>
       </div>
-    </div>
+    </div> 
   );
 }
