@@ -67,11 +67,11 @@ export default function Login() {
 
       {/*Main Content*/}
       <div className="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-xl p-5 sm:p-8">
-        <div className="text-center mb-5">
+        <div className="text-center mb-5 p-5">
           <h2 className="text-2xl font-bold text-gray-900">Login to your account</h2>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-3">
+        <form onSubmit={handleLogin} className="space-y-6">
           
           {/* Email Input */}
           <input

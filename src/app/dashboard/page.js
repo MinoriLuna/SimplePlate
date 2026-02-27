@@ -20,21 +20,21 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800 selection:bg-blue-100">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800 selection:bg-green-100">
       
       {/* Top Navigation Bar */}
       <div className="bg-white flex justify-end items-center gap-5 px-6 py-4 border-b border-slate-100 shadow-sm text-sm z-10">
         <div className="flex items-center gap-5 font-medium text-slate-600 mr-2">
-          <button className="hover:text-blue-600 transition-colors tooltip-trigger" title="Pause Streak">
+          <button className="hover:text-green-600 transition-colors tooltip-trigger" title="Pause Streak">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           </button>
           
-          <div className="flex items-center gap-1.5 hover:text-blue-600 transition-colors cursor-pointer">
+          <div className="flex items-center gap-1.5 hover:text-green-600 transition-colors cursor-pointer">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             <span>{streakDays} Days</span>
           </div>
 
-          <Link href="/rewards" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
+          <Link href="/rewards" className="flex items-center gap-1.5 hover:text-green-600 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path></svg>
             <span>{showNumbers ? rewardsPoints : "***"}</span>
           </Link>
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
         <span className="font-semibold">Hello! {username}</span>
         
-        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-100 to-indigo-100 border border-blue-200 flex items-center justify-center text-blue-600 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-green-100 to-indigo-100 border border-green-200 flex items-center justify-center text-green-600 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         </div>
 
@@ -59,7 +59,7 @@ export default function Dashboard() {
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800">
-            Welcome Back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">{username}</span>
+            Welcome Back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-600">{username}</span>
           </h1>
         </div>
 
@@ -69,14 +69,14 @@ export default function Dashboard() {
           <div className="lg:col-span-7 bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col h-full">
             <div className="flex justify-between items-end mb-8 border-b border-slate-100 pb-4">
               <h2 className="text-2xl font-bold text-slate-800">Today's Log</h2>
-              <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-sm font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full">
                 {showNumbers ? todayMeals.length : "*"} meals
               </span>
             </div>
             
             <div className="space-y-4 flex-grow">
               {todayMeals.map((meal) => (
-                <div key={meal.id} className="group flex justify-between items-center bg-slate-50 hover:bg-blue-50/50 p-4 rounded-2xl border border-slate-100 hover:border-blue-100 transition-all cursor-pointer">
+                <div key={meal.id} className="group flex justify-between items-center bg-slate-50 hover:bg-green-50/50 p-4 rounded-2xl border border-slate-100 hover:border-green-100 transition-all cursor-pointer">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100 group-hover:scale-110 transition-transform">
                       {meal.icon}
@@ -86,7 +86,7 @@ export default function Dashboard() {
                       <p className="text-xs text-slate-400 mt-0.5">{meal.time}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-300 group-hover:text-blue-500 transition-colors">
+                  <div className="flex items-center gap-2 text-slate-300 group-hover:text-green-500 transition-colors">
                     <span className="text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">Edit</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
                   </div>
@@ -94,7 +94,7 @@ export default function Dashboard() {
               ))}
             </div>
             
-            <button className="mt-6 w-full border-2 border-dashed border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50/30 rounded-2xl py-4 font-medium transition-all flex items-center justify-center gap-2">
+            <button className="mt-6 w-full border-2 border-dashed border-slate-200 text-slate-400 hover:text-green-600 hover:border-green-300 hover:bg-green-50/30 rounded-2xl py-4 font-medium transition-all flex items-center justify-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
               Quick Add Missing Meal
             </button>
@@ -155,7 +155,7 @@ export default function Dashboard() {
                 </div>
                 <p className="text-sm font-medium text-slate-400 mt-1">Day Streak</p>
                 {graceDayAvailable && (
-                  <span className="text-blue-600 text-[11px] font-bold bg-blue-50 px-2.5 py-1 rounded-md mt-3 flex items-center gap-1">
+                  <span className="text-green-600 text-[11px] font-bold bg-green-50 px-2.5 py-1 rounded-md mt-3 flex items-center gap-1">
                     Protected
                   </span>
                 )}
@@ -164,7 +164,7 @@ export default function Dashboard() {
 
             {/* Action Buttons */}
             <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
-              <Link href="/log-meal" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all duration-200">
+              <Link href="/log-meal" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-4 rounded-2xl hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 transition-all duration-200">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                 Log New Meal
               </Link>
