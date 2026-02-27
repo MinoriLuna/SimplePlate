@@ -7,8 +7,8 @@ import { supabase } from "../../lib/supabaseClient";
 
 export default function Register() {
   const router = useRouter();
-  //const [username, setUsername] = useState("");
-  //const [gender, setGender] = useState("");
+  const [username, setUsername] = useState("");
+  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,123 +21,114 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    // Basic Validation
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (!consent) {
-      setError("You must agree to the privacy policy.");
-      return;
-    }
-
-    //Need to add username validation
+    if (!username.trim()) return setError("Username is required.");
+    if (!gender) return setError("Please select your gender.");
+    if (password !== confirmPassword) return setError("Passwords do not match.");
+    if (password.length < 6) return setError("Password must be at least 6 characters.");
+    if (!consent) return setError("You must agree to the privacy policy.");
 
     setIsLoading(true);
 
-    // Create user in Supabase
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       setError(error.message);
       setIsLoading(false);
     } else {
-      // Registration successful, send them to the dashboard
       router.push("/dashboard");
     }
   };
 
-    const genderOptions = [
-    { id: "male", label: "Male" },
-    { id: "female", label: "Female" },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-300 flex flex-col items-center justify-center px-4">
-      <div className="bg-white rounded-3xl mx-10 px-7 py-5">   
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
-          <p className="text-gray-500 mt-2">Start building healthier habits today.</p>
+    <div className="min-h-[100dvh] bg-gray-100 flex flex-col justify-center p-4">
+      <div className="w-full max-w-sm mx-auto bg-white rounded-2xl shadow-xl p-5 sm:p-8">
+      
+        <div className="text-center mb-5">
+          <h2 className="text-2xl font-bold text-gray-900">Create your account!</h2>
+          <p className="text-xs text-gray-500 mt-1">Start your SimplePlate journey.</p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-5">
-          {/* Email */}
-          <div>
-            <label className="block text-sm text-black font-medium mb-1">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
-              placeholder="you@example.com"
-            />
-          </div>
+        <form onSubmit={handleRegister} className="space-y-3">
+          
+          {/* Email Input */}
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all placeholder-gray-400 text-black"
+            placeholder="Email address"
+          />
 
-          {/* Username */}
-          <div>
-            <label className="block text-sm text-black font-medium mb-1"> Username </label>
-            <input
-            className="rounded-xl w-full border px-4 py-3 text-black border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+          {/* Username Input */}
+          <input
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all placeholder-gray-400 text-black"
             placeholder="Username"
-            />
-          </div>
-
-          {/* Gender */}
-          <div>
-            <label className="block text-sm text-black font-medium mb-1"> Gender </label>
-          </div>
+          />
 
           {/* Password */}
-          <div>
-            <label className="block text-sm text-black font-medium mb-1">Password</label>
+          <div className="grid grid-cols-2 gap-3">
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
-              placeholder="*******"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all placeholder-gray-400 text-black"
+              placeholder="Password"
             />
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium text-black mb-1">Confirm Password</label>
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-black"
-              placeholder="*******"
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all placeholder-gray-400 text-black"
+              placeholder="Confirm Password"
             />
           </div>
 
-          {/* Privacy Consent */}
-          <div className="flex items-start mt-4">
+          {/* Compact Gender Toggle */}
+          <div className="flex gap-2 pt-1">
+            {["male", "female"].map((g) => (
+              <label
+                key={g}
+                className={`flex-1 text-center py-2 border rounded-xl text-sm font-medium cursor-pointer transition-all capitalize
+                  ${gender === g 
+                    ? "border-green-500 bg-green-50 text-green-700 ring-1 ring-green-500" 
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}
+              >
+                <input
+                  type="radio"
+                  name="gender"
+                  value={g}
+                  checked={gender === g}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="sr-only"
+                />
+                {g}
+              </label>
+            ))}
+          </div>
+
+          {/* Compact Consent */}
+          <div className="flex items-start bg-gray-50 p-2.5 rounded-xl border border-gray-200 mt-1">
             <input
               type="checkbox"
-              id="consent"
+              required
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
-              className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="mt-0.5 h-4 w-4 text-green-600 border-gray-300 rounded focus:ring-green-500 flex-shrink-0"
             />
-            <label htmlFor="consent" className="ml-2 text-sm text-gray-600">
-              I understand that SimplePlate stores only minimal meal data for educational purposes, and I consent to the privacy policy.
-            </label>
+            <p className="ml-2 text-[11px] text-gray-500 leading-tight">
+              I agree to the minimal data privacy policy for educational tracking.
+            </p>
           </div>
 
-          {/* Error Message */}
           {error && (
-            <div className="p-3 rounded-lg text-sm bg-red-50 text-red-600 text-center">
+            <div className="p-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs text-center font-medium">
               {error}
             </div>
           )}
@@ -146,19 +137,19 @@ export default function Register() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-sm hover:bg-green-800 disabled:opacity-70 transition-colors mt-2"
+            className="w-full py-2.5 mt-2 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-70 transition-all shadow-sm"
           >
-            {isLoading ? "Creating account..." : "Register"}
+            {isLoading ? "Creating..." : "Create Account"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-xs text-gray-500 mt-5 pt-4 border-t border-gray-100">
           Already have an account?{" "}
-          <Link href="/login" className="text-green-600 font-semibold hover:underline">
-            Sign in
+          <Link href="/login" className="font-bold text-green-600 hover:underline">
+            Log in
           </Link>
         </p>
       </div>
-    </div> 
+    </div>
   );
 }
