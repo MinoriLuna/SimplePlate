@@ -64,12 +64,8 @@ export default function LogMeal() {
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
       
       {/* Top Navigation */}
-      <div className="bg-white flex justify-between items-center px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-full transition-all">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
-          </Link>
-          <span className="font-bold text-lg tracking-tight text-slate-900">Log Meal</span>
+      <div className="flex justify-between items-center px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
+        <div className="flex items-center gap-3 py-5">
         </div>
       </div>
 

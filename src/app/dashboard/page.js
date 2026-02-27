@@ -21,36 +21,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800 selection:bg-green-100">
-      
-      {/* Top Navigation Bar */}
-      <div className="bg-white flex justify-end items-center gap-5 px-6 py-4 border-b border-slate-100 shadow-sm text-sm z-10">
-        <div className="flex items-center gap-5 font-medium text-slate-600 mr-2">
-          <button className="hover:text-green-600 transition-colors tooltip-trigger" title="Pause Streak">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          </button>
-          
-          <div className="flex items-center gap-1.5 hover:text-green-600 transition-colors cursor-pointer">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <span>{streakDays} Days</span>
-          </div>
-
-          <Link href="/rewards" className="flex items-center gap-1.5 hover:text-green-600 transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path></svg>
-            <span>{showNumbers ? rewardsPoints : "***"}</span>
-          </Link>
-        </div>
-
-        <span className="font-semibold">Hello! {username}</span>
-        
-        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-green-100 to-indigo-100 border border-green-200 flex items-center justify-center text-green-600 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        </div>
-
-        <button className="text-slate-400 hover:text-red-500 transition-colors ml-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-        </button>
-      </div>
-
+      <div className="py-10 flex"> </div>
       {/* Main Content Area */}
       <div className="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-10">
         
@@ -174,9 +145,14 @@ export default function Dashboard() {
                 Check Suggestions
               </button>
               
-              <Link href="/reports" className="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-700 font-semibold py-4 rounded-2xl border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200">
+              <Link href="/history" className="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-700 font-semibold py-4 rounded-2xl border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200">
                 <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 View History
+              </Link>
+
+              <Link href="/rewards" className="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-700 font-semibold py-4 rounded-2xl border border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200">
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                Check Rewards
               </Link>
             </div>
 
