@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient"; // Added your Supabase client
 
 export default function Settings() {
   const router = useRouter();
   
-  const [name, setName] = useState("Alex");
-  const [username, setUsername] = useState("AlexPlate22");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState("Female");
   
@@ -16,19 +17,72 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
-  const handleUpdate = (e) => {
+  // 1. Fetch user data when the page loads
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile) {
+        if (profile.name) setName(profile.name);
+        if (profile.username) setUsername(profile.username);
+        if (profile.gender) setGender(profile.gender);
+        if (profile.display_numbers !== null) setDisplayNumbers(profile.display_numbers);
+      }
+    };
+    fetchUserData();
+  }, [router]);
+
+  // 2. The real update function
+  const handleUpdate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setSuccessMsg("");
 
-    setTimeout(() => {
-      setIsLoading(false);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    // Update the public profile data
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        name: name,
+        username: username,
+        gender: gender,
+        display_numbers: displayNumbers
+      })
+      .eq("id", session.user.id);
+
+    // If they typed a new password, update it in the secure auth vault
+    if (password) {
+      const { error: passwordError } = await supabase.auth.updateUser({
+        password: password
+      });
+      // Clear the password field after saving so it doesn't just sit there
+      setPassword(""); 
+    }
+
+    if (profileError) {
+      setSuccessMsg(`Error: ${profileError.message}`);
+    } else {
       setSuccessMsg("Profile updated successfully!");
-    }, 1000);
+      setTimeout(() => setSuccessMsg(""), 3000); // Hide message after 3 seconds
+    }
+    
+    setIsLoading(false);
   };
 
+  // --- YOUR EXACT LAYOUT BELOW (NO CHANGES) ---
   return (
-    // Changed to items-center to perfectly center it vertically and horizontally
     <div className="min-h-[100dvh] bg-[#eaedf0] flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800">
       
       <div className="w-full max-w-2xl bg-white rounded-3xl shadow-sm border border-slate-100 p-8 sm:p-10">
