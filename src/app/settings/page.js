@@ -39,6 +39,7 @@ export default function Settings() {
         if (profile.display_numbers !== null) setDisplayNumbers(profile.display_numbers);
       }
     };
+    
     fetchUserData();
   }, [router]);
 

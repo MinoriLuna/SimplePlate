@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LogMeal() {
   const router = useRouter();
@@ -27,14 +27,23 @@ export default function LogMeal() {
       return setStatus({ type: "error", message: "Please select a portion size." });
     }
 
+    // Adding locally with a temporary ID
     setCurrentPlate([...currentPlate, { id: Date.now(), dishName, portion }]);
     setDishName("");
     setPortion("");
     setStatus({ type: "", message: "" });
   };
 
+  // --- REMOVE SINGLE ITEM ---
   const handleRemoveItem = (idToRemove) => {
     setCurrentPlate(currentPlate.filter(item => item.id !== idToRemove));
+  };
+
+  // --- CLEAR ENTIRE PLATE ---
+  const handleClearPlate = () => {
+    if (confirm("Are you sure you want to clear your entire plate?")) {
+      setCurrentPlate([]);
+    }
   };
 
   const handleFinishLogging = async () => {
@@ -43,17 +52,25 @@ export default function LogMeal() {
     }
 
     setIsLoading(true);
-    setStatus({ type: "", message: "" });
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      router.push("/login");
+      return;
+    }
 
+    // Mapping to your database columns
     const mealsToInsert = currentPlate.map((item) => ({
+      user_id: session.user.id,
       dish_name: item.dishName,
       portion_size: item.portion,
+      meal_type: mealType
     }));
 
     const { error } = await supabase.from("meals").insert(mealsToInsert);
 
     if (error) {
-      setStatus({ type: "error", message: "Failed to save meal. Please try again." });
+      setStatus({ type: "error", message: "Failed to save. Please try again." });
       setIsLoading(false);
     } else {
       router.push("/dashboard");
@@ -64,18 +81,24 @@ export default function LogMeal() {
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
       
       {/* Top Navigation */}
-      <div className="flex justify-between items-center px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="flex items-center gap-3 py-5">
+      <div className="bg-white px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+           <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 font-bold text-sm flex items-center gap-2 transition-colors">
+             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
+             Dashboard
+           </Link>
+           {currentPlate.length > 0 && (
+             <button onClick={handleClearPlate} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest">
+               Clear Plate
+             </button>
+           )}
         </div>
       </div>
 
-      {/* Main Content Grid */}
       <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-28">
-        
-        {/* Two-column layout on large screens, stacks on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
           
-          {/* --- LEFT COLUMN: THE CART --- */}
+          {/* LEFT COLUMN: THE PLATE (PREVIEW) */}
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-extrabold text-slate-900">Your Plate</h2>
@@ -87,24 +110,24 @@ export default function LogMeal() {
             {currentPlate.length === 0 ? (
               <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
                 <span className="text-4xl mb-3 block">🍽️</span>
-                <p className="text-slate-400 text-sm font-medium">Plate is empty.<br/>Add what you ate to the right!</p>
+                <p className="text-slate-400 text-sm font-medium">Add food from the right!</p>
               </div>
             ) : (
               <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
                 {currentPlate.map((item) => (
-                  <div key={item.id} className="group flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div>
-                        <p className="font-bold text-slate-800">{item.dishName}</p>
-                        <p className="text-xs font-medium text-slate-500 mt-0.5">{item.portion}</p>
-                      </div>
+                  <div key={item.id} className="group flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-red-100 transition-all">
+                    <div>
+                      <p className="font-bold text-slate-800">{item.dishName}</p>
+                      <p className="text-xs font-medium text-slate-500 mt-0.5">{item.portion}</p>
                     </div>
+                    
+                    {/* INDIVIDUAL REMOVE BUTTON */}
                     <button 
                       onClick={() => handleRemoveItem(item.id)}
-                      className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                      className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                       title="Remove Item"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                   </div>
                 ))}
@@ -112,23 +135,21 @@ export default function LogMeal() {
             )}
           </div>
 
+          {/* RIGHT COLUMN: THE INPUT FORM */}
           <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-10">
-            
-            <h2 className="text-2xl font-extrabold text-slate-900 mb-2">What did you eat?</h2>
-            <p className="text-slate-500 text-sm mb-8">Type the food, pick the portion, and add it to your plate.</p>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Log a Meal</h2>
+            <p className="text-slate-500 text-sm mb-8">What did you eat for {mealType}?</p>
 
             <div className="space-y-8">
-              
-              {/* Meal Type */}
+              {/* Meal Type Toggle */}
               <div className="bg-slate-100 p-1.5 rounded-2xl flex justify-between items-center">
                 {mealTypes.map((type) => (
                   <button
                     key={type}
+                    type="button"
                     onClick={() => setMealType(type)}
                     className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-200 ${
-                      mealType === type
-                        ? "bg-white text-slate-900 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
+                      mealType === type ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
                     }`}
                   >
                     {type}
@@ -136,34 +157,29 @@ export default function LogMeal() {
                 ))}
               </div>
 
-              {/* Food Input */}
+              {/* Food Name */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                  <span className="text-xl">🍲</span>
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-xl">🍲</div>
                 <input
                   type="text"
                   value={dishName}
                   onChange={(e) => setDishName(e.target.value)}
-                  placeholder="e.g. Nasi Lemak, Chicken Chop..."
-                  className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder-slate-400"
+                  placeholder="e.g. Nasi Lemak..."
+                  className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-slate-900"
                 />
               </div>
 
-              {/* Portion Sizes Grid */}
+              {/* Portion Options */}
               <div>
-                <label className="block text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 ml-1">
-                  Select Portion
-                </label>
-                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1">Portion Size</label>
+                <div className="grid grid-cols-3 gap-3">
                   {portionOptions.map((opt) => (
                     <button
                       key={opt}
+                      type="button"
                       onClick={() => setPortion(opt)}
-                      className={`py-4 px-2 rounded-2xl text-sm font-bold transition-all duration-200 active:scale-95 ${
-                        portion === opt
-                          ? "bg-[#2d3748] text-white shadow-md border-transparent scale-[1.02]"
-                          : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                      className={`py-4 rounded-2xl text-sm font-bold transition-all active:scale-95 ${
+                        portion === opt ? "bg-[#2d3748] text-white shadow-md" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       {opt}
@@ -172,46 +188,28 @@ export default function LogMeal() {
                 </div>
               </div>
 
-              {/* Error Message */}
-              {status.message && status.type === "error" && (
-                <div className="p-4 bg-red-50 text-red-600 border border-red-100 rounded-2xl text-sm text-center font-medium animate-in fade-in zoom-in-95">
-                  {status.message}
-                </div>
-              )}
-
-              {/* Add to Cart Button */}
               <button
                 onClick={handleAddToPlate}
-                className="w-full py-4 rounded-2xl text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-[0.98] transition-all border border-slate-200 flex justify-center items-center gap-2"
+                className="w-full py-4 rounded-2xl text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 flex justify-center items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
                 Add to Plate
               </button>
-              
             </div>
           </div>
         </div>
-
-      {/* Floating Bottom Action Bar */}
-      <div className="p-4 pb-safe">
-        <div className="max-w-6xl mx-auto flex justify-end">
-          <button
-            onClick={handleFinishLogging}
-            disabled={isLoading || currentPlate.length === 0}
-            className="w-full sm:w-auto sm:min-w-[300px] py-4 px-8 rounded-2xl text-base font-bold text-white bg-[#00b252] hover:bg-[#00a049] focus:ring-4 focus:ring-[#00b252]/30 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 transition-all shadow-lg shadow-[#00b252]/20 flex justify-center items-center gap-2 ml-auto"
-          >
-            {isLoading ? (
-              "Saving..."
-            ) : (
-              <>
-                Finish Logging Meal ({currentPlate.length})
-                <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
-              </>
-            )}
-          </button>
+          <div className="max-w-6xl mx-auto flex justify-end py-10">
+            <button
+              onClick={handleFinishLogging}
+              disabled={isLoading || currentPlate.length === 0}
+              className="w-full sm:w-auto sm:min-w-[320px] py-4 px-8 rounded-2xl text-base font-bold text-white bg-[#00b252] hover:bg-[#00a049] transition-all shadow-lg shadow-[#00b252]/20 disabled:opacity-50 flex justify-center items-center gap-2"
+            >
+              {isLoading ? "Saving..." : `Finish Logging (${currentPlate.length} items)`}
+              <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+            </button>
           </div>
         </div>
       </div>
-    </div>
+
   );
 }
