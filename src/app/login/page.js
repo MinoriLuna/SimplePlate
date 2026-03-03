@@ -22,13 +22,30 @@ export default function Login() {
 
     setIsLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(error.message);
       setIsLoading(false);
-    } else {
-      router.push("/dashboard");
+      return;
+    }
+
+    if (data.user) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        router.push("/dashboard"); 
+      } else if (profile?.is_admin) {
+        // If they are an admin, send them to the admin dashboard
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 

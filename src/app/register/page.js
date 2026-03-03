@@ -10,6 +10,7 @@ export default function Register() {
   
   // Form State
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [gender, setGender] = useState("Female");
@@ -36,6 +37,7 @@ export default function Register() {
       password,
       options: {
         data: {
+          name: name,
           username: username,
           gender: gender,},
       },
@@ -101,19 +103,34 @@ export default function Register() {
               placeholder="name@example.com"
             />
           </div>
+          
+          {/* Username and Name Input */}
+          <div className="flex gap-4">
+            {/* Username Input */}
+            <div className="flex-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all text-slate-900 placeholder-slate-400"
+                placeholder="Choose a username"
+              />
+            </div>
 
-          {/* Username Input */}
-          <div>
-            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all text-slate-900 placeholder-slate-400"
-              placeholder="Choose a username"
-            />
+            {/* Name Input */}
+            <div className="flex-1">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all text-slate-900 placeholder-slate-400"
+                placeholder="Enter your full name"
+              />
+            </div>
           </div>
-         
+
           {/* Password Input */}
           <div>
             <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Password</label>
