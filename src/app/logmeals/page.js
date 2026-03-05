@@ -4,20 +4,29 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import PointsModal from "@/components/PointsModal"; 
 
 export default function LogMeal() {
   const router = useRouter();
   
+  // --- UI & DATA STATE ---
   const [currentPlate, setCurrentPlate] = useState([]);
   const [dishName, setDishName] = useState("");
   const [portion, setPortion] = useState("");
   const [mealType, setMealType] = useState("Lunch"); 
+  const [streakIncreased, setStreakIncreased] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
+  // Celebration Modal State
+  const [showPointsModal, setShowPointsModal] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
+
   const portionOptions = ["Bowl", "1/2 Serving", "1/4 Serving"];
   const mealTypes = ["Breakfast", "Lunch", "Dinner"];
+
+  // --- COMPONENT HELPERS ---
 
   const handleAddToPlate = () => {
     if (!dishName.trim()) {
@@ -27,19 +36,17 @@ export default function LogMeal() {
       return setStatus({ type: "error", message: "Please select a portion size." });
     }
 
-    // Adding locally with a temporary ID
+    // Add to local plate array
     setCurrentPlate([...currentPlate, { id: Date.now(), dishName, portion }]);
     setDishName("");
     setPortion("");
     setStatus({ type: "", message: "" });
   };
 
-  // --- REMOVE SINGLE ITEM ---
   const handleRemoveItem = (idToRemove) => {
     setCurrentPlate(currentPlate.filter(item => item.id !== idToRemove));
   };
 
-  // --- CLEAR ENTIRE PLATE ---
   const handleClearPlate = () => {
     if (confirm("Are you sure you want to clear your entire plate?")) {
       setCurrentPlate([]);
@@ -59,22 +66,89 @@ export default function LogMeal() {
       return;
     }
 
-    // Mapping to your database columns
+    // 1. Prepare and Save Meals to the database
     const mealsToInsert = currentPlate.map((item) => ({
       user_id: session.user.id,
       dish_name: item.dishName,
       portion_size: item.portion,
-      meal_type: mealType
+      meal_type: mealType,
+      logged_at: new Date().toISOString()
     }));
 
-    const { error } = await supabase.from("meals").insert(mealsToInsert);
+    const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
 
-    if (error) {
-      setStatus({ type: "error", message: "Failed to save. Please try again." });
+    if (mealError) {
+      setStatus({ type: "error", message: "Failed to save meals. Please try again." });
       setIsLoading(false);
+      return;
+    }
+
+    // 2. Fetch Profile for Gamification Logic
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("points, current_streak, pause_streak")
+      .eq("id", session.user.id)
+      .single();
+
+    let newStreak = profile.current_streak || 0;
+    let newPauseStreak = profile.pause_streak;
+    const pointsEarned = currentPlate.length * 10; // 10 points per item
+
+    // 3. Automated Streak Logic
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    // Check if there are ANY meals logged today (before these new ones)
+    const { count } = await supabase
+      .from("meals")
+      .select("*", { count: 'exact', head: true })
+      .eq("user_id", session.user.id)
+      .lt("logged_at", mealsToInsert[0].logged_at) 
+      .gte("logged_at", startOfToday.toISOString());
+
+    // Only run streak calculation on the FIRST logging session of the day
+    if (count === 0) {
+      const yesterdayStart = new Date();
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      yesterdayStart.setHours(0, 0, 0, 0);
+      
+      const { data: yesterdayMeals } = await supabase
+        .from("meals")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .gte("logged_at", yesterdayStart.toISOString())
+        .lt("logged_at", startOfToday.toISOString())
+        .limit(1);
+
+      if (yesterdayMeals && yesterdayMeals.length > 0) {
+        newStreak += 1; // Success: Logged yesterday, continue streak
+      } else if (newPauseStreak) {
+        newPauseStreak = false; // Shield: Used Grace Day shield
+      } else {
+        newStreak = 1; // Reset: Missed yesterday and no shield
+      }
+    }
+
+    // 4. Update Database Profile
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({
+        points: (profile.points || 0) + pointsEarned,
+        current_streak: newStreak,
+        pause_streak: newPauseStreak
+      })
+      .eq("id", session.user.id);
+
+    if (!profileError) {
+      // 5. Trigger the Celebration Modal
+      setEarnedPoints(pointsEarned);
+      setStreakIncreased(newStreak > profile.current_streak); 
+      setShowPointsModal(true); 
     } else {
       router.push("/dashboard");
     }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -120,12 +194,9 @@ export default function LogMeal() {
                       <p className="font-bold text-slate-800">{item.dishName}</p>
                       <p className="text-xs font-medium text-slate-500 mt-0.5">{item.portion}</p>
                     </div>
-                    
-                    {/* INDIVIDUAL REMOVE BUTTON */}
                     <button 
                       onClick={() => handleRemoveItem(item.id)}
                       className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                      title="Remove Item"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
@@ -157,7 +228,7 @@ export default function LogMeal() {
                 ))}
               </div>
 
-              {/* Food Name */}
+              {/* Food Name Input */}
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-xl">🍲</div>
                 <input
@@ -198,18 +269,34 @@ export default function LogMeal() {
             </div>
           </div>
         </div>
-          <div className="max-w-6xl mx-auto flex justify-end py-10">
-            <button
-              onClick={handleFinishLogging}
-              disabled={isLoading || currentPlate.length === 0}
-              className="w-full sm:w-auto sm:min-w-[320px] py-4 px-8 rounded-2xl text-base font-bold text-white bg-[#00b252] hover:bg-[#00a049] transition-all shadow-lg shadow-[#00b252]/20 disabled:opacity-50 flex justify-center items-center gap-2"
-            >
-              {isLoading ? "Saving..." : `Finish Logging (${currentPlate.length} items)`}
-              <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
-            </button>
-          </div>
+
+        {/* Floating Action Bar */}
+        <div className="max-w-6xl mx-auto flex justify-end py-10">
+          <button
+            onClick={handleFinishLogging}
+            disabled={isLoading || currentPlate.length === 0}
+            className="w-full sm:w-auto sm:min-w-[320px] py-4 px-8 rounded-2xl text-base font-bold text-white bg-[#00b252] hover:bg-[#00a049] transition-all shadow-lg shadow-[#00b252]/20 disabled:opacity-50 flex justify-center items-center gap-2"
+          >
+            {isLoading ? (
+              "Saving..."
+            ) : (
+              <>
+                Finish Logging ({currentPlate.length} items)
+                <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
+      {/*Points Modal */}
+        {showPointsModal && (
+        <PointsModal 
+          points={earnedPoints} 
+          streakIncreased={streakIncreased}
+          onClose={() => router.push("/dashboard")} 
+        />
+      )}
+    </div>
   );
 }

@@ -35,7 +35,6 @@ export default function Rewards() {
         return;
       }
 
-      // Fetch points and streak status
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -61,23 +60,30 @@ export default function Rewards() {
 
     setRedeemingId(reward.id);
     
-    // 1. Calculate new points balance
+    // 1. Calculate new values
     const newPoints = profile.points - reward.cost;
     const updates = { points: newPoints };
 
-    // 2. If they bought a Grace Day, activate pause_streak
+    // If it's the Grace Day, activate the shield column
     if (reward.type === "streak_freeze") {
       updates.pause_streak = true;
     }
 
+    // LOG 1: Check what data you are sending to Supabase
+    console.log("Attempting update for Profile ID:", profile.id);
+    console.log("Update payload:", updates);
+
+    // 2. Update Supabase
     const { error } = await supabase
       .from("profiles")
       .update(updates)
       .eq("id", profile.id);
 
     if (error) {
+      console.error("Supabase Redemption Error:", error.message, error.details);
       alert("Redemption failed. Please try again.");
     } else {
+      // 3. Update local state for instant UI feedback
       setProfile({ ...profile, ...updates });
       setSuccessMsg(`Successfully redeemed: ${reward.title}!`);
       setTimeout(() => setSuccessMsg(""), 3000);
@@ -91,7 +97,7 @@ export default function Rewards() {
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
       
-      {/* Top Navigation */}
+      {/* Top Navigation Bar */}
       <div className="bg-white flex justify-between items-center px-4 sm:px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="p-2 -ml-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-full transition-all">
@@ -100,6 +106,7 @@ export default function Rewards() {
           <span className="font-bold text-lg tracking-tight text-slate-900">Rewards Center</span>
         </div>
         
+        {/* Points Display */}
         <div className="bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 flex items-center gap-2">
            <span className="text-xl">🎁</span>
            <span className="font-extrabold text-blue-700">{profile.points} pts</span>
@@ -117,7 +124,7 @@ export default function Rewards() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* LEFT COLUMN: STATS */}
+          {/* LEFT COLUMN: REAL STATS */}
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
             <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Your Progress</h2>
             <div className="space-y-4">
@@ -154,7 +161,7 @@ export default function Rewards() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: REWARDS choices */}
+          {/* RIGHT COLUMN: REWARDS (Dark theme) */}
           <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2rem] shadow-inner border border-slate-200 p-6 lg:p-8">
             <h2 className="text-2xl font-extrabold text-slate-800 mb-6">Rewards Choices</h2>
             <div className="space-y-4">
