@@ -22,9 +22,6 @@ export default function Rewards() {
 
   const rewardsList = [
     { id: 1, title: "1 Free Grace Day", description: "Missed a day? Protect your streak!", cost: 150, icon: "🛡️", type: "streak_freeze" },
-    { id: 2, title: "Premium App Theme", description: "Unlock the exclusive dark mode theme.", cost: 300, icon: "✨", type: "theme" },
-    { id: 3, title: "Nutrition Consultation", description: "15-minute chat with a certified nutritionist.", cost: 1000, icon: "👨‍⚕️", type: "consult" },
-    { id: 4, title: "SimplePlate Merch", description: "Get a free branded water bottle.", cost: 2500, icon: "🥤", type: "physical" },
   ];
 
   useEffect(() => {
