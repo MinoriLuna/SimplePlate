@@ -15,6 +15,7 @@ export default function LogMeal() {
   const [portion, setPortion] = useState("");
   const [mealType, setMealType] = useState("Lunch"); 
   const [streakIncreased, setStreakIncreased] = useState(false);
+  const [streakCount, setStreakCount] = useState(0);
   
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -54,19 +55,26 @@ export default function LogMeal() {
   };
 
   const handleFinishLogging = async () => {
-    if (currentPlate.length === 0) {
-      return setStatus({ type: "error", message: "Your plate is empty! Add some food first." });
-    }
+    if (currentPlate.length === 0) return;
 
     setIsLoading(true);
     const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      router.push("/login");
-      return;
-    }
+    if (!session) return router.push("/login");
 
-    // 1. Prepare and Save Meals to the database
+    // 1. Check if this is the first meal of the day (Before saving)
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const { count: mealsToday } = await supabase
+      .from("meals")
+      .select("*", { count: 'exact', head: true })
+      .eq("user_id", session.user.id)
+      .gte("logged_at", startOfToday.toISOString());
+
+    // If count is 0, this is the first log of the day!
+    const isFirstLogToday = mealsToday === 0;
+
+    // 2. Save meals
     const mealsToInsert = currentPlate.map((item) => ({
       user_id: session.user.id,
       dish_name: item.dishName,
@@ -76,38 +84,27 @@ export default function LogMeal() {
     }));
 
     const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
-
     if (mealError) {
-      setStatus({ type: "error", message: "Failed to save meals. Please try again." });
       setIsLoading(false);
-      return;
+      return setStatus({ type: "error", message: "Error saving meals." });
     }
 
-    // 2. Fetch Profile for Gamification Logic
+    // 3. Fetch Profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("points, current_streak, pause_streak")
+      .select("*")
       .eq("id", session.user.id)
       .single();
 
+    const pointsJustEarned = currentPlate.length * 10;
+    const newTotalPoints = (profile.points || 0) + pointsJustEarned;
+    const newTotalXP = (profile.total_xp || 0) + pointsJustEarned;
+    
     let newStreak = profile.current_streak || 0;
     let newPauseStreak = profile.pause_streak;
-    const pointsEarned = currentPlate.length * 10; // 10 points per item
 
-    // 3. Automated Streak Logic
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-
-    // Check if there are ANY meals logged today (before these new ones)
-    const { count } = await supabase
-      .from("meals")
-      .select("*", { count: 'exact', head: true })
-      .eq("user_id", session.user.id)
-      .lt("logged_at", mealsToInsert[0].logged_at) 
-      .gte("logged_at", startOfToday.toISOString());
-
-    // Only run streak calculation on the FIRST logging session of the day
-    if (count === 0) {
+    // 4. Streak Calculation
+    if (isFirstLogToday) {
       const yesterdayStart = new Date();
       yesterdayStart.setDate(yesterdayStart.getDate() - 1);
       yesterdayStart.setHours(0, 0, 0, 0);
@@ -121,34 +118,37 @@ export default function LogMeal() {
         .limit(1);
 
       if (yesterdayMeals && yesterdayMeals.length > 0) {
-        newStreak += 1; // Success: Logged yesterday, continue streak
+        newStreak += 1; // Continued
       } else if (newPauseStreak) {
-        newPauseStreak = false; // Shield: Used Grace Day shield
+        newPauseStreak = false; // Protected
       } else {
-        newStreak = 1; // Reset: Missed yesterday and no shield
+        newStreak = 1; // Reset to Day 1
       }
     }
 
-    // 4. Update Database Profile
+// 5. Update Profile
     const { error: profileError } = await supabase
       .from("profiles")
       .update({
-        points: (profile.points || 0) + pointsEarned,
-        current_streak: newStreak,
+        points: newTotalPoints,
+        total_xp: newTotalXP,
+        current_streak: newStreak, // FIXED: Use newStreak, not streakCount
         pause_streak: newPauseStreak
       })
       .eq("id", session.user.id);
 
+    // 6. Trigger Modal
     if (!profileError) {
-      // 5. Trigger the Celebration Modal
-      setEarnedPoints(pointsEarned);
-      setStreakIncreased(newStreak > profile.current_streak); 
-      setShowPointsModal(true); 
+      setEarnedPoints(pointsJustEarned);
+      setStreakIncreased(isFirstLogToday); 
+      setStreakCount(newStreak); // FIXED: Use newStreak here too
+      setShowPointsModal(true);
     } else {
-      router.push("/dashboard");
+      console.error("Error updating profile:", profileError.message);
     }
     
     setIsLoading(false);
+
   };
 
   return (
@@ -289,11 +289,11 @@ export default function LogMeal() {
         </div>
       </div>
 
-      {/*Points Modal */}
         {showPointsModal && (
         <PointsModal 
           points={earnedPoints} 
           streakIncreased={streakIncreased}
+          streakCount={streakCount} // ADD THIS LINE!
           onClose={() => router.push("/dashboard")} 
         />
       )}

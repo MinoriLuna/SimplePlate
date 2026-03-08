@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabaseClient";
 
 export default function Dashboard() {
   const router = useRouter();
-  
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState({
     name: "",
@@ -18,6 +17,10 @@ export default function Dashboard() {
     display_numbers: false,
   });
   const [todayMeals, setTodayMeals] = useState([]);
+  // Level Logic: 100 XP per level
+  const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
+  const xpInCurrentLevel = (profile.total_xp || 0) % 100;
+  const progressToNextLevel = xpInCurrentLevel; // Since each level is 100 XP
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -43,6 +46,7 @@ export default function Dashboard() {
           current_streak: userData.current_streak || 0,
           pause_streak: userData.pause_streak || false,
           display_numbers: userData.display_numbers || false,
+          total_xp: userData.total_xp || 0,
         });
       }
 
@@ -88,13 +92,26 @@ export default function Dashboard() {
       <div className="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-10">
         
         {/* WELCOME HEADER */}
-        <div className="flex justify-center items-center gap-3 mb-10">
+        <div className="flex justify-center items-center gap-3 mb-8">
           <Link href="/settings" className="text-slate-400 hover:text-slate-700 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800">
             Welcome Back, <span className="text-[#00b252]">{profile.name}</span>
           </h1>
+        </div>
+        
+        <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+          <div className="flex justify-between items-center mb-2 px-1">
+            <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+            <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
+          </div>
+          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
+              style={{ width: `${progressToNextLevel}%` }}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
