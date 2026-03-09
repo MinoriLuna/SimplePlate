@@ -113,18 +113,21 @@ export default function Dashboard() {
           </h1>
         </div>
         
-        <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
-          <div className="flex justify-between items-center mb-2 px-1">
-            <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-            <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
+        {/* Level Progress */}
+        <Link href="/progress" className="block transition-transform hover:scale-[1.01] active:scale-[0.99]">
+          <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+            <div className="flex justify-between items-center mb-2 px-1">
+              <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+              <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
+            </div>
+            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
+                style={{ width: `${progressToNextLevel}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
-              style={{ width: `${progressToNextLevel}%` }}
-            />
-          </div>
-        </div>
+        </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
