@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -110,7 +111,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 animate-in slide-in-from-bottom-4">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
             <h2 className="text-xl font-bold text-slate-800">Editing: {editingUser.email}</h2>
-            <button onClick={() => setEditingUser(null)} className="text-sm font-bold text-slate-400 hover:text-red-500">Cancel</button>
+            <button onClick={() => setEditingUser(null)} className="text-sm font-bold text-slate-400 hover:text-red-500 border rounded-3xl px-5 py-1">Cancel</button>
           </div>
 
           <form onSubmit={handleUpdateUser} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -136,7 +137,7 @@ export default function AdminDashboard() {
               </label>
             </div>
 
-            <div className="md:col-span-2 pt-4">
+            <div className="grid grid-col-1 md:col-span-2 pt-4 flex-col gap-2">
               <button type="submit" className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-md">
                 Save Changes
               </button>

@@ -48,11 +48,6 @@ export default function LogMeal() {
     setCurrentPlate(currentPlate.filter(item => item.id !== idToRemove));
   };
 
-  const handleClearPlate = () => {
-    if (confirm("Are you sure you want to clear your entire plate?")) {
-      setCurrentPlate([]);
-    }
-  };
 
   const handleFinishLogging = async () => {
     if (currentPlate.length === 0) return;
@@ -132,7 +127,7 @@ export default function LogMeal() {
       .update({
         points: newTotalPoints,
         total_xp: newTotalXP,
-        current_streak: newStreak, // FIXED: Use newStreak, not streakCount
+        current_streak: newStreak, 
         pause_streak: newPauseStreak
       })
       .eq("id", session.user.id);
@@ -141,7 +136,7 @@ export default function LogMeal() {
     if (!profileError) {
       setEarnedPoints(pointsJustEarned);
       setStreakIncreased(isFirstLogToday); 
-      setStreakCount(newStreak); // FIXED: Use newStreak here too
+      setStreakCount(newStreak); 
       setShowPointsModal(true);
     } else {
       console.error("Error updating profile:", profileError.message);
@@ -153,22 +148,7 @@ export default function LogMeal() {
 
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
-      
-      {/* Top Navigation */}
-      <div className="bg-white px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-           <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 font-bold text-sm flex items-center gap-2 transition-colors">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
-             Dashboard
-           </Link>
-           {currentPlate.length > 0 && (
-             <button onClick={handleClearPlate} className="text-xs font-bold text-red-400 hover:text-red-600 transition-colors uppercase tracking-widest">
-               Clear Plate
-             </button>
-           )}
-        </div>
-      </div>
-
+      <div className="py-20">
       <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-28">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
           
@@ -230,13 +210,12 @@ export default function LogMeal() {
 
               {/* Food Name Input */}
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-xl">🍲</div>
                 <input
                   type="text"
                   value={dishName}
                   onChange={(e) => setDishName(e.target.value)}
                   placeholder="e.g. Nasi Lemak..."
-                  className="w-full pl-14 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-slate-900"
+                  className="w-full pl-8 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all text-slate-900"
                 />
               </div>
 
@@ -261,8 +240,7 @@ export default function LogMeal() {
 
               <button
                 onClick={handleAddToPlate}
-                className="w-full py-4 rounded-2xl text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 flex justify-center items-center gap-2"
-              >
+                className="w-full py-4 rounded-2xl text-base font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 flex justify-center items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
                 Add to Plate
               </button>
@@ -298,5 +276,6 @@ export default function LogMeal() {
         />
       )}
     </div>
+  </div>
   );
 }

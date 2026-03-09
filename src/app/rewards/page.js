@@ -24,12 +24,16 @@ export default function Rewards() {
   // Quests Data
   const [quests] = useState([
     { id: 1, title: "The Verdant Knight", description: "Eat 50% veggies in one meal.", xp: 30, done: false },
-    { id: 2, title: "Hydration Ritual", description: "Log 8 glasses of water.", xp: 20, done: true },
-    { id: 3, title: "Lean Gains", description: "Log high-protein dinner.", xp: 40, done: false }
+    { id: 2, title: "Hydration Ritual", description: "Log 8 glasses of water.", xp: 20, done: true }
   ]);
 
   const rewardsList = [
-    { id: 1, title: "1 Free Grace Day", description: "Missed a day? Protect your streak!", cost: 150, icon: "🛡️", type: "streak_freeze" },
+    { id: 1, title: "1 Free Grace Day", description: "Missed a day? Protect your streak!", cost: 150, type: "streak_freeze" },
+    { id: 2, title: "XP Booster (24h)", description: "Earn 2x XP for a day", cost: 200,},
+    { id: 3, title: "Mission Refresh", description: "Get 2 new missions today", cost: 100,},
+    { id: 4, title: "Golden Plate Badge", description: "Show off your dedication", cost: 300,},
+    { id: 5, title: "Rainbow Theme", description: "Colorful dashboard theme", cost: 500,},
+    { id: 6, title: "Custom Title", description: "Choose your own rank title", cost: 400,},
   ];
 
   useEffect(() => {
@@ -95,147 +99,117 @@ export default function Rewards() {
 
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
+      <div className="py-20">
         
       {/* Top Header Section */}
-      <div className="bg-white px-6 py-4 border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-           <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 font-bold text-sm flex items-center gap-2 transition-colors">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
-             Dashboard
-           </Link>
-           <div className="bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 flex items-center gap-2">
-            <span className="text-xl">🎁</span>
-            <span className="font-extrabold text-blue-700">{profile.points} pts</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-grow w-full max-w-5xl mx-auto p-4 sm:p-6 lg:py-10 pb-10">
-        
+      <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-10">
         {successMsg && (
           <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-sm text-center font-bold animate-in fade-in slide-in-from-top-4 flex justify-center items-center gap-2 shadow-sm">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             {successMsg}
           </div>
         )}
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* LEFT COLUMN: REAL STATS */}
-          <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
-            <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Your Progress</h2>
+          {/* LEFT COLUMN: PROGRESS & MISSIONS */}
+          <div className="lg:col-span-5 w-full space-y-6 lg:sticky lg:top-24">
             
-            {/* XP Bar Integration */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2 px-1">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-                <span className="text-[10px] font-bold text-slate-400">{profile.total_xp % 100}/100 XP</span>
-              </div>
-              <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-blue-500 transition-all duration-1000"
-                  style={{ width: `${progressToNextLevel}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100">🎁</div>
-                  <span className="font-bold text-slate-700">Reward Balance</span>
+            {/* Real Stats Card */}
+            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Your Progress</h2>
+              
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2 px-1">
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+                  <span className="text-[10px] font-bold text-slate-400">{profile.total_xp % 100}/100 XP</span>
                 </div>
-                <span className="text-2xl font-extrabold text-blue-600">{profile.points}</span>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100">📅</div>
-                  <span className="font-bold text-slate-700">Current Streak</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-2xl font-extrabold text-orange-500">{profile.current_streak}</span>
-                  <span className="text-xs font-bold text-slate-400 ml-1 uppercase">Days</span>
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-1000"
+                    style={{ width: `${progressToNextLevel}%` }}
+                  />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 ${profile.pause_streak ? 'text-amber-500' : 'text-slate-400'}`}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100">🎁</div>
+                    <span className="font-bold text-slate-700 text-sm">Balance</span>
                   </div>
-                  <span className="font-bold text-slate-700">Pause Streak</span>
+                  <span className="text-xl font-extrabold text-blue-600">{profile.points}</span>
                 </div>
-                <span className={`text-sm font-bold px-3 py-1 rounded-lg ${profile.pause_streak ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-500'}`}>
-                  {profile.pause_streak ? "Active" : "Inactive"}
-                </span>
+
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100">📅</div>
+                    <span className="font-bold text-slate-700 text-sm">Streak</span>
+                  </div>
+                  <span className="text-xl font-extrabold text-orange-500">{profile.current_streak}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN: QUESTS & REWARDS */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Daily Missions (Same style as Rewards Choice but lighter background) */}
-            <div className="w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
-              <h2 className="text-2xl font-extrabold text-slate-800 mb-6">Daily Missions</h2>
+            {/* Daily Missions Card */}
+            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
+              <h2 className="text-xl font-extrabold text-slate-800 mb-6">Daily Missions</h2>
               <div className="space-y-4">
                 {quests.map((quest) => (
                   <div key={quest.id} className={`rounded-2xl p-4 border transition-all flex items-center justify-between gap-4 ${quest.done ? 'bg-green-50/50 border-green-100 opacity-60' : 'bg-slate-50 border-slate-100 shadow-sm'}`}>
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${quest.done ? 'bg-green-500 text-white' : 'bg-white text-slate-300 border border-slate-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${quest.done ? 'bg-green-500 text-white' : 'bg-white text-slate-300 border border-slate-200'}`}>
                         {quest.done ? '✓' : '!'}
                       </div>
                       <div>
                         <h3 className={`font-bold text-sm ${quest.done ? 'text-green-800 line-through' : 'text-slate-800'}`}>{quest.title}</h3>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{quest.description}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{quest.description}</p>
                       </div>
                     </div>
-                    <span className="font-extrabold text-xs text-blue-600 whitespace-nowrap">+{quest.xp} XP</span>
+                    <span className="font-extrabold text-xs text-blue-600 whitespace-nowrap">+{quest.xp}</span>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Rewards Choices (Your exact dark background style) */}
-            <div className="w-full bg-[#e2e8f0] rounded-[2rem] shadow-inner border border-slate-200 p-6 lg:p-8">
-              <h2 className="text-2xl font-extrabold text-slate-800 mb-6">Rewards Choices</h2>
-              <div className="space-y-4">
-                {rewardsList.map((reward) => {
-                  const canAfford = profile.points >= reward.cost;
-                  const isRedeeming = redeemingId === reward.id;
-                  const isOwned = profile.pause_streak && reward.type === "streak_freeze";
+          {/* RIGHT COLUMN: REWARDS CHOICE */}
+          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2rem] shadow-inner border border-slate-200 p-6 lg:p-8 h-fit">
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-6">Rewards Choices</h2>
+            <div className="max-h-[540px] overflow-y-auto custom-scrollbar p-2 space-y-4">
+              {rewardsList.map((reward) => {
+                const canAfford = profile.points >= reward.cost;
+                const isRedeeming = redeemingId === reward.id;
+                const isOwned = profile.pause_streak && reward.type === "streak_freeze";
 
-                  return (
-                    <div key={reward.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md">
-                      <div className="flex items-start sm:items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-2xl flex-shrink-0">{reward.icon}</div>
-                        <div>
-                          <h3 className="font-bold text-slate-900">{reward.title}</h3>
-                          <p className="text-sm text-slate-500 mt-0.5 leading-snug">{reward.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 mt-2 sm:mt-0 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-                        <span className={`font-extrabold text-sm ${canAfford ? 'text-blue-600' : 'text-slate-400'}`}>{reward.cost} pts</span>
-                        <button
-                          onClick={() => handleRedeem(reward)}
-                          disabled={!canAfford || isRedeeming || isOwned}
-                          className={`px-6 py-2 rounded-xl text-sm font-bold transition-all w-full sm:w-auto ${
-                            isRedeeming ? "bg-slate-200 text-slate-500" : isOwned ? "bg-green-100 text-green-700 cursor-default" : canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                          }`}
-                        >
-                          {isRedeeming ? "Redeeming..." : isOwned ? "Owned" : "Redeem"}
-                        </button>
+                return (
+                  <div key={reward.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md">
+                    <div className="flex items-start sm:items-center gap-4">
+                      <div>
+                        <h3 className="font-bold text-slate-900">{reward.title}</h3>
+                        <p className="text-sm text-slate-500 mt-0.5 leading-snug">{reward.description}</p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 mt-2 sm:mt-0 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
+                      <span className={`font-extrabold text-sm ${canAfford ? 'text-blue-600' : 'text-slate-400'}`}>{reward.cost} pts</span>
+                      <button
+                        onClick={() => handleRedeem(reward)}
+                        disabled={!canAfford || isRedeeming || isOwned}
+                        className={`px-6 py-2 rounded-xl text-sm font-bold transition-all w-full sm:w-auto ${
+                          isRedeeming ? "bg-slate-200 text-slate-500" : isOwned ? "bg-green-100 text-green-700 cursor-default" : canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        }`}
+                      >
+                        {isRedeeming ? "..." : isOwned ? "Owned" : "Redeem"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
         </div>
       </div>
     </div>
+  </div>
   );
 }

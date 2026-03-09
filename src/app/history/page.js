@@ -60,7 +60,7 @@ export default function Reports() {
 
       const { data: meals } = await supabase
         .from("meals")
-        .select("id, dish_name, portion_size, logged_at")
+        .select("*")
         .eq("user_id", session.user.id)
         .gte("logged_at", startOfDay.toISOString())
         .lte("logged_at", endOfDay.toISOString())
@@ -71,6 +71,7 @@ export default function Reports() {
           id: m.id,
           name: m.dish_name,
           portion: m.portion_size,
+          type: m.meal_type, // Added to determine the correct image
           time: new Date(m.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }));
         setLoggingHistory(formattedMeals);
@@ -82,7 +83,7 @@ export default function Reports() {
     };
 
     fetchHistory();
-  }, [router, rawDate]); // Refetch whenever rawDate changes
+  }, [router, rawDate]); 
 
   const handleDateButtonClick = () => {
     dateInputRef.current?.showPicker(); // Opens the native calendar
@@ -142,8 +143,13 @@ export default function Reports() {
                 loggingHistory.map((item) => (
                   <div key={item.id} className="group flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-slate-200 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl border border-slate-100">
-                        🍲
+                      {/* Inserted Image Logic Here */}
+                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 overflow-hidden">
+                        <img 
+                          src={`/images/${item.type?.toLowerCase() || 'breakfast'}.png`} 
+                          alt={item.type} 
+                          className="w-7 h-7 object-contain" 
+                        />
                       </div>
                       <div>
                         <p className="font-bold text-slate-800">{item.name}</p>

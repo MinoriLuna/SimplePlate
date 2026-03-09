@@ -78,10 +78,22 @@ export default function Dashboard() {
     return (total / todayMeals.length).toFixed(0);
   };
 
-  const getMealIcon = (type) => {
-    const icons = { "Breakfast": "🥣", "Lunch": "🥗", "Dinner": "🍱" };
-    return icons[type] || "🍽️";
-  };
+ const getMealIcon = (type) => {
+  const icons = { 
+    "Breakfast": "/images/breakfast.png", 
+    "Lunch": "/images/lunch.png", 
+    "Dinner": "/images/dinner.png" 
+  }
+
+  const iconPath = icons[type] || "/images/defaultmeal.png";
+  return (
+    <img 
+      src={iconPath} 
+      alt={type} 
+      className="w-10 h-10 object-contain" 
+    />
+  );
+};
 
   if (isLoading) return <div className="p-10 text-center font-bold text-slate-500">Loading Dashboard...</div>;
 
@@ -116,38 +128,46 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           
-          {/* LEFT COLUMN: Today's Log */}
-          <div className="lg:col-span-7 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col h-full">
-            <h2 className="text-2xl font-bold text-slate-800 mb-8 border-b border-slate-100 pb-4">Today's Log</h2>
+          {/* LEFT COLUMN: TODAY'S LOG */}
+          <div className="lg:col-span-7 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[472px]">
+            {/* STICKY HEADER */}
+            <div className="p-8 pb-4 border-b border-slate-50">
+              <h2 className="text-2xl font-bold text-slate-800">Today's Log</h2>
+            </div>
             
-            <div className="space-y-4 flex-grow">
+            {/* SCROLLABLE LIST */}
+            <div className="flex-grow overflow-y-auto custom-scrollbar p-8 pt-4 space-y-4">
               {todayMeals.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                   No meals logged yet today!
                 </div>
               ) : (
                 todayMeals.map((meal) => (
-                  <div key={meal.id} className="group flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 transition-all">
+                  <div key={meal.id} className="group flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-[#00b252]/30 hover:bg-white transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100">
+                      <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl border border-slate-100 group-hover:scale-110 transition-transform">
                         {getMealIcon(meal.meal_type)}
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-800">{meal.dish_name}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <p className="font-bold text-slate-800">{meal.dish_name}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                          {meal.meal_type} • {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
+                    {/* Visual Indicator of Score if display_numbers is on */}
                   </div>
                 ))
               )}
             </div>
-            
-            <Link href="/logmeals" className="mt-6 w-full border-2 border-dashed border-slate-200 text-slate-400 hover:text-green-600 hover:border-green-300 hover:bg-green-50/30 rounded-2xl py-4 font-medium transition-all flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-              Quick Add Missing Meal
-            </Link>
+
+            {/* FIXED FOOTER BUTTON */}
+            <div className="p-8 pt-0 mt-2">
+              <Link href="/logmeals" className="w-full border-2 border-dashed border-slate-200 text-slate-400 hover:text-[#00b252] hover:border-[#00b252]/30 hover:bg-[#00b252]/5 rounded-2xl py-4 font-bold text-sm transition-all flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
+                Quick Add Missing Meal
+              </Link>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: Stats & Actions */}
