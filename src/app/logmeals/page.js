@@ -9,7 +9,6 @@ import PointsModal from "@/components/PointsModal";
 export default function LogMeal() {
   const router = useRouter();
   
-  // --- UI & DATA STATE ---
   const [currentPlate, setCurrentPlate] = useState([]);
   const [dishName, setDishName] = useState("");
   const [portion, setPortion] = useState("");
@@ -20,14 +19,11 @@ export default function LogMeal() {
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  // Celebration Modal State
   const [showPointsModal, setShowPointsModal] = useState(false);
   const [earnedPoints, setEarnedPoints] = useState(0);
 
-  const portionOptions = ["Bowl", "1/2 Serving", "1/4 Serving"];
+  const portionOptions = ["Small", "Normal/Plate", "Large", "Cup/Glass"];
   const mealTypes = ["Breakfast", "Lunch", "Dinner"];
-
-  // --- COMPONENT HELPERS ---
 
   const handleAddToPlate = () => {
     if (!dishName.trim()) {
@@ -37,7 +33,6 @@ export default function LogMeal() {
       return setStatus({ type: "error", message: "Please select a portion size." });
     }
 
-    // Add to local plate array
     setCurrentPlate([...currentPlate, { id: Date.now(), dishName, portion }]);
     setDishName("");
     setPortion("");
@@ -48,7 +43,6 @@ export default function LogMeal() {
     setCurrentPlate(currentPlate.filter(item => item.id !== idToRemove));
   };
 
-
   const handleFinishLogging = async () => {
     if (currentPlate.length === 0) return;
 
@@ -56,94 +50,105 @@ export default function LogMeal() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return router.push("/login");
 
-    // 1. Check if this is the first meal of the day (Before saving)
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    try {
+      // 1. Check for first meal of the day
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
 
-    const { count: mealsToday } = await supabase
-      .from("meals")
-      .select("*", { count: 'exact', head: true })
-      .eq("user_id", session.user.id)
-      .gte("logged_at", startOfToday.toISOString());
-
-    // If count is 0, this is the first log of the day!
-    const isFirstLogToday = mealsToday === 0;
-
-    // 2. Save meals
-    const mealsToInsert = currentPlate.map((item) => ({
-      user_id: session.user.id,
-      dish_name: item.dishName,
-      portion_size: item.portion,
-      meal_type: mealType,
-      logged_at: new Date().toISOString()
-    }));
-
-    const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
-    if (mealError) {
-      setIsLoading(false);
-      return setStatus({ type: "error", message: "Error saving meals." });
-    }
-
-    // 3. Fetch Profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", session.user.id)
-      .single();
-
-    const pointsJustEarned = currentPlate.length * 10;
-    const newTotalPoints = (profile.points || 0) + pointsJustEarned;
-    const newTotalXP = (profile.total_xp || 0) + pointsJustEarned;
-    
-    let newStreak = profile.current_streak || 0;
-    let newPauseStreak = profile.pause_streak;
-
-    // 4. Streak Calculation
-    if (isFirstLogToday) {
-      const yesterdayStart = new Date();
-      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-      yesterdayStart.setHours(0, 0, 0, 0);
-      
-      const { data: yesterdayMeals } = await supabase
+      const { count: mealsToday } = await supabase
         .from("meals")
-        .select("id")
+        .select("*", { count: 'exact', head: true })
         .eq("user_id", session.user.id)
-        .gte("logged_at", yesterdayStart.toISOString())
-        .lt("logged_at", startOfToday.toISOString())
-        .limit(1);
+        .gte("logged_at", startOfToday.toISOString());
 
-      if (yesterdayMeals && yesterdayMeals.length > 0) {
-        newStreak += 1; // Continued
-      } else if (newPauseStreak) {
-        newPauseStreak = false; // Protected
-      } else {
-        newStreak = 1; // Reset to Day 1
+      const isFirstLogToday = mealsToday === 0;
+
+      // 2. ANALYZE EACH ITEM WITH AI
+      const mealsToInsert = await Promise.all(currentPlate.map(async (item) => {
+        const aiResponse = await fetch("/api/analyze-meal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion }),
+        });
+        
+        const nutrition = await aiResponse.json();
+
+        return {
+          user_id: session.user.id,
+          dish_name: item.dishName,
+          portion_size: item.portion,
+          meal_type: mealType,
+          carbs_g: nutrition.carbs_g,
+          protein_g: nutrition.protein_g,
+          fat_g: nutrition.fat_g,
+          vitamins: nutrition.vitamins,
+          nourish_score: nutrition.nourish_score,
+          logged_at: new Date().toISOString()
+        };
+      }));
+
+      // 3. Save meals to Supabase
+      const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
+      if (mealError) throw mealError;
+
+      // 4. Fetch Profile & Update Stats
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      const pointsJustEarned = currentPlate.length * 10;
+      const newTotalPoints = (profile.points || 0) + pointsJustEarned;
+      const newTotalXP = (profile.total_xp || 0) + pointsJustEarned;
+      
+      let newStreak = profile.current_streak || 0;
+      let newPauseStreak = profile.pause_streak;
+
+      if (isFirstLogToday) {
+        const yesterdayStart = new Date();
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+        yesterdayStart.setHours(0, 0, 0, 0);
+        
+        const { data: yesterdayMeals } = await supabase
+          .from("meals")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .gte("logged_at", yesterdayStart.toISOString())
+          .lt("logged_at", startOfToday.toISOString())
+          .limit(1);
+
+        if (yesterdayMeals && yesterdayMeals.length > 0) {
+          newStreak += 1;
+        } else if (newPauseStreak) {
+          newPauseStreak = false; 
+        } else {
+          newStreak = 1;
+        }
       }
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          points: newTotalPoints,
+          total_xp: newTotalXP,
+          current_streak: newStreak, 
+          pause_streak: newPauseStreak
+        })
+        .eq("id", session.user.id);
+
+      if (!profileError) {
+        setEarnedPoints(pointsJustEarned);
+        setStreakIncreased(isFirstLogToday); 
+        setStreakCount(newStreak); 
+        setShowPointsModal(true);
+      }
+    } catch (err) {
+      console.error("Logging error:", err);
+      setStatus({ type: "error", message: "Error analyzing or saving meals." });
+    } finally {
+      setIsLoading(false);
     }
-
-// 5. Update Profile
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({
-        points: newTotalPoints,
-        total_xp: newTotalXP,
-        current_streak: newStreak, 
-        pause_streak: newPauseStreak
-      })
-      .eq("id", session.user.id);
-
-    // 6. Trigger Modal
-    if (!profileError) {
-      setEarnedPoints(pointsJustEarned);
-      setStreakIncreased(isFirstLogToday); 
-      setStreakCount(newStreak); 
-      setShowPointsModal(true);
-    } else {
-      console.error("Error updating profile:", profileError.message);
-    }
-    
-    setIsLoading(false);
-
   };
 
   return (
@@ -152,7 +157,6 @@ export default function LogMeal() {
       <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-28">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
           
-          {/* LEFT COLUMN: THE PLATE (PREVIEW) */}
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-extrabold text-slate-900">Your Plate</h2>
@@ -186,13 +190,11 @@ export default function LogMeal() {
             )}
           </div>
 
-          {/* RIGHT COLUMN: THE INPUT FORM */}
           <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-10">
             <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Log a Meal</h2>
             <p className="text-slate-500 text-sm mb-8">What did you eat for {mealType}?</p>
 
             <div className="space-y-8">
-              {/* Meal Type Toggle */}
               <div className="bg-slate-100 p-1.5 rounded-2xl flex justify-between items-center">
                 {mealTypes.map((type) => (
                   <button
@@ -208,7 +210,6 @@ export default function LogMeal() {
                 ))}
               </div>
 
-              {/* Food Name Input */}
               <div className="relative">
                 <input
                   type="text"
@@ -219,16 +220,15 @@ export default function LogMeal() {
                 />
               </div>
 
-              {/* Portion Options */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1">Portion Size</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {portionOptions.map((opt) => (
                     <button
                       key={opt}
                       type="button"
                       onClick={() => setPortion(opt)}
-                      className={`py-4 rounded-2xl text-sm font-bold transition-all active:scale-95 ${
+                      className={`py-4 rounded-2xl text-xs font-bold transition-all active:scale-95 ${
                         portion === opt ? "bg-[#2d3748] text-white shadow-md" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                       }`}
                     >
@@ -248,7 +248,6 @@ export default function LogMeal() {
           </div>
         </div>
 
-        {/* Floating Action Bar */}
         <div className="max-w-6xl mx-auto flex justify-end py-10">
           <button
             onClick={handleFinishLogging}
@@ -256,7 +255,7 @@ export default function LogMeal() {
             className="w-full sm:w-auto sm:min-w-[320px] py-4 px-8 rounded-2xl text-base font-bold text-white bg-[#00b252] hover:bg-[#00a049] transition-all shadow-lg shadow-[#00b252]/20 disabled:opacity-50 flex justify-center items-center gap-2"
           >
             {isLoading ? (
-              "Saving..."
+              "AI is analyzing..."
             ) : (
               <>
                 Finish Logging ({currentPlate.length} items)
@@ -267,11 +266,11 @@ export default function LogMeal() {
         </div>
       </div>
 
-        {showPointsModal && (
+      {showPointsModal && (
         <PointsModal 
           points={earnedPoints} 
           streakIncreased={streakIncreased}
-          streakCount={streakCount} // ADD THIS LINE!
+          streakCount={streakCount} 
           onClose={() => router.push("/dashboard")} 
         />
       )}
