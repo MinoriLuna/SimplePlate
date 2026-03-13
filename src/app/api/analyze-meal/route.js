@@ -11,17 +11,23 @@ export async function POST(req) {
     console.log(`Dish: ${dish_name}, Portion: ${portion_size}`);
 
     const prompt = `
-      Analyze this meal: "${dish_name}" with portion size "${portion_size}".
-      Estimate the nutritional values based on standard Malaysian/International food data.
-      Return ONLY a JSON object with these exact keys:
-      {
-        "carbs_g": number,
-        "protein_g": number,
-        "fat_g": number,
-        "vitamins": number (score 0-100 based on micronutrient density),
-        "nourish_score": number (overall healthiness 0-100)
-      }
-    `;
+      Analyze this log: "${dish_name}" with portion size "${portion_size}".
+        
+        PORTION LOGIC:
+        - If "Cup / Glass": Treat as a liquid beverage (250ml-300ml). Focus on sugar/carbs.
+        - If "Small": Treat as a snack or 0.5x standard serving.
+        - If "Normal / Plate": Treat as a standard 1.0x meal serving.
+        - If "Large": Treat as 1.5x to 2.0x serving (e.g., "Tambah Nasi").
+
+        Return ONLY a JSON object with:
+        {
+          "carbs_g": number,
+          "protein_g": number,
+          "fat_g": number,
+          "vitamins": number,
+          "nourish_score": number
+        }
+      `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
