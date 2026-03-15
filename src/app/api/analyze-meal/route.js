@@ -19,13 +19,20 @@ export async function POST(req) {
         - If "Normal / Plate": Treat as a standard 1.0x meal serving.
         - If "Large": Treat as 1.5x to 2.0x serving (e.g., "Tambah Nasi").
 
+        SCORING LOGIC (0-100):
+        - Give a HIGH score (80-100) for lean proteins (steamed/grilled), vegetables, and whole grains.
+        - Give a MEDIUM score (50-79) for standard mixed meals (e.g., Nasi Lemak, Pasta).
+        - Give a LOW score (<50) for deep-fried foods, high sugar drinks, or heavy processed foods.
+        - Important: Do NOT penalize a score just because a single ingredient is missing vitamins (like plain chicken). 
+          If it's a healthy cooking method, score it high.
+
         Return ONLY a JSON object with:
         {
           "carbs_g": number,
           "protein_g": number,
           "fat_g": number,
           "vitamins": number,
-          "nourish_score": number
+          "nourish_score": number (0-100)
         }
       `;
 

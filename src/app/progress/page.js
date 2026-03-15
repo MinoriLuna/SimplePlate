@@ -65,20 +65,20 @@ export default function Progress() {
   ];
 
   // --- LOGIC: MEAL-SPECIFIC INSIGHTS (Why < 50) ---
-  const getQuickInsight = (meal) => {
-    let parts = [];
-    if (meal.protein_g > 22) parts.push("High Protein");
-    else if (meal.protein_g < 8) parts.push("Low Protein");
+ // const getQuickInsight = (meal) => {
+ //   let parts = [];
+ //   if (meal.protein_g > 22) parts.push("High Protein");
+  //  else if (meal.protein_g < 8) parts.push("Low Protein");
 
-    if (meal.nourish_score < 50) {
-      let reasons = [];
-      if (meal.fat_g > 25) reasons.push("high fat");
-      if (meal.carbs_g > 80) reasons.push("excess carbs");
-      if (meal.vitamins < 30) reasons.push("low vitamins");
-      parts.push(`(Reason: ${reasons.join(", ") || "unbalanced"})`);
-    }
-    return parts.join(" • ");
-  };
+  //  if (meal.nourish_score < 50) {
+   //   let reasons = [];
+  //    if (meal.fat_g > 25) reasons.push("high fat");
+  //    if (meal.carbs_g > 80) reasons.push("excess carbs");
+   //   if (meal.vitamins < 30) reasons.push("low vitamins");
+  //    parts.push(`(Reason: ${reasons.join(", ") || "unbalanced"})`);
+  //  }
+  //  return parts.join(" • ");
+ // };
 
   // --- LOGIC: CHART FORMATTING ---
   const chartData = mealsData.reduce((acc, meal) => {
@@ -248,7 +248,7 @@ export default function Progress() {
                            </span>
                         </div>
                         <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">
-                          {getQuickInsight(meal) || "Balanced portion"}
+                          {/* {getQuickInsight(meal) || "Balanced portion"} */}
                         </p>
                       </div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">
