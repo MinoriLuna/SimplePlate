@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function Progress() {
   const router = useRouter();
@@ -81,7 +81,9 @@ export default function Progress() {
  // };
 
   // --- LOGIC: CHART FORMATTING ---
-  const chartData = mealsData.reduce((acc, meal) => {
+const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  
+  const rawChartData = mealsData.reduce((acc, meal) => {
     const day = new Date(meal.logged_at).toLocaleDateString('en-US', { weekday: 'short' });
     const existing = acc.find(d => d.day === day);
     if (existing) {
@@ -91,6 +93,15 @@ export default function Progress() {
     }
     return acc;
   }, []);
+
+  // Map through the full week to ensure all days are present
+  const chartData = daysOfWeek.map(dayName => {
+    const dayData = rawChartData.find(d => d.day === dayName);
+    return {
+      day: dayName,
+      score: dayData ? dayData.score : 0 // Placeholder score is 0
+    };
+  });
 
   const handleGenerateInsight = async () => {
     if (mealsData.length === 0) return;
@@ -225,12 +236,13 @@ export default function Progress() {
                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-10">Nourish Trend</h3>
                 <div className="h-[250px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
+                    <BarChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: '900'}} dy={15} />
-                      <Tooltip contentStyle={{borderRadius: '20px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                      <Line type="monotone" dataKey="score" stroke="#10b80a" strokeWidth={4} dot={{ r: 4, fill: '#10b80a', strokeWidth: 0 }} />
-                    </LineChart>
+                      <YAxis hide domain={[0, 100]} />
+                      <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '20px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                      <Bar dataKey="score" fill="#119c4be0" radius={[10, 10, 0, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
