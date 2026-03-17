@@ -118,7 +118,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800">
       <div className="py-10 flex"> </div>
-      
       <div className="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-10">
         
         {/* WELCOME HEADER */}
@@ -148,13 +147,14 @@ export default function Dashboard() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          
+
           {/* LEFT COLUMN: TODAY'S LOG */}
           <div className="lg:col-span-7 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col h-[472px]">
             <div className="p-8 pb-4 border-b border-slate-50">
               <h2 className="text-2xl font-bold text-slate-800">Today's Log</h2>
             </div>
             
+            {/* MEAL LOG LIST */}
             <div className="flex-grow overflow-y-auto custom-scrollbar p-8 pt-4 space-y-4">
               {todayMeals.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
@@ -215,6 +215,7 @@ export default function Dashboard() {
               </div>
             </div>
 
+             {/* ACTION BUTTONS */}   
             <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-3">
               <Link href="/logmeals" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-4 rounded-2xl transition-all hover:shadow-lg active:scale-95">
                 Log New Meal

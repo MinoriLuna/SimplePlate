@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// 1. Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Progress() {
   const router = useRouter();
@@ -54,9 +56,7 @@ export default function Progress() {
     fetchWeeklyProgress();
   }, [router]);
 
-  // --- LOGIC: NUTRIENT COMPOSITION (Relative to total grams) ---
   const totalGrams = (weeklyTotals.carbs + weeklyTotals.protein + weeklyTotals.fat + weeklyTotals.vitamins) || 1;
-  
   const nutrientBalance = [
     { name: "Carbs", pct: ((weeklyTotals.carbs / totalGrams) * 100).toFixed(0), col: "bg-blue-500" },
     { name: "Protein", pct: ((weeklyTotals.protein / totalGrams) * 100).toFixed(0), col: "bg-indigo-600" },
@@ -64,25 +64,7 @@ export default function Progress() {
     { name: "Vitamins", pct: ((weeklyTotals.vitamins / totalGrams) * 100).toFixed(0), col: "bg-green-500" },
   ];
 
-  // --- LOGIC: MEAL-SPECIFIC INSIGHTS (Why < 50) ---
- // const getQuickInsight = (meal) => {
- //   let parts = [];
- //   if (meal.protein_g > 22) parts.push("High Protein");
-  //  else if (meal.protein_g < 8) parts.push("Low Protein");
-
-  //  if (meal.nourish_score < 50) {
-   //   let reasons = [];
-  //    if (meal.fat_g > 25) reasons.push("high fat");
-  //    if (meal.carbs_g > 80) reasons.push("excess carbs");
-   //   if (meal.vitamins < 30) reasons.push("low vitamins");
-  //    parts.push(`(Reason: ${reasons.join(", ") || "unbalanced"})`);
-  //  }
-  //  return parts.join(" • ");
- // };
-
-  // --- LOGIC: CHART FORMATTING ---
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const rawChartData = mealsData.reduce((acc, meal) => {
     const day = new Date(meal.logged_at).toLocaleDateString('en-US', { weekday: 'short' });
     const existing = acc.find(d => d.day === day);
@@ -94,13 +76,9 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return acc;
   }, []);
 
-  // Map through the full week to ensure all days are present
   const chartData = daysOfWeek.map(dayName => {
     const dayData = rawChartData.find(d => d.day === dayName);
-    return {
-      day: dayName,
-      score: dayData ? dayData.score : 0 // Placeholder score is 0
-    };
+    return { day: dayName, score: dayData ? dayData.score : 0 };
   });
 
   const handleGenerateInsight = async () => {
@@ -125,10 +103,13 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
             
-            {/* LEFT COLUMN */}
-            <div className="lg:col-span-5 space-y-6">
-              
-              {/* Rank Status Card */}
+            {/* LEFT COLUMN: ANIMATED ENTRANCE */}
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-5 space-y-6"
+            >
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-3">
@@ -139,7 +120,12 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-tighter">{profile.total_xp} Total XP</span>
                   </div>
                   <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-100 shadow-inner">
-                    <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000" style={{ width: `${(profile.total_xp || 0) % 100}%` }} />
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(profile.total_xp || 0) % 100}%` }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-600"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -154,10 +140,11 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                 </div>
               </div>
 
-              {/* Weekly Overview - Nutrients Composition */}
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowDetails(!showDetails)}
-                className="w-full text-left bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 transition-all hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
+                className="w-full text-left bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 transition-all"
               >
                 <div className="flex justify-between items-start mb-6">
                   <div>
@@ -176,16 +163,26 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                         <span className="text-xs font-black text-slate-900">{stat.pct}%</span>
                       </div>
                       <div className="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                        <div className={`h-full ${stat.col} rounded-full transition-all duration-1000`} style={{ width: `${stat.pct}%` }} />
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${stat.pct}%` }}
+                          transition={{ duration: 1, delay: 0.3 + index * 0.1 }}
+                          className={`h-full ${stat.col} rounded-full`}
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
-            {/* RIGHT COLUMN: AI INSIGHTS */}
-            <div className="lg:col-span-7">
+            {/* RIGHT COLUMN: ANIMATED ENTRANCE */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="lg:col-span-7"
+            >
               <div className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-sm border border-slate-100 h-full">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-xl">✨</div>
@@ -205,7 +202,11 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                       </button>
                     </div>
                   ) : (
-                    <>
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="space-y-4"
+                    >
                       <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex gap-4">
                         <span className="text-xl">💡</span>
                         <div>
@@ -222,56 +223,67 @@ const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                         </div>
                       )}
                       <button onClick={() => setAiInsight(null)} className="mt-4 text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-400">Clear & Re-analyze</button>
-                    </>
+                    </motion.div>
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* EXPANDED SECTION */}
-          {showDetails && (
-            <div className="mt-10 space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-10">Nourish Trend</h3>
-                <div className="h-[250px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: '900'}} dy={15} />
-                      <YAxis hide domain={[0, 100]} />
-                      <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '20px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                      <Bar dataKey="score" fill="#119c4be0" radius={[10, 10, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+          {/* EXPANDED SECTION: SMOOTH SLIDE DOWN */}
+          <AnimatePresence>
+            {showDetails && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -20, height: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="mt-10 space-y-8 overflow-hidden"
+              >
+                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight mb-10">Nourish Trend</h3>
+                  <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: '900'}} dy={15} />
+                        <YAxis hide domain={[0, 100]} />
+                        <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '20px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                        <Bar dataKey="score" fill="#119c4be0" radius={[10, 10, 0, 0]} barSize={32} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
 
-              <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-8">Weekly Breakdown</h3>
-                <div className="space-y-4">
-                  {mealsData.map((meal, i) => (
-                    <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4">
-                      <div>
-                        <div className="flex items-center gap-3">
-                           <p className="font-black text-slate-900">{meal.dish_name}</p>
-                           <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase ${meal.nourish_score < 50 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
-                             Score: {meal.nourish_score}
-                           </span>
+                <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight mb-8">Weekly Breakdown</h3>
+                  <div className="space-y-4">
+                    {mealsData.map((meal, i) => (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        key={i} 
+                        className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4"
+                      >
+                        <div>
+                          <div className="flex items-center gap-3">
+                             <p className="font-black text-slate-900">{meal.dish_name}</p>
+                             <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase ${meal.nourish_score < 50 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                               Score: {meal.nourish_score}
+                             </span>
+                          </div>
                         </div>
-                        <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">
-                          {/* {getQuickInsight(meal) || "Balanced portion"} */}
+                        <p className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">
+                          {new Date(meal.logged_at).toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric' })}
                         </p>
-                      </div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">
-                        {new Date(meal.logged_at).toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric' })}
-                      </p>
-                    </div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
