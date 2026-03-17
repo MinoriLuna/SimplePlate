@@ -31,7 +31,7 @@ export default function LogMeal() {
     if (!file) return;
 
     setIsVisionLoading(true);
-    const reader = new FileReader();
+    const reader = new FileReader(); //Turning into base64 text
     reader.onloadend = async () => {
       try {
         const res = await fetch("/api/analyze-vision", {
