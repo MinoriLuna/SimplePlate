@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-// 1. Import Framer Motion
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Progress() {
@@ -56,6 +55,7 @@ export default function Progress() {
     fetchWeeklyProgress();
   }, [router]);
 
+  // --- LOGIC: NUTRIENT COMPOSITION ---
   const totalGrams = (weeklyTotals.carbs + weeklyTotals.protein + weeklyTotals.fat + weeklyTotals.vitamins) || 1;
   const nutrientBalance = [
     { name: "Carbs", pct: ((weeklyTotals.carbs / totalGrams) * 100).toFixed(0), col: "bg-blue-500" },
@@ -64,14 +64,27 @@ export default function Progress() {
     { name: "Vitamins", pct: ((weeklyTotals.vitamins / totalGrams) * 100).toFixed(0), col: "bg-green-500" },
   ];
 
+  // --- LOGIC: CHART FORMATTING (Filtered for Water/Score 0) ---
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  
   const rawChartData = mealsData.reduce((acc, meal) => {
+    // 1. Skip neutral items (score 0) for the average calculation
+    if ((meal.nourish_score || 0) === 0) return acc;
+
     const day = new Date(meal.logged_at).toLocaleDateString('en-US', { weekday: 'short' });
     const existing = acc.find(d => d.day === day);
+
     if (existing) {
-      existing.score = Math.round((existing.score + (meal.nourish_score || 0)) / 2);
+      existing.sum += meal.nourish_score;
+      existing.count += 1;
+      existing.score = Math.round(existing.sum / existing.count);
     } else {
-      acc.push({ day, score: meal.nourish_score || 0 });
+      acc.push({ 
+        day, 
+        score: meal.nourish_score, 
+        sum: meal.nourish_score, 
+        count: 1 
+      });
     }
     return acc;
   }, []);
@@ -103,7 +116,6 @@ export default function Progress() {
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
             
-            {/* LEFT COLUMN: ANIMATED ENTRANCE */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -176,7 +188,6 @@ export default function Progress() {
               </motion.button>
             </motion.div>
 
-            {/* RIGHT COLUMN: ANIMATED ENTRANCE */}
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -202,11 +213,7 @@ export default function Progress() {
                       </button>
                     </div>
                   ) : (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-4"
-                    >
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
                       <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex gap-4">
                         <span className="text-xl">💡</span>
                         <div>
@@ -230,7 +237,6 @@ export default function Progress() {
             </motion.div>
           </div>
 
-          {/* EXPANDED SECTION: SMOOTH SLIDE DOWN */}
           <AnimatePresence>
             {showDetails && (
               <motion.div 
@@ -266,13 +272,11 @@ export default function Progress() {
                         key={i} 
                         className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4"
                       >
-                        <div>
-                          <div className="flex items-center gap-3">
-                             <p className="font-black text-slate-900">{meal.dish_name}</p>
-                             <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase ${meal.nourish_score < 50 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
-                               Score: {meal.nourish_score}
-                             </span>
-                          </div>
+                        <div className="flex items-center gap-3">
+                           <p className="font-black text-slate-900">{meal.dish_name}</p>
+                           <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase ${meal.nourish_score === 0 ? 'bg-slate-100 text-slate-400' : meal.nourish_score < 50 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                             {meal.nourish_score === 0 ? 'Neutral' : `Score: ${meal.nourish_score}`}
+                           </span>
                         </div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase whitespace-nowrap">
                           {new Date(meal.logged_at).toLocaleDateString('en-MY', { weekday: 'short', day: 'numeric' })}

@@ -30,66 +30,77 @@ export default function Dashboard() {
         return;
       }
 
-      // 1. Fetch Profile Data
-      const { data: userData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
+      try {
+        // 1. Fetch Profile Data
+        const { data: userData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
 
-      if (userData) {
-        setProfile({
-          name: userData.name || "Unnamed User",
-          username: userData.username || "",
-          points: userData.points || 0,
-          current_streak: userData.current_streak || 0,
-          pause_streak: userData.pause_streak || false,
-          display_numbers: userData.display_numbers || false,
-          total_xp: userData.total_xp || 0,
-        });
+        if (userData) {
+          setProfile({
+            name: userData.name || "Unnamed User",
+            username: userData.username || "",
+            points: userData.points || 0,
+            current_streak: userData.current_streak || 0,
+            pause_streak: userData.pause_streak || false,
+            display_numbers: userData.display_numbers || false,
+            total_xp: userData.total_xp || 0,
+          });
+        }
+
+        // 2. Fetch Today's Meals (For the Log List)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const { data: mealsData } = await supabase
+          .from("meals")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .gte("logged_at", startOfDay.toISOString())
+          .order("logged_at", { ascending: true });
+
+        if (mealsData) setTodayMeals(mealsData);
+
+        // 3. Fetch Weekly Meals (Monday to Sunday)
+        const now = new Date();
+        const dayOfWeek = now.getDay(); 
+        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        const startOfWeek = new Date(now.setDate(diff));
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const { data: weeklyData } = await supabase
+          .from("meals")
+          .select("nourish_score")
+          .eq("user_id", session.user.id)
+          .gte("logged_at", startOfWeek.toISOString());
+
+        if (weeklyData && weeklyData.length > 0) {
+          // FILTER OUT WATER/NEUTRAL (Score 0)
+          const scoredMeals = weeklyData.filter(m => (m.nourish_score || 0) > 0);
+
+          if (scoredMeals.length > 0) {
+            const total = scoredMeals.reduce((acc, m) => acc + (m.nourish_score || 0), 0);
+            const avg = Math.round(total / scoredMeals.length);
+            setWeeklyAvgScore(avg);
+            setWeeklyMealCount(scoredMeals.length); 
+          } else {
+            setWeeklyAvgScore(0);
+            setWeeklyMealCount(0);
+          }
+        }
+      } catch (err) {
+        console.error("Dashboard error:", err);
+      } finally {
+        setIsLoading(false);
       }
-
-      // 2. Fetch Today's Meals (For the Log List)
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const { data: mealsData } = await supabase
-        .from("meals")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .gte("logged_at", startOfDay.toISOString())
-        .order("logged_at", { ascending: true });
-
-      if (mealsData) {
-        setTodayMeals(mealsData);
-      }
-
-      // 3. Fetch Weekly Meals (For the Weekly Score Card)
-      const now = new Date();
-      const dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday
-      const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-      const startOfWeek = new Date(now.setDate(diff));
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const { data: weeklyData } = await supabase
-        .from("meals")
-        .select("nourish_score")
-        .eq("user_id", session.user.id)
-        .gte("logged_at", startOfWeek.toISOString());
-
-      if (weeklyData && weeklyData.length > 0) {
-        const avg = Math.round(weeklyData.reduce((acc, m) => acc + (m.nourish_score || 0), 0) / weeklyData.length);
-        setWeeklyAvgScore(avg);
-        setWeeklyMealCount(weeklyData.length);
-      }
-      
-      setIsLoading(false);
     };
 
     fetchDashboardData();
   }, [router]);
 
-  // Nourish Score Logic
+  // --- HELPERS ---
   const getNourishStatus = (score) => {
     if (weeklyMealCount === 0) return { label: "No Logs", color: "text-slate-300", bg: "bg-slate-50" };
     if (score < 25) return { label: "Bad", color: "text-red-500", bg: "bg-red-50" };
@@ -113,7 +124,7 @@ export default function Dashboard() {
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const xpInCurrentLevel = (profile.total_xp || 0) % 100;
 
-  if (isLoading) return <div className="p-10 text-center font-bold text-slate-500">Loading Dashboard...</div>;
+  if (isLoading) return <div className="p-10 text-center font-bold text-slate-500 uppercase tracking-widest text-xs">Loading Dashboard...</div>;
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800">
@@ -131,8 +142,8 @@ export default function Dashboard() {
         </div>
         
         {/* Level Progress */}
-        <Link href="/progress" className="block transition-transform hover:scale-[1.01] active:scale-[0.99]">
           <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+            <Link href="/progress" className="block transition-transform hover:scale-[1.01] active:scale-[0.99]">
             <div className="flex justify-between items-center mb-2 px-1">
               <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
               <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
@@ -143,8 +154,9 @@ export default function Dashboard() {
                 style={{ width: `${xpInCurrentLevel}%` }}
               />
             </div>
+            </Link>
           </div>
-        </Link>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
