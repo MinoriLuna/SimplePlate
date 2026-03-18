@@ -31,26 +31,34 @@ export default function Dashboard() {
       }
 
       try {
-        // 1. Fetch Profile Data
-        const { data: userData } = await supabase
+        // 1. Fetch Profile + Joined Stats + Joined Settings
+        const { data: userData, error: userError } = await supabase
           .from("profiles")
-          .select("*")
+          .select(`
+            name, 
+            username, 
+            user_stats (points, current_streak, pause_streak, total_xp),
+            user_settings (display_numbers)
+          `)
           .eq("id", session.user.id)
           .single();
+
+        if (userError) throw userError;
 
         if (userData) {
           setProfile({
             name: userData.name || "Unnamed User",
             username: userData.username || "",
-            points: userData.points || 0,
-            current_streak: userData.current_streak || 0,
-            pause_streak: userData.pause_streak || false,
-            display_numbers: userData.display_numbers || false,
-            total_xp: userData.total_xp || 0,
+            // Mapping from nested join objects back to our flat state
+            points: userData.user_stats?.points || 0,
+            current_streak: userData.user_stats?.current_streak || 0,
+            pause_streak: userData.user_stats?.pause_streak || false,
+            total_xp: userData.user_stats?.total_xp || 0,
+            display_numbers: userData.user_settings?.display_numbers || false,
           });
         }
 
-        // 2. Fetch Today's Meals (For the Log List)
+        // 2. Fetch Today's Meals (No changes needed here)
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -142,20 +150,20 @@ export default function Dashboard() {
         </div>
         
         {/* Level Progress */}
-          <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
-            <Link href="/progress" className="block transition-transform hover:scale-[1.01] active:scale-[0.99]">
-            <div className="flex justify-between items-center mb-2 px-1">
-              <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-              <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
-            </div>
-            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
-                style={{ width: `${xpInCurrentLevel}%` }}
-              />
-            </div>
-            </Link>
+        <div className="max-w-md mx-auto mb-10 bg-white p-4 rounded-3xl shadow-sm border border-slate-100">
+          <Link href="/progress" className="block transition-transform hover:scale-[1.01] active:scale-[0.99]">
+          <div className="flex justify-between items-center mb-2 px-1">
+            <span className="text-sm font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+            <span className="text-xs font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
           </div>
+          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
+              style={{ width: `${xpInCurrentLevel}%` }}
+            />
+          </div>
+          </Link>
+        </div>
 
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
@@ -166,7 +174,6 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-slate-800">Today's Log</h2>
             </div>
             
-            {/* MEAL LOG LIST */}
             <div className="flex-grow overflow-y-auto custom-scrollbar p-8 pt-4 space-y-4">
               {todayMeals.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
@@ -227,7 +234,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-             {/* ACTION BUTTONS */}   
             <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col gap-3">
               <Link href="/logmeals" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-4 rounded-2xl transition-all hover:shadow-lg active:scale-95">
                 Log New Meal

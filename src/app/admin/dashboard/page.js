@@ -1,20 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabaseClient";
-import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
   
-  // Auth State
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-
-  // Data State
   const [users, setUsers] = useState([]);
-  const [editingUser, setEditingUser] = useState(null); // Holds the user we are currently editing
+  const [editingUser, setEditingUser] = useState(null); 
   const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
@@ -26,7 +22,6 @@ export default function AdminDashboard() {
         return;
       }
 
-      // 1. Check if the current user is an admin
       const { data: profile } = await supabase
         .from("profiles")
         .select("is_admin")
@@ -35,7 +30,6 @@ export default function AdminDashboard() {
 
       if (profile && profile.is_admin) {
         setIsAdmin(true);
-        // 2. Since they are an admin, fetch ALL users!
         fetchUsers();
       } else {
         router.push("/dashboard");
@@ -47,10 +41,11 @@ export default function AdminDashboard() {
 
   const fetchUsers = async () => {
     setIsLoading(true);
+    // FETCH: Profiles joined with User Stats
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false }); // Newest users first
+      .select("*, user_stats(*)")
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       setUsers(data);
@@ -62,33 +57,45 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMessage({ text: "Updating user...", type: "loading" });
 
-    // Send the updated data to the profiles table
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        username: editingUser.username,
-        points: parseInt(editingUser.points) || 0,
-        current_streak: parseInt(editingUser.current_streak) || 0,
-        is_admin: editingUser.is_admin
-      })
-      .eq("id", editingUser.id); // Update the specific user by their ID
+    try {
+      // 1. Update Profiles Table (Username & Admin Status)
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({
+          username: editingUser.username,
+          is_admin: editingUser.is_admin
+        })
+        .eq("id", editingUser.id);
 
-    if (error) {
-      setMessage({ text: `Error: ${error.message}`, type: "error" });
-    } else {
+      if (profileErr) throw profileErr;
+
+      // 2. Update User Stats Table (Points & Streak)
+      const { error: statsErr } = await supabase
+        .from("user_stats")
+        .update({
+          points: parseInt(editingUser.user_stats.points) || 0,
+          current_streak: parseInt(editingUser.user_stats.current_streak) || 0,
+          total_xp: parseInt(editingUser.user_stats.total_xp) || 0
+        })
+        .eq("id", editingUser.id);
+
+      if (statsErr) throw statsErr;
+
       setMessage({ text: "User updated successfully!", type: "success" });
       setEditingUser(null); 
       fetchUsers(); 
       setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+    } catch (error) {
+      setMessage({ text: `Error: ${error.message}`, type: "error" });
     }
   };
 
-  if (isLoading && !users.length) return <div className="p-10 text-center font-bold text-slate-500">Loading Admin Portal...</div>;
+  if (isLoading && !users.length) return <div className="p-10 text-center font-bold text-slate-500 uppercase tracking-widest text-xs">Loading Admin Portal...</div>;
   if (!isAdmin) return null;
 
   return (
-  <div className="bg-white flex min-h-screen py-30">  
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 font-sans">
+  <div className="bg-white flex min-h-screen pt-20">  
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 font-sans w-full">
       
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -106,7 +113,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* --- IF EDITING A USER, SHOW THIS FORM --- */}
+      {/* EDITING FORM */}
       {editingUser ? (
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 animate-in slide-in-from-bottom-4">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
@@ -116,18 +123,23 @@ export default function AdminDashboard() {
 
           <form onSubmit={handleUpdateUser} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs text-black font-bold text-slate-500 uppercase tracking-wider mb-2">Username</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Username</label>
               <input type="text" value={editingUser.username || ""} onChange={(e) => setEditingUser({...editingUser, username: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
             </div>
             
             <div>
-              <label className="block text-xs text-black font-bold text-slate-500 uppercase tracking-wider mb-2">Points</label>
-              <input type="number" value={editingUser.points || 0} onChange={(e) => setEditingUser({...editingUser, points: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Points</label>
+              <input type="number" value={editingUser.user_stats?.points || 0} onChange={(e) => setEditingUser({...editingUser, user_stats: {...editingUser.user_stats, points: e.target.value}})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
             </div>
 
             <div>
-              <label className="block text-xs text-black font-bold text-slate-500 uppercase tracking-wider mb-2">Current Streak</label>
-              <input type="number" value={editingUser.current_streak || 0} onChange={(e) => setEditingUser({...editingUser, current_streak: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Current Streak</label>
+              <input type="number" value={editingUser.user_stats?.current_streak || 0} onChange={(e) => setEditingUser({...editingUser, user_stats: {...editingUser.user_stats, current_streak: e.target.value}})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
+            </div>
+
+             <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">XP</label>
+              <input type="number" value={editingUser.user_stats?.total_xp || 0} onChange={(e) => setEditingUser({...editingUser, user_stats: {...editingUser.user_stats, total_xp: e.target.value}})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-black outline-none focus:ring-2 focus:ring-[#00b252]/50" />
             </div>
 
             <div className="flex items-center mt-6">
@@ -137,7 +149,7 @@ export default function AdminDashboard() {
               </label>
             </div>
 
-            <div className="grid grid-col-1 md:col-span-2 pt-4 flex-col gap-2">
+            <div className="md:col-span-2 pt-4">
               <button type="submit" className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-md">
                 Save Changes
               </button>
@@ -145,8 +157,7 @@ export default function AdminDashboard() {
           </form>
         </div>
       ) : (
-
-        /* --- IF NOT EDITING, SHOW THE USERS TABLE --- */
+        /* USERS TABLE */
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -156,6 +167,7 @@ export default function AdminDashboard() {
                   <th className="p-4">Email</th>
                   <th className="p-4 text-center">Points</th>
                   <th className="p-4 text-center">Streak</th>
+                  <th className="p-4 text-center">XP</th>
                   <th className="p-4 text-center">Role</th>
                   <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
@@ -165,8 +177,9 @@ export default function AdminDashboard() {
                   <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-4 pl-6 font-bold text-slate-800">{u.username || "No Name"}</td>
                     <td className="p-4 text-sm text-slate-500">{u.email}</td>
-                    <td className="p-4 text-center font-bold text-blue-600">{u.points}</td>
-                    <td className="p-4 text-center font-bold text-orange-500">{u.current_streak}</td>
+                    <td className="p-4 text-center font-bold text-blue-600">{u.user_stats?.points || 0}</td>
+                    <td className="p-4 text-center font-bold text-orange-500">{u.user_stats?.current_streak || 0}</td>
+                    <td className="p-4 text-center font-bold text-emerald-500">{u.user_stats?.total_xp || 0}</td>
                     <td className="p-4 text-center">
                       {u.is_admin ? (
                         <span className="bg-purple-100 text-purple-700 text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-1 rounded-full">Admin</span>
@@ -175,28 +188,18 @@ export default function AdminDashboard() {
                       )}
                     </td>
                     <td className="p-4 pr-6 text-right">
-                      <button 
-                        onClick={() => setEditingUser(u)}
-                        className="text-xs font-bold bg-white border border-slate-200 px-4 py-2 rounded-xl text-slate-600 hover:text-[#00b252] hover:border-[#00b252]/30 hover:bg-green-50 transition-all shadow-sm"
-                      >
+                      <button onClick={() => setEditingUser(u)} className="text-xs font-bold bg-white border border-slate-200 px-4 py-2 rounded-xl text-slate-600 hover:text-[#00b252] transition-all shadow-sm">
                         Edit
                       </button>
                     </td>
                   </tr>
                 ))}
-                
-                {users.length === 0 && (
-                  <tr>
-                    <td colSpan="6" className="p-8 text-center text-slate-500 font-medium">No users found.</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         </div>
       )}
-
     </div>
-    </div>
+  </div>
   );
 }

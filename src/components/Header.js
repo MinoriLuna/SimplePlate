@@ -19,16 +19,19 @@ export default function Header() {
       setUser(session?.user || null);
 
       if (session?.user) {
-        const { data: profile, error } = await supabase
+const { data: profile, error } = await supabase
           .from("profiles")
-          .select("points, current_streak, username")
+          .select(`
+            username,
+            user_stats (points, current_streak)
+          `)
           .eq("id", session.user.id)
           .single();
 
         if (profile && !error) {
           setStats({ 
-            points: profile.points, 
-            streak: profile.current_streak,
+            points: profile.user_stats?.points,
+            streak: profile.user_stats?.current_streak,
             username: profile.username
           });
         }

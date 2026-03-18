@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient"; // Added your Supabase client
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Settings() {
   const router = useRouter();
@@ -11,13 +11,12 @@ export default function Settings() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState("Female");
-  
   const [displayNumbers, setDisplayNumbers] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
-  // 1. Fetch user data when the page loads
+  // 1. Fetch user data with the NEW JOIN structure
   useEffect(() => {
     const fetchUserData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -28,22 +27,31 @@ export default function Settings() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          name, 
+          username, 
+          gender, 
+          user_settings (display_numbers)
+        `)
         .eq("id", session.user.id)
         .single();
 
       if (profile) {
-        if (profile.name) setName(profile.name);
-        if (profile.username) setUsername(profile.username);
-        if (profile.gender) setGender(profile.gender);
-        if (profile.display_numbers !== null) setDisplayNumbers(profile.display_numbers);
+        setName(profile.name || "");
+        setUsername(profile.username || "");
+        setGender(profile.gender || "Female");
+        
+        // Access nested settings data
+        if (profile.user_settings) {
+          setDisplayNumbers(profile.user_settings.display_numbers);
+        }
       }
     };
     
     fetchUserData();
   }, [router]);
 
-  // 2. The real update function
+  // 2. Updated multi-table update function
   const handleUpdate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -52,34 +60,46 @@ export default function Settings() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
-    // Update the public profile data
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({
-        name: name,
-        username: username,
-        gender: gender,
-        display_numbers: displayNumbers
-      })
-      .eq("id", session.user.id);
+    try {
+      // Update Table 1: Profiles (Identity)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          name: name,
+          username: username,
+          gender: gender,
+        })
+        .eq("id", session.user.id);
 
-    // If they typed a new password, update it in the secure auth vault
-    if (password) {
-      const { error: passwordError } = await supabase.auth.updateUser({
-        password: password
-      });
-      // Clear the password field after saving so it doesn't just sit there
-      setPassword(""); 
-    }
+      if (profileError) throw profileError;
 
-    if (profileError) {
-      setSuccessMsg(`Error: ${profileError.message}`);
-    } else {
-      setSuccessMsg("Profile updated successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000); // Hide message after 3 seconds
+      // Update Table 2: User Settings (Preferences)
+      const { error: settingsError } = await supabase
+        .from("user_settings")
+        .update({
+          display_numbers: displayNumbers
+        })
+        .eq("id", session.user.id);
+
+      if (settingsError) throw settingsError;
+
+      // Secure Auth update if password changed
+      if (password) {
+        const { error: passwordError } = await supabase.auth.updateUser({
+          password: password
+        });
+        if (passwordError) throw passwordError;
+        setPassword(""); 
+      }
+
+      setSuccessMsg("Settings updated successfully!");
+      setTimeout(() => setSuccessMsg(""), 3000);
+      
+    } catch (err) {
+      setSuccessMsg(`Error: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   // --- YOUR EXACT LAYOUT BELOW (NO CHANGES) ---

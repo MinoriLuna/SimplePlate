@@ -30,16 +30,30 @@ export default function Progress() {
       const startOfWeek = new Date(now.setDate(diff));
       startOfWeek.setHours(0, 0, 0, 0);
 
+      // --- UPDATED JOIN QUERY FOR USER STATS ---
       const [mealsRes, profileRes] = await Promise.all([
         supabase.from("meals")
           .select("*")
           .eq("user_id", session.user.id)
           .gte("logged_at", startOfWeek.toISOString())
           .order('logged_at', { ascending: true }),
-        supabase.from("profiles").select("*").eq("id", session.user.id).single()
+        supabase.from("profiles")
+          .select(`
+            id,
+            user_stats (total_xp, points, current_streak)
+          `)
+          .eq("id", session.user.id)
+          .single()
       ]);
 
-      if (profileRes.data) setProfile(profileRes.data);
+      if (profileRes.data) {
+        setProfile({
+          total_xp: profileRes.data.user_stats?.total_xp || 0,
+          points: profileRes.data.user_stats?.points || 0,
+          current_streak: profileRes.data.user_stats?.current_streak || 0,
+        });
+      }
+
       if (mealsRes.data) {
         setMealsData(mealsRes.data);
         const totals = mealsRes.data.reduce((acc, meal) => ({
@@ -55,7 +69,6 @@ export default function Progress() {
     fetchWeeklyProgress();
   }, [router]);
 
-  // --- LOGIC: NUTRIENT COMPOSITION ---
   const totalGrams = (weeklyTotals.carbs + weeklyTotals.protein + weeklyTotals.fat + weeklyTotals.vitamins) || 1;
   const nutrientBalance = [
     { name: "Carbs", pct: ((weeklyTotals.carbs / totalGrams) * 100).toFixed(0), col: "bg-blue-500" },
@@ -64,27 +77,17 @@ export default function Progress() {
     { name: "Vitamins", pct: ((weeklyTotals.vitamins / totalGrams) * 100).toFixed(0), col: "bg-green-500" },
   ];
 
-  // --- LOGIC: CHART FORMATTING (Filtered for Water/Score 0) ---
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  
   const rawChartData = mealsData.reduce((acc, meal) => {
-    // 1. Skip neutral items (score 0) for the average calculation
     if ((meal.nourish_score || 0) === 0) return acc;
-
     const day = new Date(meal.logged_at).toLocaleDateString('en-US', { weekday: 'short' });
     const existing = acc.find(d => d.day === day);
-
     if (existing) {
       existing.sum += meal.nourish_score;
       existing.count += 1;
       existing.score = Math.round(existing.sum / existing.count);
     } else {
-      acc.push({ 
-        day, 
-        score: meal.nourish_score, 
-        sum: meal.nourish_score, 
-        count: 1 
-      });
+      acc.push({ day, score: meal.nourish_score, sum: meal.nourish_score, count: 1 });
     }
     return acc;
   }, []);
@@ -116,12 +119,8 @@ export default function Progress() {
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
             
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-5 space-y-6"
-            >
+            {/* LEFT COLUMN: ANIMATED ENTRANCE */}
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-3">
@@ -132,12 +131,7 @@ export default function Progress() {
                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-tighter">{profile.total_xp} Total XP</span>
                   </div>
                   <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-100 shadow-inner">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(profile.total_xp || 0) % 100}%` }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-600"
-                    />
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${(profile.total_xp || 0) % 100}%` }} transition={{ duration: 1.5, ease: "easeOut" }} className="h-full bg-gradient-to-r from-blue-500 to-indigo-600" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -152,12 +146,7 @@ export default function Progress() {
                 </div>
               </div>
 
-              <motion.button 
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowDetails(!showDetails)}
-                className="w-full text-left bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 transition-all"
-              >
+              <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} onClick={() => setShowDetails(!showDetails)} className="w-full text-left bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 transition-all">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <h3 className="text-lg font-black text-slate-900 tracking-tight">Weekly Balance</h3>
@@ -175,12 +164,7 @@ export default function Progress() {
                         <span className="text-xs font-black text-slate-900">{stat.pct}%</span>
                       </div>
                       <div className="w-full h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${stat.pct}%` }}
-                          transition={{ duration: 1, delay: 0.3 + index * 0.1 }}
-                          className={`h-full ${stat.col} rounded-full`}
-                        />
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${stat.pct}%` }} transition={{ duration: 1, delay: 0.3 + index * 0.1 }} className={`h-full ${stat.col} rounded-full`} />
                       </div>
                     </div>
                   ))}
@@ -188,12 +172,8 @@ export default function Progress() {
               </motion.button>
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="lg:col-span-7"
-            >
+            {/* RIGHT COLUMN: ANIMATED ENTRANCE */}
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-7">
               <div className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-sm border border-slate-100 h-full">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-xl">✨</div>
@@ -204,11 +184,7 @@ export default function Progress() {
                   {!aiInsight ? (
                     <div className="py-12 text-center border-2 border-dashed border-slate-100 rounded-[2rem] bg-slate-50">
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Analyze your {mealsData.length} logs this week</p>
-                      <button 
-                        onClick={handleGenerateInsight}
-                        disabled={isAiLoading || mealsData.length === 0}
-                        className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-lg active:scale-95 disabled:opacity-50"
-                      >
+                      <button onClick={handleGenerateInsight} disabled={isAiLoading || mealsData.length === 0} className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-lg active:scale-95 disabled:opacity-50">
                         {isAiLoading ? "Consulting..." : "Generate Analysis"}
                       </button>
                     </div>
@@ -239,13 +215,7 @@ export default function Progress() {
 
           <AnimatePresence>
             {showDetails && (
-              <motion.div 
-                initial={{ opacity: 0, y: -20, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: "auto" }}
-                exit={{ opacity: 0, y: -20, height: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="mt-10 space-y-8 overflow-hidden"
-              >
+              <motion.div initial={{ opacity: 0, y: -20, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -20, height: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} className="mt-10 space-y-8 overflow-hidden">
                 <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
                   <h3 className="text-xl font-black text-slate-900 tracking-tight mb-10">Nourish Trend</h3>
                   <div className="h-[250px] w-full">
@@ -265,13 +235,7 @@ export default function Progress() {
                   <h3 className="text-xl font-black text-slate-900 tracking-tight mb-8">Weekly Breakdown</h3>
                   <div className="space-y-4">
                     {mealsData.map((meal, i) => (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        key={i} 
-                        className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4"
-                      >
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} key={i} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100 gap-4">
                         <div className="flex items-center gap-3">
                            <p className="font-black text-slate-900">{meal.dish_name}</p>
                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-md uppercase ${meal.nourish_score === 0 ? 'bg-slate-100 text-slate-400' : meal.nourish_score < 50 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>

@@ -31,7 +31,7 @@ export default function LogMeal() {
     if (!file) return;
 
     setIsVisionLoading(true);
-    const reader = new FileReader(); //Turning into base64 text
+    const reader = new FileReader();
     reader.onloadend = async () => {
       try {
         const res = await fetch("/api/analyze-vision", {
@@ -107,21 +107,36 @@ export default function LogMeal() {
       const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
       if (mealError) throw mealError;
 
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+      // --- UPDATED: FETCH STATS FROM user_stats TABLE ---
+      const { data: stats } = await supabase
+        .from("user_stats")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
       const pointsJustEarned = currentPlate.length * 10;
-      let newStreak = profile.current_streak || 0;
+      let newStreak = stats.current_streak || 0;
 
       if (isFirstLogToday) {
         const yesterdayStart = new Date();
         yesterdayStart.setDate(yesterdayStart.getDate() - 1);
         yesterdayStart.setHours(0, 0, 0, 0);
-        const { data: yesterdayMeals } = await supabase.from("meals").select("id").eq("user_id", session.user.id).gte("logged_at", yesterdayStart.toISOString()).lt("logged_at", startOfToday.toISOString()).limit(1);
+        
+        const { data: yesterdayMeals } = await supabase
+          .from("meals")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .gte("logged_at", yesterdayStart.toISOString())
+          .lt("logged_at", startOfToday.toISOString())
+          .limit(1);
+
         newStreak = (yesterdayMeals && yesterdayMeals.length > 0) ? newStreak + 1 : 1;
       }
 
-      await supabase.from("profiles").update({
-        points: (profile.points || 0) + pointsJustEarned,
-        total_xp: (profile.total_xp || 0) + pointsJustEarned,
+      // --- UPDATED: UPDATE user_stats TABLE INSTEAD OF profiles ---
+      await supabase.from("user_stats").update({
+        points: (stats.points || 0) + pointsJustEarned,
+        total_xp: (stats.total_xp || 0) + pointsJustEarned,
         current_streak: newStreak
       }).eq("id", session.user.id);
 
@@ -175,24 +190,17 @@ export default function LogMeal() {
               )}
             </div>
 
-            {/* Right Side */}
+            {/* FORM */}
             <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-10">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-2xl font-extrabold text-slate-900">Log a Meal</h2>
 
-                {/* Import Images */}
                 <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 text-green-600 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 border border-slate-100">
                   {isVisionLoading ? "Scanning..." : "Import Images"}
-                  <input type="file"
-                   accept="image/*" 
-                   capture="environment" //Makes it open camera on phone
-                   className="hidden" 
-                   onChange={handleVisionScan} 
-                   disabled={isVisionLoading} />
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleVisionScan} disabled={isVisionLoading} />
                 </label>
               </div>
               
-              {/* Category Selection */}
               <p className="text-slate-500 text-sm mb-8">What did you eat for {mealType}?</p>
               <div className="space-y-8">
                 <div className="bg-slate-100 p-1.5 rounded-2xl flex justify-between items-center">

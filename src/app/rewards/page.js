@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function Rewards() {
   const router = useRouter();
   
-  // Real Database State
   const [profile, setProfile] = useState({
     points: 0,
     total_xp: 0,
@@ -23,7 +21,6 @@ export default function Rewards() {
   const [redeemingId, setRedeemingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Quests Data (Restored)
   const [quests] = useState([
     { id: 1, title: "The Verdant Knight", description: "Eat 50% veggies in one meal.", xp: 30, done: false },
     { id: 2, title: "Hydration Ritual", description: "Log 8 glasses of water.", xp: 20, done: true }
@@ -38,14 +35,17 @@ export default function Rewards() {
         return;
       }
 
-      // 1. Fetch Profile
+      // 1. Fetch Profile + Joined Stats
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          id,
+          user_stats (points, total_xp, current_streak, pause_streak)
+        `)
         .eq("id", session.user.id)
         .single();
 
-      // 2. Fetch Rewards Catalog from DB
+      // 2. Fetch Rewards Catalog
       const { data: rewardsData } = await supabase
         .from("rewards")
         .select("*")
@@ -65,10 +65,10 @@ export default function Rewards() {
       if (profileData) {
         setProfile({
           id: profileData.id,
-          points: profileData.points || 0,
-          total_xp: profileData.total_xp || 0,
-          current_streak: profileData.current_streak || 0,
-          pause_streak: profileData.pause_streak || false
+          points: profileData.user_stats?.points || 0,
+          total_xp: profileData.user_stats?.total_xp || 0,
+          current_streak: profileData.user_stats?.current_streak || 0,
+          pause_streak: profileData.user_stats?.pause_streak || false
         });
       }
 
@@ -86,18 +86,20 @@ export default function Rewards() {
     setRedeemingId(reward.id);
     
     const newPoints = profile.points - reward.cost;
-    const profileUpdates = { points: newPoints };
+    const statsUpdates = { points: newPoints };
 
+    // Logic for specific item types
     if (reward.item_type === "streak_freeze") {
-      profileUpdates.pause_streak = true;
+      statsUpdates.pause_streak = true;
     }
 
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update(profileUpdates)
+    // UPDATE Table: user_stats (Instead of profiles)
+    const { error: statsError } = await supabase
+      .from("user_stats")
+      .update(statsUpdates)
       .eq("id", profile.id);
 
-    if (profileError) {
+    if (statsError) {
       alert("Redemption failed.");
       setRedeemingId(null);
       return;
@@ -108,20 +110,20 @@ export default function Rewards() {
       { user_id: profile.id, reward_id: reward.id, status: 'completed' }
     ]);
 
-    setProfile({ ...profile, ...profileUpdates });
+    // Update local state to reflect purchase
+    setProfile(prev => ({ ...prev, ...statsUpdates }));
     setSuccessMsg(`Successfully redeemed: ${reward.title}!`);
     
-    // Refresh history locally
-    setRedemptionHistory([{
+    setRedemptionHistory(prev => [{
       redeemed_at: new Date().toISOString(),
       rewards: { title: reward.title }
-    }, ...redemptionHistory].slice(0, 3));
+    }, ...prev].slice(0, 3));
 
     setTimeout(() => setSuccessMsg(""), 3000);
     setRedeemingId(null);
   };
 
-  if (isLoading) return <div className="p-10 text-center font-bold text-slate-400">Loading Rewards...</div>;
+  if (isLoading) return <div className="p-10 text-center font-bold text-slate-400 uppercase tracking-widest text-xs">Loading Rewards...</div>;
 
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const progressToNextLevel = (profile.total_xp || 0) % 100;
