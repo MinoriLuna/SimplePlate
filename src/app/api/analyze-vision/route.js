@@ -8,7 +8,7 @@ export async function POST(req) {
     const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
 
     const prompt = `
-      Identify the main Malaysian dish in this image.
+      Identify the main dish in this image.
 
         SCORING LOGIC (0-100):
         - Give a HIGH score (80-100) for lean proteins (steamed/grilled), vegetables, and whole grains.

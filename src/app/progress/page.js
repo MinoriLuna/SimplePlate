@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from "framer-motion";
+import { processRedemption, ownsItem } from "../../lib/rewards";
 
 export default function Progress() {
   const router = useRouter();
@@ -12,7 +13,12 @@ export default function Progress() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false); 
   
-  const [profile, setProfile] = useState({ total_xp: 0, points: 0, current_streak: 0 });
+  const [profile, setProfile] = useState({ 
+    total_xp: 0, 
+    points: 0, 
+    current_streak: 0,
+    inventory: [] // Added default inventory
+  });
   const [weeklyTotals, setWeeklyTotals] = useState({ carbs: 0, protein: 0, fat: 0, vitamins: 0 });
   const [mealsData, setMealsData] = useState([]); 
   const [aiInsight, setAiInsight] = useState(null);
@@ -30,7 +36,7 @@ export default function Progress() {
       const startOfWeek = new Date(now.setDate(diff));
       startOfWeek.setHours(0, 0, 0, 0);
 
-      // --- UPDATED JOIN QUERY FOR USER STATS ---
+      // --- FETCHING INVENTORY IN THE JOIN ---
       const [mealsRes, profileRes] = await Promise.all([
         supabase.from("meals")
           .select("*")
@@ -40,17 +46,19 @@ export default function Progress() {
         supabase.from("profiles")
           .select(`
             id,
-            user_stats (total_xp, points, current_streak)
-          `)
+            user_stats (total_xp, points, current_streak, inventory)
+          `) // Added inventory here
           .eq("id", session.user.id)
           .single()
       ]);
 
       if (profileRes.data) {
         setProfile({
-          total_xp: profileRes.data.user_stats?.total_xp || 0,
-          points: profileRes.data.user_stats?.points || 0,
-          current_streak: profileRes.data.user_stats?.current_streak || 0,
+          total_xp: Number(profileRes.data.user_stats?.total_xp || 0),
+          points: Number(profileRes.data.user_stats?.points || 0),
+          current_streak: Number(profileRes.data.user_stats?.current_streak || 0),
+          // Logic Fix: Force numbers to prevent F5/BigInt crashes
+          inventory: (profileRes.data.user_stats?.inventory || []).map(Number),
         });
       }
 
@@ -111,6 +119,9 @@ export default function Progress() {
     } catch (e) { console.error(e); } finally { setIsAiLoading(false); }
   };
 
+  // Safe check for the Badge (ID 4)
+  const hasBadge = ownsItem(profile.inventory, 4);
+
   if (isLoading) return <div className="p-10 text-center font-black text-slate-400 uppercase tracking-widest text-xs">Loading Progress...</div>;
 
   return (
@@ -119,14 +130,18 @@ export default function Progress() {
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
             
-            {/* LEFT COLUMN: ANIMATED ENTRANCE */}
+            {/* LEFT COLUMN */}
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="lg:col-span-5 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-3">
                     <div>
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Rank Status</p>
-                      <h2 className="text-2xl font-black text-slate-900 leading-tight">Lv. {Math.floor((profile.total_xp || 0) / 100) + 1}</h2>
+                      <div className="flex items-center gap-2">
+                         <h2 className="text-2xl font-black text-slate-900 leading-tight">Lv. {Math.floor((profile.total_xp || 0) / 100) + 1}</h2>
+                         {/* --- BADGE RENDERED HERE --- */}
+                         {hasBadge && <span className="text-xl leading-none">🏆</span>}
+                      </div>
                     </div>
                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-tighter">{profile.total_xp} Total XP</span>
                   </div>
@@ -172,7 +187,7 @@ export default function Progress() {
               </motion.button>
             </motion.div>
 
-            {/* RIGHT COLUMN: ANIMATED ENTRANCE */}
+            {/* RIGHT COLUMN */}
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-7">
               <div className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-sm border border-slate-100 h-full">
                 <div className="flex items-center gap-3 mb-8">

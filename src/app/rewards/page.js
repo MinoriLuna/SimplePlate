@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
+import { processRedemption, ownsItem } from "../../lib/rewards";
 
 export default function Rewards() {
   const router = useRouter();
@@ -11,13 +12,12 @@ export default function Rewards() {
     points: 0,
     total_xp: 0,
     current_streak: 0,
-    pause_streak: false,
+    inventory: [],
     id: null
   });
   
   const [isLoading, setIsLoading] = useState(true);
   const [rewardsList, setRewardsList] = useState([]); 
-  const [redemptionHistory, setRedemptionHistory] = useState([]); 
   const [redeemingId, setRedeemingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -30,50 +30,31 @@ export default function Rewards() {
     const fetchRewardsData = async () => {
       setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-        return;
-      }
+      if (!session) return router.push("/login");
 
-      // 1. Fetch Profile + Joined Stats
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select(`
-          id,
-          user_stats (points, total_xp, current_streak, pause_streak)
-        `)
+      const { data: stats } = await supabase
+        .from("user_stats")
+        .select(`*`)
         .eq("id", session.user.id)
         .single();
 
-      // 2. Fetch Rewards Catalog
-      const { data: rewardsData } = await supabase
+      if (stats) {
+        setProfile({
+          id: stats.id,
+          points: Number(stats.points || 0),
+          total_xp: Number(stats.total_xp || 0), 
+          current_streak: Number(stats.current_streak || 0),
+          inventory: (stats.inventory || []).map(Number),
+          pause_streak: !!stats.pause_streak
+        });
+      }
+
+      const { data: rewards } = await supabase
         .from("rewards")
         .select("*")
         .order("cost", { ascending: true });
 
-      // 3. Fetch Redemption History
-      const { data: historyData } = await supabase
-        .from("redemptions")
-        .select(`
-          redeemed_at,
-          rewards (title)
-        `)
-        .eq("user_id", session.user.id)
-        .order("redeemed_at", { ascending: false })
-        .limit(3);
-
-      if (profileData) {
-        setProfile({
-          id: profileData.id,
-          points: profileData.user_stats?.points || 0,
-          total_xp: profileData.user_stats?.total_xp || 0,
-          current_streak: profileData.user_stats?.current_streak || 0,
-          pause_streak: profileData.user_stats?.pause_streak || false
-        });
-      }
-
-      if (rewardsData) setRewardsList(rewardsData);
-      if (historyData) setRedemptionHistory(historyData);
+      if (rewards) setRewardsList(rewards);
       
       setIsLoading(false);
     };
@@ -82,44 +63,16 @@ export default function Rewards() {
   }, [router]);
 
   const handleRedeem = async (reward) => {
-    if (profile.points < reward.cost) return;
     setRedeemingId(reward.id);
-    
-    const newPoints = profile.points - reward.cost;
-    const statsUpdates = { points: newPoints };
+    const result = await processRedemption(supabase, profile, reward);
 
-    // Logic for specific item types
-    if (reward.item_type === "streak_freeze") {
-      statsUpdates.pause_streak = true;
+    if (result.success) {
+      setProfile(prev => ({ ...prev, ...result.updates }));
+      setSuccessMsg(`Successfully redeemed: ${reward.title}!`);
+      setTimeout(() => setSuccessMsg(""), 3000);
+    } else {
+      alert(result.error);
     }
-
-    // UPDATE Table: user_stats (Instead of profiles)
-    const { error: statsError } = await supabase
-      .from("user_stats")
-      .update(statsUpdates)
-      .eq("id", profile.id);
-
-    if (statsError) {
-      alert("Redemption failed.");
-      setRedeemingId(null);
-      return;
-    }
-
-    // Log to Redemptions Table
-    await supabase.from("redemptions").insert([
-      { user_id: profile.id, reward_id: reward.id, status: 'completed' }
-    ]);
-
-    // Update local state to reflect purchase
-    setProfile(prev => ({ ...prev, ...statsUpdates }));
-    setSuccessMsg(`Successfully redeemed: ${reward.title}!`);
-    
-    setRedemptionHistory(prev => [{
-      redeemed_at: new Date().toISOString(),
-      rewards: { title: reward.title }
-    }, ...prev].slice(0, 3));
-
-    setTimeout(() => setSuccessMsg(""), 3000);
     setRedeemingId(null);
   };
 
@@ -128,13 +81,16 @@ export default function Rewards() {
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const progressToNextLevel = (profile.total_xp || 0) % 100;
 
+  // Check for Golden Plate Badge (ID 4)
+  const hasBadge = ownsItem(profile.inventory, 4);
+
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
       <div className="py-20">
         <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-10">
           
           {successMsg && (
-            <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-sm text-center font-bold flex justify-center items-center gap-2 shadow-sm animate-in fade-in slide-in-from-top-4">
+            <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-sm text-center font-bold flex justify-center items-center gap-2 shadow-sm">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               {successMsg}
             </div>
@@ -142,16 +98,19 @@ export default function Rewards() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             
-            {/* LEFT COLUMN: PROGRESS, MISSIONS, & HISTORY */}
+            {/* LEFT COLUMN: PROGRESS & MISSIONS */}
             <div className="lg:col-span-5 w-full space-y-6 lg:sticky lg:top-10">
               
-              {/* Real Stats Card */}
               <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
                 <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Your Progress</h2>
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-2 px-1">
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-                    <span className="text-[10px] font-bold text-slate-400">{profile.total_xp % 100}/100 XP</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+                        {/* THE BADGE ADDED HERE */}
+                        {hasBadge && <span className="text-base leading-none">🏆</span>}
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-400">{progressToNextLevel}/100 XP</span>
                   </div>
                   <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${progressToNextLevel}%` }} />
@@ -168,7 +127,6 @@ export default function Rewards() {
                 </div>
               </div>
 
-              {/*Daily Missions Card */}
               <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
                 <h2 className="text-xl font-extrabold text-slate-800 mb-6">Daily Missions</h2>
                 <div className="space-y-4">
@@ -190,14 +148,16 @@ export default function Rewards() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: REWARDS CHOICE  */}
+            {/* RIGHT COLUMN: ITEM SHOP */}
             <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2rem] shadow-inner border border-slate-200 p-6 lg:p-8 h-fit">
               <h2 className="text-2xl font-extrabold text-slate-800 mb-6">Item Shop</h2>
               <div className="max-h-[500px] overflow-y-auto custom-scrollbar p-2 space-y-4">
                 {rewardsList.map((reward) => {
                   const canAfford = profile.points >= reward.cost;
                   const isRedeeming = redeemingId === reward.id;
-                  const isOwned = profile.pause_streak && reward.item_type === "streak_freeze";
+
+                  const ownedType = reward.item_type === "cosmetic" || reward.item_type === "xp_boost";
+                  const isOwned = ownedType && ownsItem(profile.inventory, reward.id);
 
                   return (
                     <div key={reward.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md">
@@ -211,7 +171,10 @@ export default function Rewards() {
                           onClick={() => handleRedeem(reward)}
                           disabled={!canAfford || isRedeeming || isOwned}
                           className={`px-6 py-2 rounded-xl text-sm font-bold transition-all w-full sm:w-auto ${
-                            isRedeeming ? "bg-slate-200 text-slate-500" : isOwned ? "bg-green-100 text-green-700 cursor-default" : canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                            isRedeeming ? "bg-slate-200 text-slate-500" :
+                            isOwned ? "bg-[#00b252] text-white cursor-default" : 
+                            canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" :
+                            "bg-slate-100 text-slate-400 cursor-not-allowed"
                           }`}
                         >
                           {isRedeeming ? "..." : isOwned ? "Owned" : "Redeem"}

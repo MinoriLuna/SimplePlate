@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { ownsItem } from "../../lib/rewards"; // Import the helper
 
 export default function Dashboard() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function Dashboard() {
     pause_streak: false,
     display_numbers: false,
     total_xp: 0,
+    inventory: [], // Added default inventory
   });
   const [todayMeals, setTodayMeals] = useState([]);
   const [weeklyAvgScore, setWeeklyAvgScore] = useState(0);
@@ -31,13 +33,13 @@ export default function Dashboard() {
       }
 
       try {
-        // 1. Fetch Profile + Joined Stats + Joined Settings
+        // 1. Fetch Profile + Joined Stats (including inventory) + Joined Settings
         const { data: userData, error: userError } = await supabase
           .from("profiles")
           .select(`
             name, 
             username, 
-            user_stats (points, current_streak, pause_streak, total_xp),
+            user_stats (points, current_streak, pause_streak, total_xp, inventory),
             user_settings (display_numbers)
           `)
           .eq("id", session.user.id)
@@ -49,16 +51,17 @@ export default function Dashboard() {
           setProfile({
             name: userData.name || "Unnamed User",
             username: userData.username || "",
-            // Mapping from nested join objects back to our flat state
-            points: userData.user_stats?.points || 0,
-            current_streak: userData.user_stats?.current_streak || 0,
+            // Safety Fix: Convert to Numbers to prevent BigInt/F5 crashes
+            points: Number(userData.user_stats?.points || 0),
+            current_streak: Number(userData.user_stats?.current_streak || 0),
             pause_streak: userData.user_stats?.pause_streak || false,
-            total_xp: userData.user_stats?.total_xp || 0,
+            total_xp: Number(userData.user_stats?.total_xp || 0),
+            inventory: (userData.user_stats?.inventory || []).map(Number),
             display_numbers: userData.user_settings?.display_numbers || false,
           });
         }
 
-        // 2. Fetch Today's Meals (No changes needed here)
+        // 2. Fetch Today's Meals
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 
@@ -85,7 +88,6 @@ export default function Dashboard() {
           .gte("logged_at", startOfWeek.toISOString());
 
         if (weeklyData && weeklyData.length > 0) {
-          // FILTER OUT WATER/NEUTRAL (Score 0)
           const scoredMeals = weeklyData.filter(m => (m.nourish_score || 0) > 0);
 
           if (scoredMeals.length > 0) {
@@ -132,6 +134,9 @@ export default function Dashboard() {
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const xpInCurrentLevel = (profile.total_xp || 0) % 100;
 
+  // Check for Golden Plate Badge (ID 4)
+  const hasBadge = ownsItem(profile.inventory, 4);
+
   if (isLoading) return <div className="p-10 text-center font-bold text-slate-500 uppercase tracking-widest text-xs">Loading Dashboard...</div>;
 
   return (
@@ -144,8 +149,10 @@ export default function Dashboard() {
           <Link href="/settings" className="text-slate-400 hover:text-slate-700 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800 flex items-center gap-3">
             Welcome Back, <span className="text-[#00b252]">{profile.name}</span>
+            {/* THE BADGE ADDED HERE */}
+            {hasBadge && <span className="text-2xl sm:text-3xl">🏆</span>}
           </h1>
         </div>
         
