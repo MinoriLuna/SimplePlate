@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Header from "../components/Header"; 
+import Header from "../components/header";
+import Footer from "../components/footer"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,29 +21,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-
-        {/* Header Component */}
+      {/* Back to the original light background */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f8fafc]`}>
         <Header />
-
-        {children}
-
-        {/* Footer */}
-        <footer className="fixed bottom-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md text-black p-4">
-          <div className="flex flex-col items-center text-center gap-1">
-            <p className="text-sm font-bold">© 2026 SimplePlate. All rights reserved.</p>
-
-            <p className="text-sm text-slate-500">
-              <a
-                href="https://www.flaticon.com"
-                className="underline hover:text-slate-700"
-              >
-                Icons created by Freepik - Flaticon
-              </a>
-            </p>
-          </div>
-        </footer>
-
+        <main>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
