@@ -152,7 +152,7 @@ export default function Dashboard() {
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800 flex items-center gap-3">
             Welcome Back, <span className="text-[#00b252]">{profile.name}</span>
             {/* THE BADGE ADDED HERE */}
-            {hasBadge && <span className="text-2xl sm:text-3xl">🏆</span>}
+            {hasBadge && (<img src="/images/goldenbadge.png" alt="Golden Badge" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-sm" />)}
           </h1>
         </div>
         

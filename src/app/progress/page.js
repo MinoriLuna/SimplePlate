@@ -140,7 +140,7 @@ export default function Progress() {
                       <div className="flex items-center gap-2">
                          <h2 className="text-2xl font-black text-slate-900 leading-tight">Lv. {Math.floor((profile.total_xp || 0) / 100) + 1}</h2>
                          {/* --- BADGE RENDERED HERE --- */}
-                         {hasBadge && <span className="text-xl leading-none">🏆</span>}
+                         {hasBadge && (<img src="/images/goldenbadge.png" alt="Golden Badge" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-sm" />)}
                       </div>
                     </div>
                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-tighter">{profile.total_xp} Total XP</span>
@@ -152,11 +152,11 @@ export default function Progress() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 text-center">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance</span>
-                    <div className="flex items-center gap-1.5 font-black text-blue-600"><span className="text-sm">🎁</span><span className="text-lg">{profile.points}</span></div>
+                    <div className="flex items-center gap-1.5 font-black text-blue-600"><span className="text-sm"></span><span className="text-lg">{profile.points}</span></div>
                   </div>
                   <div className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-[1.5rem] border border-slate-100 text-center">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Streak</span>
-                    <div className="flex items-center gap-1.5 font-black text-orange-500"><span className="text-sm">📅</span><span className="text-lg">{profile.current_streak}</span></div>
+                    <div className="flex items-center gap-1.5 font-black text-orange-500"><span className="text-sm"></span><span className="text-lg">{profile.current_streak}</span></div>
                   </div>
                 </div>
               </div>
@@ -191,7 +191,6 @@ export default function Progress() {
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-7">
               <div className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-sm border border-slate-100 h-full">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-xl">✨</div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">AI Health Insights</h3>
                 </div>
                 
@@ -206,7 +205,7 @@ export default function Progress() {
                   ) : (
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
                       <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex gap-4">
-                        <span className="text-xl">💡</span>
+                        <span className="text-xl"></span>
                         <div>
                           <p className="text-sm font-bold text-slate-600 leading-relaxed">{aiInsight.insight}</p>
                           <p className="mt-3 text-[10px] font-black text-indigo-600 uppercase tracking-widest">Target: {aiInsight.improvement}</p>
@@ -217,7 +216,7 @@ export default function Progress() {
                           <button onClick={() => setShowAlt(!showAlt)} className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
                             {showAlt ? "Hide Suggestion" : "Show Healthy Alternative"}
                           </button>
-                          {showAlt && <p className="mt-4 text-sm font-bold text-slate-700">🥗 {aiInsight.alternative_suggestion}</p>}
+                          {showAlt && <p className="mt-4 text-sm font-bold text-slate-700"> {aiInsight.alternative_suggestion}</p>}
                         </div>
                       )}
                       <button onClick={() => setAiInsight(null)} className="mt-4 text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-400">Clear & Re-analyze</button>

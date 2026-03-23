@@ -108,7 +108,7 @@ export default function Rewards() {
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
                         {/* THE BADGE ADDED HERE */}
-                        {hasBadge && <span className="text-base leading-none">🏆</span>}
+                        {hasBadge && (<img src="/images/goldenbadge.png" alt="Golden Badge" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-sm" />)}
                     </div>
                     <span className="text-[10px] font-bold text-slate-400">{progressToNextLevel}/100 XP</span>
                   </div>
