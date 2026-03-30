@@ -248,14 +248,12 @@ return (
               <Link href="/logmeals" className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-4 rounded-2xl transition-all hover:shadow-lg active:scale-95 shadow-md shadow-green-100">
                 Log New Meal
               </Link>
-              <div className="grid grid-cols-2 gap-3">
                 <Link href="/history" className="py-3 bg-slate-50 text-slate-700 font-semibold rounded-2xl border border-slate-200 hover:bg-slate-100 text-center transition-all">
                   History
                 </Link>
                 <Link href="/rewards" className="py-3 bg-slate-50 text-slate-700 font-semibold rounded-2xl border border-slate-200 hover:bg-slate-100 text-center transition-all">
                   Rewards
                 </Link>
-              </div>
             </div>
           </div>
 

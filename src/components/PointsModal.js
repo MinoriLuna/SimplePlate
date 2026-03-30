@@ -34,18 +34,22 @@ export default function PointsModal({ points, xp, isBoosted, streakIncreased, st
         {/* --- REWARDS GRID --- */}
         <div className="grid grid-cols-2 gap-3 mb-10">
           
-          {/* Points Box */}
-          <div className="bg-blue-50 border border-blue-100 rounded-[1.5rem] py-4 transition-transform hover:scale-105">
+        {/* Points Box */}
+          <div className="relative bg-blue-50 border border-blue-100 rounded-[1.5rem] py-4">
+            {isBoostedPoints && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-sm animate-pulse">
+                2x Points
+              </div>
+            )}
             <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Points</p>
             <p className="text-2xl font-black text-blue-600">+{points}</p>
           </div>
 
-          {/* XP Box */}
-          <div className="relative bg-indigo-50 border border-indigo-100 rounded-[1.5rem] py-4 transition-transform hover:scale-105">
-            {/* 2x XP Badge */}
-            {isBoosted && (
+        {/* XP Box */}
+          <div className="relative bg-indigo-50 border border-indigo-100 rounded-[1.5rem] py-4">
+            {isBoostedXP && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-tighter shadow-sm animate-pulse">
-                2x Boost
+                2x XP
               </div>
             )}
             <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">XP</p>

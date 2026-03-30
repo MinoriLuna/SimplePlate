@@ -1,32 +1,48 @@
 // src/lib/rewards.js
 
-// 1. Helper to safely convert anything to a standard number
+// 1. Helper to safely convert BigInt/Strings to standard Numbers
 const toNum = (val) => (val !== null && val !== undefined ? Number(val) : 0);
 
-// 2. Helper to check if an item is in the inventory
+// 2. Helper to check if a specific ID exists in an inventory array
 export const ownsItem = (inventory = [], id) => {
   const inv = Array.isArray(inventory) ? inventory : [];
   return inv.map(toNum).includes(toNum(id));
 };
 
 /**
- * NEW: The XP Multiplier Logic
- * Use this in your LogMeal page before updating the database.
+ * XP and Points Calculator with 24-Hour Expiration Logic
+ * @param {number} itemCount - Number of dishes on the plate
+ * @param {object} stats - The full user_stats object from Supabase
  */
-export const calculateMealRewards = (itemCount, inventory = []) => {
-  let xpGained = 10; 
-  let pointsGained = toNum(itemCount) * 10;
+export const calculateMealRewards = (itemCount, stats = {}) => {
+  const now = new Date();
 
-  const hasBooster = ownsItem(inventory, 2);
-  if (hasBooster) {
-    xpGained = xpGained * 2; 
-  }
+  // Check if XP Boost is active (and not expired)
+  const xpExpiry = stats.xp_boost_expires_at ? new Date(stats.xp_boost_expires_at) : null;
+  const isXPBoosted = xpExpiry && now < xpExpiry;
 
-  return { xpGained, pointsGained, isBoosted: hasBooster };
+  // Check if Points Boost is active (and not expired)
+  const pointsExpiry = stats.points_boost_expires_at ? new Date(stats.points_boost_expires_at) : null;
+  const isPointsBoosted = pointsExpiry && now < pointsExpiry;
+
+  // Base Rewards
+  let xpGained = 10; // Flat 10 XP per log
+  let pointsGained = toNum(itemCount) * 10; // 10 Points per item
+
+  // Apply Multipliers
+  if (isXPBoosted) xpGained *= 2;
+  if (isPointsBoosted) pointsGained *= 2;
+
+  return { 
+    xpGained, 
+    pointsGained, 
+    isBoostedXP: !!isXPBoosted,
+    isBoostedPoints: !!isPointsBoosted
+  };
 };
 
 /**
- * Handles the purchase/redemption logic
+ * Handles the purchase and sets the 24-hour expiration timestamp
  */
 export const processRedemption = async (supabase, profile, reward) => {
   try {
@@ -38,25 +54,34 @@ export const processRedemption = async (supabase, profile, reward) => {
 
     if (currentPoints < cost) return { success: false, error: "Insufficient points!" };
 
-    const inventory = (Array.isArray(profile.inventory) ? profile.inventory : []).map(toNum);
+    // Calculate the 24-hour expiration timestamp
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 24);
+    const expiryISO = expiryDate.toISOString();
 
-    // Prevent double-buying permanent/perk items
-    const isPermanent = reward.item_type === "cosmetic" || reward.item_type === "xp_boost";
-    if (isPermanent && inventory.includes(rewardId)) {
-      return { success: false, error: "Already owned!" };
-    }
-
+    // Prepare the update object
     let updates = { 
-      points: currentPoints - cost,
-      inventory: isPermanent 
-        ? Array.from(new Set([...inventory, rewardId])) 
-        : inventory
+      points: currentPoints - cost
     };
 
-    if (reward.item_type === "streak_freeze") {
+    // ITEM TYPE LOGIC
+    if (reward.item_type === "xp_boost") {
+      updates.xp_boost_expires_at = expiryISO;
+    } 
+    else if (reward.item_type === "points_boost") {
+      updates.points_boost_expires_at = expiryISO;
+    }
+    else if (reward.item_type === "streak_freeze") {
       updates.pause_streak = true;
     }
+    else if (reward.item_type === "cosmetic") {
+      // Cosmetics (Badges) are permanent and go into the inventory array
+      const inventory = (Array.isArray(profile.inventory) ? profile.inventory : []).map(toNum);
+      if (inventory.includes(rewardId)) return { success: false, error: "Already owned!" };
+      updates.inventory = Array.from(new Set([...inventory, rewardId]));
+    }
 
+    // Update user_stats in Supabase
     const { error } = await supabase
       .from("user_stats")
       .update(updates)
@@ -64,16 +89,17 @@ export const processRedemption = async (supabase, profile, reward) => {
 
     if (error) throw error;
 
+    // Return the updated values so the UI can refresh immediately
     return { 
       success: true, 
       updates: {
+        ...updates,
         points: toNum(updates.points),
-        inventory: updates.inventory.map(toNum),
-        pause_streak: !!updates.pause_streak
+        inventory: updates.inventory ? updates.inventory.map(toNum) : profile.inventory
       } 
     };
   } catch (err) {
     console.error("Redemption Error:", err);
-    return { success: false, error: "Critical update error." };
+    return { success: false, error: "Transaction failed." };
   }
 };
