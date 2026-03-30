@@ -11,8 +11,6 @@ export const ownsItem = (inventory = [], id) => {
 
 /**
  * XP and Points Calculator with 24-Hour Expiration Logic
- * @param {number} itemCount - Number of dishes on the plate
- * @param {object} stats - The full user_stats object from Supabase
  */
 export const calculateMealRewards = (itemCount, stats = {}) => {
   const now = new Date();
