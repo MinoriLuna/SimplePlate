@@ -106,8 +106,7 @@ export default function Settings() {
   return (
     <div className="min-h-[100dvh] bg-[#eaedf0] flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800">
       
-      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-sm border border-slate-100 p-8 sm:p-10">
-        
+      <main className="w-full max-w-2xl bg-white rounded-3xl shadow-sm border border-slate-100 p-8 sm:p-10">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-[#0f172a]">Profile Settings</h1>
           <p className="text-slate-500 text-sm mt-1">Update your account details and preferences.</p>
@@ -230,7 +229,7 @@ export default function Settings() {
           </div>
 
         </form>
-      </div>
+      </main>
     </div>
   );
 }

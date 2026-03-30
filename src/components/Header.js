@@ -57,7 +57,7 @@ const { data: profile, error } = await supabase
     router.push("/login");
   };
 
-  return (
+return (
     <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between bg-white/80 backdrop-blur-md text-black p-5 shadow-sm border-b border-slate-100">
       
       {/* --- LEFT SIDE: Dashboard Link & Greeting --- */}
@@ -78,7 +78,6 @@ const { data: profile, error } = await supabase
       </div>
       
       {/* --- CENTER: Logo (Hidden on Mobile!) --- */}
-      {/* Added hidden md:block so it vanishes on phones */}
       <Link href="/" className="hidden md:block text-2xl font-bold flex-1 text-center text-gray-900 hover:text-[#00b252] transition-colors">
         SimplePlate
       </Link>
@@ -115,10 +114,10 @@ const { data: profile, error } = await supabase
 
           </div>
         ) : (
-          <>
-            <Link href="/login" className="text-sm md:text-xl font-bold text-[#00b252] hover:underline">Login</Link>
-            <Link href="/register" className="text-sm md:text-xl font-bold text-[#00b252] hover:underline">Register</Link>
-          </>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-sm md:text-lg font-bold text-[#00b252] hover:underline transition-all">Login</Link>
+            <Link href="/register" className="text-sm md:text-lg font-bold text-[#00b252] hover:underline transition-all">Register</Link>
+          </div>
         )}
       </div>
     </header>

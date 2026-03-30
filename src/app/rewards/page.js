@@ -21,11 +21,6 @@ export default function Rewards() {
   const [redeemingId, setRedeemingId] = useState(null);
   const [successMsg, setSuccessMsg] = useState("");
 
-  const [quests] = useState([
-    { id: 1, title: "The Verdant Knight", description: "Eat 50% veggies in one meal.", xp: 30, done: false },
-    { id: 2, title: "Hydration Ritual", description: "Log 8 glasses of water.", xp: 20, done: true }
-  ]);
-
   useEffect(() => {
     const fetchRewardsData = async () => {
       setIsLoading(true);
@@ -86,8 +81,7 @@ export default function Rewards() {
 
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
-      <div className="py-20">
-        <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-10">
+      <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 pb-12">
           
           {successMsg && (
             <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-sm text-center font-bold flex justify-center items-center gap-2 shadow-sm">
@@ -100,7 +94,6 @@ export default function Rewards() {
             
             {/* LEFT COLUMN: PROGRESS & MISSIONS */}
             <div className="lg:col-span-5 w-full space-y-6 lg:sticky lg:top-10">
-              
               <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
                 <h2 className="text-2xl font-extrabold text-slate-900 mb-6">Your Progress</h2>
                 <div className="mb-6">
@@ -124,26 +117,6 @@ export default function Rewards() {
                     </div>
                     <span className="text-xl font-extrabold text-blue-600">{profile.points}</span>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8">
-                <h2 className="text-xl font-extrabold text-slate-800 mb-6">Daily Missions</h2>
-                <div className="space-y-4">
-                  {quests.map((quest) => (
-                    <div key={quest.id} className={`rounded-2xl p-4 border transition-all flex items-center justify-between gap-4 ${quest.done ? 'bg-green-50/50 border-green-100 opacity-60' : 'bg-slate-50 border-slate-100 shadow-sm'}`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${quest.done ? 'bg-green-500 text-white' : 'bg-white text-slate-300 border border-slate-200'}`}>
-                          {quest.done ? '✓' : '!'}
-                        </div>
-                        <div>
-                          <h3 className={`font-bold text-sm ${quest.done ? 'text-green-800 line-through' : 'text-slate-800'}`}>{quest.title}</h3>
-                          <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{quest.description}</p>
-                        </div>
-                      </div>
-                      <span className="font-extrabold text-xs text-blue-600">+{quest.xp}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -187,8 +160,7 @@ export default function Rewards() {
             </div>
 
           </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

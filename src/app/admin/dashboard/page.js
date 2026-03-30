@@ -94,8 +94,8 @@ export default function AdminDashboard() {
   if (!isAdmin) return null;
 
   return (
-  <div className="bg-white flex min-h-screen pt-20">  
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 font-sans w-full">
+  <div className="bg-white flex min-h-screen">  
+    <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 pb-12">
       
       <div className="mb-8 flex justify-between items-end">
         <div>
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
-    </div>
+    </main>
   </div>
   );
 }

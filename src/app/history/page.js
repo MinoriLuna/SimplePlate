@@ -88,21 +88,8 @@ export default function Reports() {
 
   return (
     <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
-      {/* Navigation Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 flex items-center gap-2 font-bold text-sm transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
-            Dashboard
-          </Link>
-          <h1 className="text-xl font-extrabold text-slate-900">Reports & History</h1>
-          <div className="w-20"></div>
-        </div>
-      </div>
-
-      <div className="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:py-10 pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-          
+      <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">     
           {/* LEFT COLUMN: MEAL RECORDS */}
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
             <h2 className="text-2xl font-extrabold text-slate-900">Meal Records</h2>
@@ -173,7 +160,7 @@ export default function Reports() {
           </div>
 
         </div>
-      </div>
+      </main>
     </div>
   );
 }
