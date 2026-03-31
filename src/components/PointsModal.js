@@ -1,7 +1,7 @@
 "use client";
 
 // Added xp and isBoosted to the props
-export default function PointsModal({ points, xp, isBoosted, streakIncreased, streakCount, onClose }) {
+export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, streakIncreased, streakCount, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 p-8 text-center border border-slate-100">
