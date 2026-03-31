@@ -181,9 +181,15 @@ export default function Rewards() {
                 const canAfford = profile.points >= reward.cost;
                 const isRedeeming = redeemingId === reward.id;
 
-                // Check for owned status (permanents only)
-                const isPermanent = reward.item_type === "cosmetic" || reward.item_type === "xp_boost" || reward.item_type === "points_boost";
-                const isOwned = isPermanent && ownsItem(profile.inventory, reward.id);
+                const isCurrentlyActiveBoost = 
+                (reward.item_type === "xp_boost" && xpTimer) || 
+                (reward.item_type === "point_boost" && pointsTimer);
+
+                // NEW LOGIC: Is this specific boost currently active?
+                const isActive = (reward.item_type === "xp_boost" && xpTimer) || (reward.item_type === "point_boost" && pointsTimer);
+                
+                // Cosmetics are permanent, boosts are timed
+                const isOwned = reward.item_type === "cosmetic" && ownsItem(profile.inventory, reward.id);
 
                 return (
                   <div key={reward.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:shadow-md">
@@ -192,18 +198,21 @@ export default function Rewards() {
                       <p className="text-xs text-slate-500 mt-1 leading-snug">{reward.description}</p>
                     </div>
                     <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 shrink-0 border-t sm:border-t-0 border-slate-100 pt-3 sm:pt-0">
-                      <span className={`font-black text-sm ${canAfford ? 'text-blue-600' : 'text-slate-300'}`}>{reward.cost} pts</span>
+                      <span className={`font-black text-sm ${isActive ? 'text-indigo-600' : canAfford ? 'text-blue-600' : 'text-slate-300'}`}>
+                        {reward.cost} pts
+                      </span>
                       <button
                         onClick={() => handleRedeem(reward)}
-                        disabled={!canAfford || isRedeeming || isOwned}
+                        disabled={!canAfford || isRedeeming || isOwned || isActive}
                         className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all w-full sm:w-auto ${
                           isRedeeming ? "bg-slate-200 text-slate-500" :
+                          isActive ? "bg-indigo-600 text-white cursor-default" : // Active Purple State
                           isOwned ? "bg-[#00b252] text-white cursor-default" : 
                           canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" :
                           "bg-slate-100 text-slate-400 cursor-not-allowed"
                         }`}
                       >
-                        {isRedeeming ? "..." : isOwned ? "Owned" : "Redeem"}
+                        {isRedeeming ? "..." : isActive ? "Active" : isOwned ? "Owned" : "Redeem"}
                       </button>
                     </div>
                   </div>

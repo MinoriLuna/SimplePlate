@@ -69,15 +69,10 @@ export default function LogMeal() {
 
 return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
-      
-      {/* pt-28 clears the sticky header. 
-          pb-28 clears the sticky footer. 
-          max-w-6xl keeps it centered on your laptop. */}
-      <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28">
-        
+      <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28">     
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
           
-          {/* PLATE DISPLAY - lg:top-28 keeps it stuck just below your header */}
+          {/* PLATE DISPLAY*/}
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-extrabold text-slate-900">Your Plate</h2>
@@ -200,12 +195,13 @@ return (
 
 {/* End of Return */}
 
-      {/* MODAL */}
+      {/* Call of Point Modal */}
       {showPointsModal && rewardData && (
         <PointsModal 
           points={rewardData.points} 
           xp={rewardData.xp} 
-          isBoosted={rewardData.isBoosted}
+          isBoostedXP={rewardData.isBoostedXP}
+          isBoostedPoints={rewardData.isBoostedPoints}
           streakCount={rewardData.streak} 
           streakIncreased={rewardData.isFirstLogToday}
           onClose={() => router.push("/dashboard")} 

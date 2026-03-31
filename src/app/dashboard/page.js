@@ -220,7 +220,7 @@ export default function Dashboard() {
           </div>
 
           {/* STATS & ACTIONS - Column 2 */}
-          <div className="lg:col-span-5 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1">
+          <div className="lg:col-span-4 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1">
             <div className="grid grid-cols-2 gap-4 shrink-0">
               
               {/* WEEKLY SCORE */}
@@ -241,6 +241,13 @@ export default function Dashboard() {
                 </div>
                 <span className="text-2xl font-extrabold text-slate-800">{profile.current_streak}</span>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Day Streak</p>
+
+                {/* AMBER PROTECTED TAG - Shows only when boolean is true */}
+                {profile.pause_streak && (
+                  <div className="mt-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full flex items-center gap-1.5 animate-in fade-in zoom-in duration-300">
+                    <span className="text-[8px] font-black text-amber-600 uppercase">Protected</span>
+                  </div>
+                )}
               </div>
             </div>
 

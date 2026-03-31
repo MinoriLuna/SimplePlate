@@ -66,7 +66,7 @@ export const processRedemption = async (supabase, profile, reward) => {
     if (reward.item_type === "xp_boost") {
       updates.xp_boost_expires_at = expiryISO;
     } 
-    else if (reward.item_type === "points_boost") {
+    else if (reward.item_type === "point_boost") {
       updates.points_boost_expires_at = expiryISO;
     }
     else if (reward.item_type === "streak_freeze") {

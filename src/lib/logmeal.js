@@ -52,9 +52,9 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType) =
     .single();
 
   // 5. Calculate Rewards (Flat 10 XP, 10 Points per item)
-  const { xpGained, pointsGained, isBoosted } = calculateMealRewards(
+  const { xpGained, pointsGained, isBoostedXP, isBoostedPoints } = calculateMealRewards(
     currentPlate.length, 
-    stats.inventory
+    stats
   );
 
   // 6. Streak math
@@ -84,5 +84,5 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType) =
 
   if (updateError) throw updateError;
 
-  return { points: pointsGained, xp: xpGained, isBoosted, streak: newStreak, isFirstLogToday };
+  return { points: pointsGained, xp: xpGained, isBoostedXP, isBoostedPoints, streak: newStreak, isFirstLogToday };
 };
