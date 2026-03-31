@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { ownsItem } from "../../lib/rewards";
 import StreakWarningModal from "@/components/streakwarningmodal";
+import { StreakCount } from "../../lib/streak";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -35,13 +36,14 @@ export default function Dashboard() {
       }
 
       try {
-        // 1. Fetch Profile + Stats + Settings
+        // 1. Fetch Profile ,Stats, Settings and Streak Check
+        await StreakCount(supabase, session.user.id);
         const { data: userData, error: userError } = await supabase
           .from("profiles")
           .select(`
             name, 
             username, 
-            user_stats (points, current_streak, pause_streak, total_xp, inventory),
+            user_stats (points, current_streak, pause_streak, total_xp, inventory, lastchecked),
             user_settings (display_numbers)
           `)
           .eq("id", session.user.id)
