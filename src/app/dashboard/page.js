@@ -97,7 +97,7 @@ export default function Dashboard() {
           }
         }
 
-        if (mealsData && mealsData.length === 0 && new Date().getHours() >= 5) {
+        if (mealsData && mealsData.length === 0 && new Date().getHours() >= 20) { //Change this to small for insta testing
         setShowStreakModal(true);
       }
 
@@ -111,7 +111,7 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [router]);
 
-  // --- HELPERS ---
+  // Nourish Score Status Logic
   const getNourishStatus = (score) => {
     if (weeklyMealCount === 0) return { label: "No Logs", color: "text-slate-300", bg: "bg-slate-50" };
     if (score < 25) return { label: "Needs Focus", color: "text-red-500", bg: "bg-red-50" };
@@ -139,9 +139,6 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen bg-[#f8fafc] flex flex-col font-sans text-slate-800 overflow-hidden">
-      
-
-      {/* Dynamic Main - pt-28 clears sticky header, pb-28 clears sticky footer */}
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
 
         {/* 1. The Streak Modal */}
