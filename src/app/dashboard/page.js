@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { ownsItem } from "../../lib/rewards";
 import StreakWarningModal from "@/components/streakwarningmodal";
 import { StreakCount } from "../../lib/streak";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -191,11 +192,42 @@ export default function Dashboard() {
             
             <div className="flex-grow p-6 pt-3 space-y-3 min-h-0">
               {todayMeals.length === 0 ? (
-                <div className="text-center py-10 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-sm">
-                  No meals logged yet today!
-                </div>
-              ) : (
-                todayMeals.map((meal) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-12 px-6 text-center bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-100"
+              >
+                {/* Animated Plate Illustration */}
+                <motion.div
+                  animate={{ 
+                    y: [0, -8, 0],
+                    rotate: [0, 2, -2, 0]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                  className="relative mb-6"
+                >
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* The Plate */}
+                    <circle cx="12" cy="12" r="9" stroke="#cbd5e1" strokeWidth="1.5" />
+                    <circle cx="12" cy="12" r="6" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 2" />
+                    
+                    {/* Fork & Knife */}
+                    <path d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M7 8V16M5 8V10C5 11.1 5.9 12 7 12" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </motion.div>
+
+                <h3 className="text-sm font-black text-slate-800 mb-1">Your plate is a clean slate!</h3>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[200px]">
+                  Fuel your day by logging your first meal.
+                </p>
+              </motion.div>
+            ) : (
+              todayMeals.map((meal) => (
                   <div key={meal.id} className="group flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-white transition-all">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100">
