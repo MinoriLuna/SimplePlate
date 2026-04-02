@@ -64,7 +64,7 @@ return (
       <div className="flex-1 flex items-center gap-4">
         {user && !isLoading && (
           <>
-            <Link href="/dashboard" className="text-base font-bold text-slate-500 hover:text-[#00b252] transition-colors flex items-center gap-1 w-fit">
+            <Link href="/dashboard" className="text-base font-bold text-slate-500 hover:text-[#00b252] transition-colors flex items-center gap-1 w-fit hover:scale-105">
               Dashboard
             </Link>
             
@@ -78,7 +78,7 @@ return (
       </div>
       
       {/* --- CENTER: Logo (Hidden on Mobile!) --- */}
-      <Link href="/" className="hidden md:block text-2xl font-bold flex-1 text-center text-gray-900 hover:text-[#00b252] transition-colors">
+      <Link href="/" className="hidden md:block text-2xl font-bold flex-1 text-center text-gray-900 hover:text-[#00b252] transition-colors hover:scale-105">
         SimplePlate
       </Link>
       
@@ -98,7 +98,7 @@ return (
             </div>
 
             {/* Reward Points */}
-            <Link href="/rewards" className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer">
+            <Link href="/rewards" className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer hover:scale-105">
               <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
               </svg>
@@ -106,7 +106,7 @@ return (
             </Link>
 
             {/* Logout */}
-            <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all ml-1" title="Logout">
+            <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all ml-1 hover:scale-105" title="Logout">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
               </svg>
