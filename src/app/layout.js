@@ -18,11 +18,17 @@ export const metadata = {
   description: "Framework developed by Next.JS for APU FYP.",
 };
 
+export const viewport = {
+  themeColor: "#F2FFF5",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       {/* Back to the original light background */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f8fafc]`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#F2FFF5]`}>
         <Header />
         <main>
           {children}

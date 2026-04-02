@@ -88,8 +88,6 @@ export default function Rewards() {
     setRedeemingId(null);
   };
 
-  if (isLoading) return <div className="p-10 pt-32 text-center font-black text-slate-400 uppercase tracking-widest text-xs">Loading Shop...</div>;
-
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const progressToNextLevel = (profile.total_xp || 0) % 100;
   const hasBadge = ownsItem(profile.inventory, 4);
@@ -99,8 +97,7 @@ export default function Rewards() {
   const pointsTimer = getTimeLeft(profile.points_boost_expires_at);
 
   return (
-    /* h-screen + overflow-hidden locks the page to the laptop window size */
-    <div className="min-h-0 bg-[#F2FFF5] flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-[#F2FFF5] flex flex-col font-sans text-slate-800">
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
         
         {successMsg && (
@@ -170,7 +167,7 @@ export default function Rewards() {
           </div>
 
           {/* RIGHT COLUMN: ITEM SHOP */}
-          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2.5rem] shadow-inner shadow-xl border border-green-200 p-6 lg:p-8 flex flex-col min-h-0">
+          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2.5rem] shadow-inner shadow-xl border border-green-200 p-6 lg:p-8 flex flex-col">
             <h2 className="text-2xl font-black text-slate-800 mb-6 px-2">Item Shop</h2>
             
             {/* Only the shop list scrolls inside this container */}
