@@ -94,7 +94,7 @@ export default function AdminDashboard() {
   if (!isAdmin) return null;
 
   return (
-  <div className="bg-white flex min-h-screen">  
+  <div className="bg-[#F2FFF5] flex min-h-screen">  
     <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 pb-12">
       
       <div className="mb-8 flex justify-between items-end">
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-extrabold text-slate-900">User Management</h1>
           <p className="text-slate-500 mt-2">View and edit SimplePlate user profiles.</p>
         </div>
-        <div className="text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
+        <div className="text-sm font-bold text-slate-500 bg-white px-4 py-2 rounded-xl shadow-xl border border-green-200">
           Total Users: <span className="text-[#00b252]">{users.length}</span>
         </div>
       </div>
@@ -115,8 +115,8 @@ export default function AdminDashboard() {
 
       {/* EDITING FORM */}
       {editingUser ? (
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8 animate-in slide-in-from-bottom-4">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+        <div className="bg-white p-6 rounded-3xl shadow-xl border border-green-200 mb-8 animate-in slide-in-from-bottom-4">
+          <div className="flex justify-between items-center mb-6 border-b border-green-100 pb-4">
             <h2 className="text-xl font-bold text-slate-800">Editing: {editingUser.email}</h2>
             <button onClick={() => setEditingUser(null)} className="text-sm font-bold text-slate-400 hover:text-red-500 border rounded-3xl px-5 py-1">Cancel</button>
           </div>
@@ -158,11 +158,11 @@ export default function AdminDashboard() {
         </div>
       ) : (
         /* USERS TABLE */
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-xl border border-green-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-extrabold">
+                <tr className="bg-slate-50 border-b border-green-200 text-xs uppercase tracking-wider text-slate-500 font-extrabold">
                   <th className="p-4 pl-6">Username</th>
                   <th className="p-4">Email</th>
                   <th className="p-4 text-center">Points</th>

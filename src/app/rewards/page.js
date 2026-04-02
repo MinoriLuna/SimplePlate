@@ -100,7 +100,7 @@ export default function Rewards() {
 
   return (
     /* h-screen + overflow-hidden locks the page to the laptop window size */
-    <div className="h-screen bg-[#f0f2f5] flex flex-col font-sans text-slate-800 overflow-hidden">
+    <div className="h-screen bg-[#F2FFF5] flex flex-col font-sans text-slate-800 overflow-hidden">
       
       {/* pt-28 and pb-28 clear the sticky header/footer. min-h-0 allows shrinking */}
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
@@ -117,7 +117,7 @@ export default function Rewards() {
           <div className="lg:col-span-5 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1">
             
             {/* Progress Card */}
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 shrink-0">
+            <div className="bg-white rounded-[2rem] shadow-xl border border-green-100 p-6 lg:p-8 shrink-0">
               <h2 className="text-xl font-black text-slate-900 mb-6 tracking-tight">Your Progress!</h2>
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2 px-1">
@@ -141,7 +141,7 @@ export default function Rewards() {
             </div>
 
             {/* ACTIVE BOOSTS (Replacing Quests) */}
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 shrink-0">
+            <div className="bg-white rounded-[2rem] shadow-xl border border-green-100 p-6 lg:p-8 shrink-0">
               <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Active Boosts</h2>
               <div className="space-y-3">
                 
@@ -172,7 +172,7 @@ export default function Rewards() {
           </div>
 
           {/* RIGHT COLUMN: ITEM SHOP */}
-          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2.5rem] shadow-inner border border-slate-200 p-6 lg:p-8 flex flex-col min-h-0">
+          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2.5rem] shadow-inner shadow-xl border border-green-200 p-6 lg:p-8 flex flex-col min-h-0">
             <h2 className="text-2xl font-black text-slate-800 mb-6 px-2">Item Shop</h2>
             
             {/* Only the shop list scrolls inside this container */}
@@ -204,12 +204,12 @@ export default function Rewards() {
                       <button
                         onClick={() => handleRedeem(reward)}
                         disabled={!canAfford || isRedeeming || isOwned || isActive}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all w-full sm:w-auto ${
+                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all w-full sm:w-auto  ${
                           isRedeeming ? "bg-slate-200 text-slate-500" :
                           isActive ? "bg-indigo-600 text-white cursor-default" : // Active Purple State
-                          isOwned ? "bg-[#00b252] text-white cursor-default" : 
-                          canAfford ? "bg-[#27272a] text-white hover:bg-black active:scale-[0.97]" :
-                          "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          isOwned ? "bg-[#00b252] text-white cursor-default cursor-not-allowed" : // Owned Green State
+                          canAfford ? "bg-[#27272a] text-white hover:bg-gray-500 active:scale-[0.97]" :
+                          "bg-slate-100 text-slate-400"
                         }`}
                       >
                         {isRedeeming ? "..." : isActive ? "Active" : isOwned ? "Owned" : "Redeem"}

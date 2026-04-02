@@ -164,11 +164,11 @@ export default function Dashboard() {
             </h1>
           </div>
           
-          <div className="max-w-md w-full bg-white p-3 rounded-2xl shadow-xl border border-green-200 hover:scale-105 transition-all">
+          <div className="max-w-md w-full bg-white p-4 rounded-2xl shadow-xl border border-green-200 hover:scale-105 transition-all">
             <Link href="/progress" className="block">
-              <div className="flex justify-between items-center mb-1.5 px-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-                <span className="text-[10px] font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
+              <div className="flex justify-between items-center mb-1.5 px-3 py-1">
+                <span className="text-[13px] font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
+                <span className="text-[13px] font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
               </div>
               <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div 
@@ -184,7 +184,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 flex-grow min-h-0">
 
           {/* TODAY'S LOG - Column 1 */}
-          <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-green-300 flex flex-col min-h-0">
+          <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-green-200 flex flex-col min-h-0">
             <div className="p-6 pb-3 border-b border-slate-50 shrink-0">
               <h2 className="text-xl font-bold text-slate-800">Today's Log</h2>
             </div>

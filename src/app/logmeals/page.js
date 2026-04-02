@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import PointsModal from "@/components/PointsModal";
@@ -23,6 +23,19 @@ export default function LogMeal() {
 
   const portionOptions = ["Small", "Normal/Plate", "Large", "Cup/Glass"];
   const mealTypes = ["Breakfast", "Lunch", "Dinner"];
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+    };
+
+    checkUser();
+  }, [router]);
 
   const handleVisionScan = async (e) => {
     const file = e.target.files[0];
@@ -68,12 +81,12 @@ export default function LogMeal() {
   };
 
 return (
-    <div className="min-h-screen bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-[#F2FFF5] flex flex-col font-sans text-slate-800">
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28">     
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
           
           {/* PLATE DISPLAY*/}
-          <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
+          <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-xl border border-green-200 p-6 lg:p-8 lg:sticky lg:top-28">
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-extrabold text-slate-900">Your Plate</h2>
               <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
@@ -110,7 +123,7 @@ return (
           </div>
 
           {/* FORM SECTION */}
-          <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-10">
+          <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-xl border border-green-200 p-6 lg:p-10">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-2xl font-extrabold text-slate-900">Log a Meal</h2>
               <label className="cursor-pointer bg-gray-50 hover:bg-gray-100 text-[#00b252] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 border border-slate-100">

@@ -87,11 +87,12 @@ export default function Reports() {
   }, [redemptionDate]);
 
   return (
-    <div className="min-h-[100dvh] bg-[#f0f2f5] flex flex-col font-sans text-slate-800">
+    <div className="min-h-[100dvh] bg-[#F2FFF5] flex flex-col font-sans text-slate-800">
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">     
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+
           {/* LEFT COLUMN: MEAL RECORDS */}
-          <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-8 lg:sticky lg:top-28">
+          <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-xl border border-green-200 p-6 lg:p-8 lg:sticky lg:top-28">
             <h2 className="text-2xl font-extrabold text-slate-900">Meal Records</h2>
             <div className="relative mt-3 mb-6">
               <input type="date" ref={dateInputRefLeft} value={mealDate} onChange={(e) => setMealDate(e.target.value)} className="absolute opacity-0 pointer-events-none" />
@@ -123,7 +124,7 @@ export default function Reports() {
           </div>
 
           {/* RIGHT COLUMN: REDEMPTION HISTORY */}
-          <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 lg:p-10 min-h-[500px]">
+          <div className="lg:col-span-7 w-full bg-white rounded-[2rem] shadow-xl border border-green-200 p-6 lg:p-10 min-h-[500px]">
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-2xl font-extrabold text-slate-900">Redemption History</h2>
               <div className="relative">

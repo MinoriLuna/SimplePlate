@@ -55,7 +55,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#eaedf0] flex flex-col justify-center p-4 relative font-sans text-slate-800">
+    <div className="min-h-[100dvh] bg-[#F2FFF5] flex flex-col justify-center p-4 relative font-sans text-slate-800">
       
       {/* ERROR MODAL */}
       {error && (

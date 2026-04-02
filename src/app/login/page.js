@@ -50,7 +50,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-gray-100 flex flex-col justify-center p-4 relative">
+    <div className="min-h-[100dvh] bg-[#F2FFF5] flex flex-col justify-center p-4 relative">
       {/* Incorrect Details*/}
       {error && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-all">
