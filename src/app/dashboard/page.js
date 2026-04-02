@@ -140,7 +140,7 @@ export default function Dashboard() {
   if (isLoading) return <div className="p-10 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px] pt-32">Loading Dashboard...</div>;
 
   return (
-    <div className="h-screen bg-[#F2FFF5] flex flex-col font-sans text-slate-800 overflow-hidden">
+    <div className="relative min-h-screen bg-[#F2FFF5] font-sans text-slate-800 no-scrollbar">
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
 
         {/* 1. The Streak Modal */}
@@ -189,7 +189,7 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold text-slate-800">Today's Log</h2>
             </div>
             
-            <div className="flex-grow overflow-y-auto custom-scrollbar p-6 pt-3 space-y-3 min-h-0">
+            <div className="flex-grow p-6 pt-3 space-y-3 min-h-0">
               {todayMeals.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-sm">
                   No meals logged yet today!
@@ -222,7 +222,7 @@ export default function Dashboard() {
           </div>
 
           {/* STATS & ACTIONS - Column 2 */}
-          <div className="lg:col-span-4 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1">
+          <div className="lg:col-span-4 flex flex-col gap-6">
             <div className="grid grid-cols-2 gap-4 shrink-0">
               
               {/* WEEKLY SCORE */}

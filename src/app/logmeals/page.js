@@ -89,7 +89,7 @@ return (
           <div className="lg:col-span-5 w-full bg-white rounded-[2rem] shadow-xl border border-green-200 p-6 lg:p-8 lg:sticky lg:top-28">
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-extrabold text-slate-900">Your Plate</h2>
-              <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">
                 {currentPlate.length} items
               </span>
             </div>

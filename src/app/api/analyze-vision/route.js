@@ -15,7 +15,13 @@ export async function POST(req) {
         - Give a MEDIUM score (50-79) for standard mixed meals (e.g., Nasi Lemak, Pasta).
         - Give a LOW score (<50) for deep-fried foods, high sugar drinks, or heavy processed foods.
         - Important: Do NOT penalize a score just because a single ingredient is missing vitamins (like plain chicken). 
-            If it's a healthy cooking method, score it high.
+          
+        SPECIAL RULES:
+        - If it's a healthy cooking method, score it high.
+        - NEUTRAL (0): If the item is plain water, plain tea (no sugar), or black coffee (no sugar/milk). 
+          Return exactly 0 for these.
+        - CAFFEINE/SUGAR (10-30): If it has no "food" value but contains bad elements 
+          (e.g., Kopi O with sugar, sugary sodas, energy drinks, or deep-fried snacks with no protein).
       
       Return ONLY a JSON object:
       {

@@ -100,9 +100,7 @@ export default function Rewards() {
 
   return (
     /* h-screen + overflow-hidden locks the page to the laptop window size */
-    <div className="h-screen bg-[#F2FFF5] flex flex-col font-sans text-slate-800 overflow-hidden">
-      
-      {/* pt-28 and pb-28 clear the sticky header/footer. min-h-0 allows shrinking */}
+    <div className="min-h-0 bg-[#F2FFF5] flex flex-col font-sans text-slate-800">
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
         
         {successMsg && (
@@ -114,7 +112,7 @@ export default function Rewards() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 flex-grow min-h-0">
           
           {/* LEFT COLUMN: PROGRESS & ACTIVE BOOSTS */}
-          <div className="lg:col-span-5 flex flex-col gap-6 overflow-y-auto custom-scrollbar pr-1">
+          <div className="lg:col-span-5 flex flex-col gap-6">
             
             {/* Progress Card */}
             <div className="bg-white rounded-[2rem] shadow-xl border border-green-100 p-6 lg:p-8 shrink-0">

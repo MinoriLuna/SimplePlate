@@ -17,12 +17,13 @@ export default function Header() {
     const fetchSessionAndProfile = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
-
+      
       if (session?.user) {
-const { data: profile, error } = await supabase
+          const { data: profile, error } = await supabase
           .from("profiles")
           .select(`
-            username,
+            username, 
+            is_admin,
             user_stats (points, current_streak)
           `)
           .eq("id", session.user.id)
@@ -32,7 +33,8 @@ const { data: profile, error } = await supabase
           setStats({ 
             points: profile.user_stats?.points,
             streak: profile.user_stats?.current_streak,
-            username: profile.username
+            username: profile.username,
+            isAdmin: profile.is_admin = true
           });
         }
       }
@@ -64,7 +66,7 @@ return (
       <div className="flex-1 flex items-center gap-4">
         {user && !isLoading && (
           <>
-            <Link href="/dashboard" className="text-base font-bold text-slate-500 hover:text-[#00b252] transition-colors flex items-center gap-1 w-fit hover:scale-105">
+            <Link href={stats.isAdmin ? "/admin/dashboard" : "/dashboard"} className="text-base font-bold text-slate-500 hover:text-[#00b252] transition-colors flex items-center gap-1 w-fit hover:scale-105">
               Dashboard
             </Link>
             
