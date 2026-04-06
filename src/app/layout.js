@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "SimplePlate",
-  description: "Framework developed by Next.JS for APU FYP.",
+  description: "A gamified healthy lifestyle app developed by Next.JS for APU Final Project.",
 };
 
 export const viewport = {

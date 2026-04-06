@@ -8,29 +8,12 @@ export async function POST(req) {
     const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
 
     const prompt = `
-      Identify the main dish in this image.
+      Identify the main food item in this image. 
+      Be concise (e.g., "Nasi Lemak", "Chicken Chop", "Miso Soup").
 
-        SCORING LOGIC (0-100):
-        - Give a HIGH score (80-100) for lean proteins (steamed/grilled), vegetables, and whole grains.
-        - Give a MEDIUM score (50-79) for standard mixed meals (e.g., Nasi Lemak, Pasta).
-        - Give a LOW score (<50) for deep-fried foods, high sugar drinks, or heavy processed foods.
-        - Important: Do NOT penalize a score just because a single ingredient is missing vitamins (like plain chicken). 
-          
-        SPECIAL RULES:
-        - If it's a healthy cooking method, score it high.
-        - NEUTRAL (0): If the item is plain water, plain tea (no sugar), or black coffee (no sugar/milk). 
-          Return exactly 0 for these.
-        - CAFFEINE/SUGAR (10-30): If it has no "food" value but contains bad elements 
-          (e.g., Kopi O with sugar, sugary sodas, energy drinks, or deep-fried snacks with no protein).
-      
       Return ONLY a JSON object:
       {
-        "dish_name": "Name of the dish",
-        "carbs_g": number,
-        "protein_g": number,
-        "fat_g": number,
-        "vitamins": number (0-100),
-        "nourish_score": number (0-100)
+        "dish_name": "Name of the dish"
       }
     `;
 
