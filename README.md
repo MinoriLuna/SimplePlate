@@ -7,19 +7,19 @@ SimplePlate is a mobile-first web application designed to transform the tedious 
 ![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
-![Recharts]
+![Recharts](https://img.shields.io/badge/Recharts-22B5BF?style=for-the-badge&logo=chart-line&logoColor=white)
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🎮 Gamified Core
+###  Gamified Core
 * **XP & Leveling System:** Earn XP for every meal logged. Watch your level grow from a "Seedling" to a "Master Chef."
 * **Streak Tracking:** Stay consistent to build your "Day Streak." 
 * **Streak Protection:** Purchase "Streak Pauses" from the Rewards shop to protect your progress on busy days.
 * **Rewards Shop:** Spend earned points on exclusive UI badges and profile customizations.
 
-### 🧠 Smart Logging & "Poppy" UI
+### Smart Logging & "Poppy" UI
 * **AI Insights:** Powered by **Google Gemini Pro Vision** to provide instant feedback and "Nourish Scores" for meal logs.
 * **Spring Physics:** High-stiffness, low-damping animations powered by **Framer Motion** for a tactile, responsive feel.
 * **Activity Calendar:** A custom-built, interactive visual log of monthly nourishment activity.
@@ -27,12 +27,9 @@ SimplePlate is a mobile-first web application designed to transform the tedious 
 ### 🛠 Administrative Portal
 * **User Management:** A secure admin dashboard to monitor community growth, edit user stats (Points/XP/Streaks), and manage roles.
 
-### 📱 PWA (Progressive Web App)
-* **Installable:** Fully configured `manifest.json` allowing users to "Add to Home Screen" for a full-screen, native app experience on iOS and Android.
-
 ---
 
-## 🚀 Tech Stack
+## Tech Used
 
 | Layer | Technology |
 | :--- | :--- |
@@ -44,7 +41,7 @@ SimplePlate is a mobile-first web application designed to transform the tedious 
 
 ---
 
-## 🏗 System Architecture & Automation
+## System Architecture & Automation
 
 The project implements **Event-Driven Database Architecture** to ensure data integrity and a seamless onboarding experience.
 
@@ -57,15 +54,6 @@ Using **PostgreSQL Triggers** in the `auth` schema, the system automates user in
 ### **Security & Privacy**
 * **Salted Hashing:** User credentials are encrypted using Bcrypt within the secure `auth.users` table.
 * **RLS (Row Level Security):** Strict PostgreSQL policies ensure users can only access their own dietary data.
-
----
-
-## 📈 FYP Context
-This project serves as a capstone for the **Computer Science / Software Engineering** degree program. It demonstrates:
-* **Full-Stack Mastery:** Utilizing modern SSR (Server Side Rendering) frameworks.
-* **Database Engineering:** Complex SQL triggers, Views, and Schema management.
-* **UX/UI Excellence:** Implementing motion design as a functional feedback tool.
-* **Cloud Infrastructure:** Continuous Deployment via Vercel and secure environment management.
 
 ---
 
