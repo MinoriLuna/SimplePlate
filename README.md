@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🥗 SimplePlate: Nourish Your Habits
+**A Gamified Habit-Builder for Healthy Eating**
 
-## Getting Started
+SimplePlate is a mobile-first web application designed to transform the tedious task of meal logging into a rewarding, RPG-like experience. Developed as a **Final Year Project (FYP)**, it focuses on user retention through "Poppy" UI animations, streak protection, and AI-driven nutritional feedback.
 
-First, run the development server:
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://simple-plate.vercel.app)
+![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
+![Recharts]
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Key Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 🎮 Gamified Core
+* **XP & Leveling System:** Earn XP for every meal logged. Watch your level grow from a "Seedling" to a "Master Chef."
+* **Streak Tracking:** Stay consistent to build your "Day Streak." 
+* **Streak Protection:** Purchase "Streak Pauses" from the Rewards shop to protect your progress on busy days.
+* **Rewards Shop:** Spend earned points on exclusive UI badges and profile customizations.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🧠 Smart Logging & "Poppy" UI
+* **AI Insights:** Powered by **Google Gemini Pro Vision** to provide instant feedback and "Nourish Scores" for meal logs.
+* **Spring Physics:** High-stiffness, low-damping animations powered by **Framer Motion** for a tactile, responsive feel.
+* **Activity Calendar:** A custom-built, interactive visual log of monthly nourishment activity.
 
-## Learn More
+### 🛠 Administrative Portal
+* **User Management:** A secure admin dashboard to monitor community growth, edit user stats (Points/XP/Streaks), and manage roles.
 
-To learn more about Next.js, take a look at the following resources:
+### 📱 PWA (Progressive Web App)
+* **Installable:** Fully configured `manifest.json` allowing users to "Add to Home Screen" for a full-screen, native app experience on iOS and Android.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Tech Stack
 
-## Deploy on Vercel
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | Next.js 14 (App Router), Tailwind CSS |
+| **Animations** | Framer Motion (Spring Physics) |
+| **Backend** | Supabase (PostgreSQL, Auth, Edge Functions) |
+| **AI Engine** | Google Gemini 1.5 Flash |
+| **Deployment** | Vercel (CI/CD Pipeline) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🏗 System Architecture & Automation
+
+The project implements **Event-Driven Database Architecture** to ensure data integrity and a seamless onboarding experience.
+
+### **Database Triggers**
+Using **PostgreSQL Triggers** in the `auth` schema, the system automates user initialization:
+1.  **Profiles:** Automatically creates a public profile upon sign-up.
+2.  **User Stats:** Initializes Level 1, 10 XP, and 0 Points.
+3.  **User Settings:** Generates default "Poppy" UI preferences.
+
+### **Security & Privacy**
+* **Salted Hashing:** User credentials are encrypted using Bcrypt within the secure `auth.users` table.
+* **RLS (Row Level Security):** Strict PostgreSQL policies ensure users can only access their own dietary data.
+
+---
+
+## 📈 FYP Context
+This project serves as a capstone for the **Computer Science / Software Engineering** degree program. It demonstrates:
+* **Full-Stack Mastery:** Utilizing modern SSR (Server Side Rendering) frameworks.
+* **Database Engineering:** Complex SQL triggers, Views, and Schema management.
+* **UX/UI Excellence:** Implementing motion design as a functional feedback tool.
+* **Cloud Infrastructure:** Continuous Deployment via Vercel and secure environment management.
+
+---
+
+## 👨‍💻 Author
+**Ashton Chai** *Lead Developer & UI Designer*
