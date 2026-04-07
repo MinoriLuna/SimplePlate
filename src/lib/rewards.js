@@ -52,15 +52,11 @@ export const processRedemption = async (supabase, profile, reward) => {
 
     if (currentPoints < cost) return { success: false, error: "Insufficient points!" };
 
-    // Calculate the 24-hour expiration timestamp
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 24);
     const expiryISO = expiryDate.toISOString();
 
-    // Prepare the update object
-    let updates = { 
-      points: currentPoints - cost
-    };
+    let updates = { points: currentPoints - cost };
 
     // ITEM TYPE LOGIC
     if (reward.item_type === "xp_boost") {
@@ -86,6 +82,19 @@ export const processRedemption = async (supabase, profile, reward) => {
       .eq("id", profile.id);
 
     if (error) throw error;
+
+    // Update the redemptions table for tracking
+    const { error: logError } = await supabase
+      .from("redemptions")
+      .insert({
+        user_id: profile.id,
+        reward_id: reward.id,
+        status: 'active'
+      });
+
+      //Console Log 
+      if (logError) {
+      console.error("Redemption log failed, but points were deducted:", logError);}
 
     // Return the updated values so the UI can refresh immediately
     return { 
