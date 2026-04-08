@@ -31,7 +31,6 @@ export default function Register() {
 
     setIsLoading(true);
 
-    // This is where the magic happens for your SQL Trigger
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -55,7 +54,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#F2FFF5] flex flex-col justify-center p-4 relative font-sans text-slate-800">
+    <div className="min-h-[100dvh] bg-[#F2FFF5] flex flex-col justify-center p-4 relative font-sans text-slate-800 pt-32 pb-20">
       
       {/* ERROR MODAL */}
       {error && (

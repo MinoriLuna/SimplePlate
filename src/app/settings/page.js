@@ -102,11 +102,10 @@ export default function Settings() {
     }
   };
 
-  // --- YOUR EXACT LAYOUT BELOW (NO CHANGES) ---
   return (
-    <div className="min-h-[100dvh] bg-[#F2FFF5] flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800">
+    <div className="min-h-[100dvh] bg-[#F2FFF5] flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800 pt-32 pb-32">
       
-      <main className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-green-200 p-8 sm:p-10 pt-32 pb-20">
+      <main className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-green-200 p-8 sm:p-10 ">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-[#0f172a]">Profile Settings</h1>
           <p className="text-slate-500 text-sm mt-1">Update your account details and preferences.</p>
