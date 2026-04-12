@@ -303,7 +303,7 @@ return (
               </div>
 
               {/* Weekly Breakdown */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] p-10 shadow-sm border border-green-200 max-w-3xl align-center mx-auto">
+              <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] p-10 shadow-sm border border-green-200 max-w-3xl align-center mx-auto overflow-y-auto custom-scrollbar max-h-[600px]">
                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-8">Weekly Breakdown</h3>
                 <div className="space-y-4">
                   {mealsData.map((meal, i) => {
@@ -332,7 +332,7 @@ return (
                         </button>
                         <AnimatePresence>
                           {isExpanded && (
-                            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="px-6 pb-6 border-t border-green-50 bg-slate-50/50 overflow-hidden">
+                            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="px-6 pb-6 border-t border-green-50 bg-slate-50/50 overflow-hidden ">
                               <div className="pt-5 grid grid-cols-4 gap-4">
                                 <div className="text-center"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Carbs</p><p className="text-sm font-black text-blue-600">{meal.carbs_g}g</p></div>
                                 <div className="text-center border-x border-slate-200"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Protein</p><p className="text-sm font-black text-emerald-600">{meal.protein_g}g</p></div>

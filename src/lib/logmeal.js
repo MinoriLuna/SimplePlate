@@ -84,5 +84,9 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType) =
 
   if (updateError) throw updateError;
 
+  if (typeof window !== "undefined") {
+  window.dispatchEvent(new Event("statsUpdated"));
+}
+
   return { points: pointsGained, xp: xpGained, isBoostedXP, isBoostedPoints, streak: newStreak, isFirstLogToday };
 };

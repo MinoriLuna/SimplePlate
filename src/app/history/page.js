@@ -96,7 +96,9 @@ export default function HistoryPage() {
       <AnimatePresence mode="wait">
         {isLoading || !profile ? (
           <motion.div key="loader" exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-[#F2FFF5] flex flex-col items-center justify-center">
-            <img src="/images/logo.png" alt="Logo" className="w-16 h-16 animate-pulse" />
+            <p className="text-[10px] font-black text-green-600 uppercase tracking-[0.4em] animate-pulse">
+              Nourishing your data...
+            </p>
           </motion.div>
         ) : (
 

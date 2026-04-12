@@ -34,7 +34,7 @@ export default function Header() {
             points: profile.user_stats?.points,
             streak: profile.user_stats?.current_streak,
             username: profile.username,
-            isAdmin: profile.is_admin = true
+            isAdmin: profile.is_admin
           });
         }
       }
@@ -44,15 +44,22 @@ export default function Header() {
     
     fetchSessionAndProfile();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    window.addEventListener("statsUpdated", fetchSessionAndProfile); //Header refresh on stats update
+    const { data: { authListener } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       if (session?.user) {
         fetchSessionAndProfile(); 
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+    if (authListener?.subscription) {
+      authListener.subscription.unsubscribe();
+    }
+    // Remove the global event listener
+    window.removeEventListener("statsUpdated", fetchSessionAndProfile);
+  };
+}, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

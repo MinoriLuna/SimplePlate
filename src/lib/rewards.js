@@ -96,6 +96,10 @@ export const processRedemption = async (supabase, profile, reward) => {
       if (logError) {
       console.error("Redemption log failed, but points were deducted:", logError);}
 
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("statsUpdated"));
+        }
+
     // Return the updated values so the UI can refresh immediately
     return { 
       success: true, 

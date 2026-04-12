@@ -141,7 +141,6 @@ export default function Dashboard() {
   if (isLoading || !profile) {
   return (
     <div className="fixed inset-0 bg-[#F2FFF5] flex flex-col items-center justify-center z-[100]">
-      {/* Your Animated Logo */}
       <motion.div
         animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
         transition={{ duration: 2, repeat: Infinity }}

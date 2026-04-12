@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-w-md min-h-screen bg-[url('/images/index.png')] bg-cover bg-center flex items-center justify-center px-6">
+    <div className="min-w min-h-screen bg-[url('/images/index.png')] bg-cover bg-center flex items-center justify-center">
       <div className="max-w-md w-full text-center space-y-8 p-8">
         
         {/* Main */}
