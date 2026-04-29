@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import PointsModal from "@/components/PointsModal";
 import { submitMealLog } from "../../lib/logmeal";
+import { PlateIcon } from "@/components/icons/Icons";
 
 export default function LogMeal() {
   const router = useRouter();
@@ -96,7 +97,9 @@ return (
 
             {currentPlate.length === 0 ? (
               <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
-                <span className="text-4xl mb-3 block">🍽️</span>
+                <div className="flex justify-center mb-3">
+                  <PlateIcon className="w-16 h-16 text-slate-300" />
+                </div>
                 <p className="text-lg text-slate-700 mb-1">Your plate is empty</p>
                 <p className="text-slate-400 text-sm font-medium">Add food from the right!</p>
               </div>

@@ -5,7 +5,7 @@
   --background: #F2FFF5; /* The Signature Mint */
   --foreground: #1e293b; /* Professional Slate Gray (Visible text!) */
   --accent: #00b252;     /* SimplePlate Green */
-  
+
   background-color: var(--background) !important;
 }
 

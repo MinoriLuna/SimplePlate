@@ -200,14 +200,14 @@ return (
               </h1>
             </div>
             
-            <div className="max-w-md w-full bg-white p-4 rounded-2xl shadow-xl border border-green-200 hover:scale-105 transition-all">
+            <div className="max-w-md w-full bg-gradient-to-br from-white to-slate-50 p-4 rounded-2xl shadow-2xl border border-slate-100 hover:scale-105 transition-all">
               <Link href="/progress" className="block">
                 <div className="flex justify-between items-center mb-1.5 px-3 py-1">
                   <span className="text-[13px] font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-                  <span className="text-[13px] font-bold text-slate-400">{xpInCurrentLevel}/100 XP</span>
+                  <span className="text-[13px] font-bold text-indigo-600">{xpInCurrentLevel}/100 XP</span>
                 </div>
                 <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
                     style={{ width: `${xpInCurrentLevel}%` }}
                   />
@@ -220,7 +220,7 @@ return (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 flex-grow min-h-0">
 
             {/* TODAY'S LOG - Column 1 */}
-            <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl border border-green-200 flex flex-col min-h-0">
+            <div className="lg:col-span-7 bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-2xl border border-slate-100 flex flex-col min-h-0">
               <div className="p-6 pb-3 border-b border-slate-50 shrink-0">
                 <h2 className="text-xl font-bold text-slate-800">Today's Log</h2>
               </div>
@@ -283,21 +283,21 @@ return (
             {/* STATS & ACTIONS - Column 2 */}
             <div className="lg:col-span-4 flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-4 shrink-0">
-                <div className="bg-white p-5 rounded-3xl shadow-xl border border-green-200 flex flex-col items-center justify-center text-center">
+                <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${status.bg} ${status.color}`}>
                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   </div>
-                  <h3 className={`text-xl font-black ${profile.display_numbers ? 'text-slate-800' : status.color}`}>
+                  <h3 className={`text-xl font-black ${profile.display_numbers ? 'text-emerald-600' : status.color}`}>
                     {profile.display_numbers ? `${weeklyAvgScore}` : status.label}
                   </h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Weekly Score</p>
                 </div>
 
-                <div className="bg-white p-5 rounded-3xl shadow-xl border border-green-200 flex flex-col items-center justify-center text-center">
+                <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
                   <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mb-2">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path></svg>
                   </div>
-                  <span className="text-2xl font-extrabold text-slate-800">{profile.current_streak}</span>
+                  <span className="text-2xl font-extrabold text-orange-600">{profile.current_streak}</span>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Day Streak</p>
                   {profile.pause_streak && (
                     <div className="mt-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full flex items-center gap-1.5 animate-in fade-in zoom-in duration-300">
@@ -307,7 +307,7 @@ return (
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-3xl shadow-xl border border-green-200 flex flex-col gap-3 shrink-0">
+              <div className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-3xl shadow-2xl border border-slate-100 flex flex-col gap-3 shrink-0">
                 <Link href="/logmeals" className="w-full bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-3.5 rounded-xl transition-all hover:shadow-lg active:scale-95 text-sm text-center shadow-md shadow-green-100 hover:scale-105">
                   Log New Meal
                 </Link>

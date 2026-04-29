@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
 import { processRedemption, ownsItem } from "../../lib/rewards";
+import { GiftIcon } from "../../components/icons/Icons";
 
 export default function Rewards() {
   const router = useRouter();
@@ -112,7 +113,7 @@ export default function Rewards() {
           <div className="lg:col-span-5 flex flex-col gap-6">
             
             {/* Progress Card */}
-            <div className="bg-white rounded-[2rem] shadow-xl border border-green-100 p-6 lg:p-8 shrink-0">
+            <div className="bg-gradient-to-br from-white to-slate-50 rounded-[2rem] shadow-2xl border border-slate-100 p-6 lg:p-8 shrink-0">
               <h2 className="text-xl font-black text-slate-900 mb-6 tracking-tight">Your Progress!</h2>
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2 px-1">
@@ -128,7 +129,9 @@ export default function Rewards() {
               </div>
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center text-sm border border-slate-100">🎁</div>
+                  <div className="w-8 h-8 bg-blue-50 rounded-lg shadow-sm flex items-center justify-center border border-blue-100">
+                    <GiftIcon className="w-5 h-5 text-blue-600" />
+                  </div>
                   <span className="font-bold text-slate-700 text-xs    tracking-wider">Balance</span>
                 </div>
                 <span className="text-xl font-black text-blue-600">{profile.points}</span>
@@ -136,7 +139,7 @@ export default function Rewards() {
             </div>
 
             {/* ACTIVE BOOSTS (Replacing Quests) */}
-            <div className="bg-white rounded-[2rem] shadow-xl border border-green-100 p-6 lg:p-8 shrink-0">
+            <div className="bg-gradient-to-br from-white to-slate-50 rounded-[2rem] shadow-2xl border border-slate-100 p-6 lg:p-8 shrink-0">
               <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Active Boosts</h2>
               <div className="space-y-3">
                 
@@ -144,7 +147,7 @@ export default function Rewards() {
                 <div className={`p-4 rounded-2xl border transition-all ${xpTimer ? 'bg-indigo-50 border-indigo-100' : 'bg-slate-50 border-slate-100'}`}>
                   <div className="flex justify-between items-center">
                     <span className={`font-bold text-xs ${xpTimer ? 'text-indigo-600' : 'text-slate-400'}`}>2x XP Booster</span>
-                    {xpTimer && <span className="bg-indigo-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase animate-pulse">Active</span>}
+                    {xpTimer && <span className="bg-indigo-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase animate-pulse glow-active">Active</span>}
                   </div>
                   <p className={`text-[10px] font-bold mt-1 ${xpTimer ? 'text-indigo-400' : 'text-slate-300'}`}>
                     {xpTimer || "Not Active"}
@@ -155,7 +158,7 @@ export default function Rewards() {
                 <div className={`p-4 rounded-2xl border transition-all ${pointsTimer ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
                   <div className="flex justify-between items-center">
                     <span className={`font-bold text-xs ${pointsTimer ? 'text-blue-600' : 'text-slate-400'}`}>2x Points Booster</span>
-                    {pointsTimer && <span className="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase animate-pulse">Active</span>}
+                    {pointsTimer && <span className="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase animate-pulse glow-active">Active</span>}
                   </div>
                   <p className={`text-[10px] font-bold mt-1 ${pointsTimer ? 'text-blue-400' : 'text-slate-300'}`}>
                     {pointsTimer || "Not Active"}
@@ -167,7 +170,7 @@ export default function Rewards() {
           </div>
 
           {/* RIGHT COLUMN: ITEM SHOP */}
-          <div className="lg:col-span-7 w-full bg-[#e2e8f0] rounded-[2.5rem] shadow-inner shadow-xl border border-green-200 p-6 lg:p-8 flex flex-col">
+          <div className="lg:col-span-7 w-full bg-gradient-to-br from-slate-50 to-slate-100 rounded-[2.5rem] shadow-2xl border border-slate-200 p-6 lg:p-8 flex flex-col">
             <h2 className="text-2xl font-black text-slate-800 mb-6 px-2">Item Shop</h2>
             
             {/* Only the shop list scrolls inside this container */}

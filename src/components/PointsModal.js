@@ -1,14 +1,23 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { GiftIcon, FireIcon } from "./icons/Icons";
+
 // Added xp and isBoosted to the props
 export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, streakIncreased, streakCount, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 p-8 text-center border border-slate-100">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+        className="bg-gradient-to-br from-white to-slate-50 rounded-[2.5rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 p-8 text-center border border-slate-100">
         
         {/* Celebration Icon */}
-        <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-          <span className="text-5xl animate-bounce">🎁</span>
+        <div className="w-24 h-24 bg-gradient-to-br from-green-50 to-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <GiftIcon className="w-7 h-7 text-green-600 animate-bounce" />
+          </div>
           <div className="absolute inset-0 bg-green-400/20 rounded-full animate-ping opacity-25"></div>
         </div>
 
@@ -23,7 +32,7 @@ export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, 
         {streakIncreased && (
           <div className="mb-4 animate-in zoom-in-50 duration-500 delay-300 fill-mode-both">
             <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-4 py-2 rounded-full shadow-sm">
-              <span className="text-lg">🔥</span>
+              <FireIcon className="w-4 h-4 text-orange-600" />
               <span className="font-bold text-orange-600 text-sm tracking-tight">
                 Day {streakCount} Streak!
               </span>
@@ -64,7 +73,7 @@ export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, 
         >
           Back to Dashboard
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 }

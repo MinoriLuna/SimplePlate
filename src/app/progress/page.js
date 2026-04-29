@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from "framer-motion";
 import { processRedemption, ownsItem } from "../../lib/rewards";
+import { BrainIcon, SparkIcon, LightningIcon, WandIcon } from "../../components/icons/Icons";
 
 export default function Progress() {
   const router = useRouter();
@@ -157,7 +158,7 @@ return (
           
           {/* LEFT COLUMN: PROFILE & STATS */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 shadow-xl border border-green-200">
+            <div className="bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-[2rem] p-6 shadow-2xl border border-slate-100">
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-3">
                   <div>
@@ -184,16 +185,16 @@ return (
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col items-center justify-center p-4 bg-[#F2FFF5]/50 rounded-[1.5rem] border border-green-100/50 text-center">
+                <div className="flex flex-col items-center justify-center p-4 bg-[#F2FFF5]/50 rounded-[1.5rem] border border-slate-100 text-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance</span>
                   <div className="flex items-center gap-1.5 font-black text-blue-600 text-lg">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
                     {profile.points}
                   </div>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-[#F2FFF5]/50 rounded-[1.5rem] border border-green-100/50 text-center">
+                <div className="flex flex-col items-center justify-center p-4 bg-[#F2FFF5]/50 rounded-[1.5rem] border border-slate-100 text-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Streak</span>
-                  <div className="flex items-center gap-1.5 font-black text-orange-500 text-lg">
+                  <div className="flex items-center gap-1.5 font-black text-orange-600 text-lg">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd"></path></svg>
                     {profile.current_streak}
                   </div>
@@ -202,9 +203,9 @@ return (
             </div>
 
             {/* TOGGLE BUTTON */}
-            <button 
+            <button
               onClick={() => setShowDetails(!showDetails)}
-              className="w-full text-left bg-white/80 backdrop-blur-sm rounded-[2rem] p-8 shadow-xl border border-green-200"
+              className="w-full text-left bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-[2rem] p-8 shadow-2xl border border-slate-100"
             >
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -233,9 +234,11 @@ return (
 
           {/* RIGHT COLUMN: AI HEALTH INSIGHTS */}
           <div className="lg:col-span-7">
-            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-8 lg:p-10 shadow-xl border border-green-200 h-full">
+            <div className="bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-[2rem] p-8 lg:p-10 shadow-2xl border border-slate-100 h-full">
               <div className="flex items-center gap-3 mb-8">
-                <span className="text-2xl">🧠</span>
+                <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                  <BrainIcon className="w-5 h-5 text-indigo-600" />
+                </div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">AI Health Insights</h3>
               </div>
               
@@ -250,7 +253,9 @@ return (
                 ) : (
                   <motion.div key="res" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
                     <div className="p-6 bg-[#F2FFF5]/80 rounded-[2rem] border border-green-200 flex gap-4">
-                      <span className="text-xl">✨</span>
+                      <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
+                        <SparkIcon className="w-6 h-6 text-yellow-500" />
+                      </div>
                       <div>
                         <p className="text-sm font-bold text-slate-700 leading-relaxed italic">"{aiInsight.insight}"</p>
                         <div className="mt-4 p-3 bg-white/50 rounded-xl inline-block border border-green-100/50">
@@ -260,12 +265,16 @@ return (
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100">
-                        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2"><span>⚡</span> Healthy Additions</h4>
-                        <p className="text-xs font-bold text-slate-600 leading-snug">{aiInsight.alternative_suggestion.power_up}</p>
+                        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                          <LightningIcon className="w-4 h-4" /> Healthy Additions
+                        </h4>
+                        <p className="text-xs font-bold text-slate-600 leading-snug">{aiInsight?.alternative_suggestion?.power_up || "Try adding more nutrients to your meals!"}</p>
                       </div>
                       <div className="p-5 bg-purple-50/50 rounded-2xl border border-purple-100">
-                        <h4 className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-2"><span>🪄</span> Fun Alternatives</h4>
-                        <p className="text-xs font-bold text-slate-600 leading-snug">{aiInsight.alternative_suggestion.flavor_swap}</p>
+                        <h4 className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                          <WandIcon className="w-4 h-4" /> Fun Alternatives
+                        </h4>
+                        <p className="text-xs font-bold text-slate-600 leading-snug">{aiInsight?.alternative_suggestion?.flavor_swap || "Mix up your meals with healthier alternatives!"}</p>
                       </div>
                     </div>
                     <button onClick={() => setAiInsight(null)} className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">← Exit Analysis</button>
@@ -287,7 +296,7 @@ return (
               className="mt-10 space-y-8"
             >
               {/* Trend Chart */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] p-10 shadow-sm border border-green-200">
+              <div className="bg-gradient-to-br from-white to-slate-50 backdrop-blur-sm rounded-[2.5rem] p-10 shadow-2xl border border-slate-100">
                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-10">Nourish Trend</h3>
                 <div className="h-[250px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
