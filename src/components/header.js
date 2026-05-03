@@ -88,7 +88,7 @@ return (
       
       {/* --- CENTER: Logo (Hidden on Mobile!) --- */}
       <Link href="/" className="hidden md:block text-2xl font-bold flex-1 text-center text-gray-900 hover:text-[#00b252] transition-colors hover:scale-105">
-        SimplePlate
+        Simple<span className="text-green-300">Plate</span>
       </Link>
       
       {/* --- RIGHT SIDE: Gamification & Auth --- */}
