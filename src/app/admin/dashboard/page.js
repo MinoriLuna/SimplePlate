@@ -97,7 +97,7 @@ export default function AdminDashboard() {
           key="admin-loader"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-[#F2FFF5] flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center"
         >
           <motion.div
             animate={{ scale: [1, 1.1, 1] }}
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
           key="admin-content"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#F2FFF5] flex min-h-screen no-scrollbar"
+          className="flex min-h-screen no-scrollbar"
         >  
           <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28">
             

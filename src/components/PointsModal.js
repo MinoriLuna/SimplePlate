@@ -69,7 +69,7 @@ export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, 
 
         <button
           onClick={onClose}
-          className="w-full py-4 bg-[#27272a] hover:bg-black text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-200 transition-all active:scale-95"
+          className="w-full py-4 bg-surface-dark hover:bg-black text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-200 transition-all active:scale-95"
         >
           Back to Dashboard
         </button>

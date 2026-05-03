@@ -13,7 +13,7 @@ export default function Template({ children }) {
         damping: 18,    // Lower damping = A bit of "Bounce"
         mass: 0.8       // Lighter mass = Snappier movement
       }}
-      className="min-h-screen w-full bg-[#F2FFF5]"
+      className="min-h-screen w-full"
     >
       {children}
     </motion.div>

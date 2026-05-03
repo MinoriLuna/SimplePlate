@@ -13,14 +13,8 @@ export default function Dashboard() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState({
-    name: "",
-    username: "",
-    points: 0,
-    current_streak: 0,
-    pause_streak: false,
-    display_numbers: false,
-    total_xp: 0,
-    inventory: [],
+    name: "", username: "", points: 0, current_streak: 0,
+    pause_streak: false, display_numbers: false, total_xp: 0, inventory: [],
   });
   const [todayMeals, setTodayMeals] = useState([]);
   const [weeklyAvgScore, setWeeklyAvgScore] = useState(0);
@@ -30,28 +24,17 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        router.push("/login");
-        return;
-      }
+      if (!session) { router.push("/login"); return; }
 
       try {
-        // 1. Fetch Profile ,Stats, Settings and Streak Check
         await StreakCount(supabase, session.user.id);
         const { data: userData, error: userError } = await supabase
           .from("profiles")
-          .select(`
-            name, 
-            username, 
-            user_stats (points, current_streak, pause_streak, total_xp, inventory, lastchecked),
-            user_settings (display_numbers)
-          `)
+          .select(`name, username, user_stats (points, current_streak, pause_streak, total_xp, inventory, lastchecked), user_settings (display_numbers)`)
           .eq("id", session.user.id)
           .single();
 
         if (userError) throw userError;
-
         if (userData) {
           setProfile({
             name: userData.name || "User",
@@ -65,30 +48,20 @@ export default function Dashboard() {
           });
         }
 
-        // 2. Fetch Today's Meals
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
-
         const { data: mealsData } = await supabase
-          .from("meals")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .gte("logged_at", startOfDay.toISOString())
-          .order("logged_at", { ascending: true });
-
+          .from("meals").select("*").eq("user_id", session.user.id)
+          .gte("logged_at", startOfDay.toISOString()).order("logged_at", { ascending: true });
         if (mealsData) setTodayMeals(mealsData);
 
-        // 3. Fetch Weekly Meals (Monday to Sunday logic)
         const now = new Date();
-        const dayOfWeek = now.getDay(); 
+        const dayOfWeek = now.getDay();
         const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
         const startOfWeek = new Date(now.setDate(diff));
         startOfWeek.setHours(0, 0, 0, 0);
-
         const { data: weeklyData } = await supabase
-          .from("meals")
-          .select("nourish_score")
-          .eq("user_id", session.user.id)
+          .from("meals").select("nourish_score").eq("user_id", session.user.id)
           .gte("logged_at", startOfWeek.toISOString());
 
         if (weeklyData && weeklyData.length > 0) {
@@ -96,233 +69,197 @@ export default function Dashboard() {
           if (scoredMeals.length > 0) {
             const total = scoredMeals.reduce((acc, m) => acc + (m.nourish_score || 0), 0);
             setWeeklyAvgScore(Math.round(total / scoredMeals.length));
-            setWeeklyMealCount(scoredMeals.length); 
+            setWeeklyMealCount(scoredMeals.length);
           }
         }
 
-        if (mealsData && mealsData.length === 0 && new Date().getHours() >= 20) { //Change this to small for insta testing
-        setShowStreakModal(true);
-      }
-
+        if (mealsData && mealsData.length === 0 && new Date().getHours() >= 20) {
+          setShowStreakModal(true);
+        }
       } catch (err) {
         console.error("Dashboard error:", err);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchDashboardData();
   }, [router]);
 
-  // Nourish Score Status Logic
   const getNourishStatus = (score) => {
-    if (weeklyMealCount === 0) return { label: "No Logs", color: "text-slate-300", bg: "bg-slate-50" };
-    if (score < 25) return { label: "Needs Focus", color: "text-red-500", bg: "bg-red-50" };
-    if (score < 50) return { label: "Normal", color: "text-amber-500", bg: "bg-amber-50" };
-    if (score < 75) return { label: "Good!", color: "text-blue-500", bg: "bg-blue-50" };
-    return { label: "Amazing!", color: "text-emerald-500", bg: "bg-emerald-50" };
+    if (weeklyMealCount === 0) return { label: "No Logs", color: "text-slate-400" };
+    if (score < 25) return { label: "Needs Focus", color: "text-red-500" };
+    if (score < 50) return { label: "Normal", color: "text-amber-500" };
+    if (score < 75) return { label: "Good!", color: "text-blue-500" };
+    return { label: "Amazing!", color: "text-emerald-500" };
   };
 
   const status = getNourishStatus(weeklyAvgScore);
-
-  const getMealIcon = (type) => {
-    const icons = { 
-      "Breakfast": "/images/breakfast.png", 
-      "Lunch": "/images/lunch.png", 
-      "Dinner": "/images/dinner.png" 
-    };
-    return <img src={icons[type] || "/images/defaultmeal.png"} alt={type} className="w-10 h-10 object-contain" />;
-  };
-
   const currentLevel = Math.floor((profile.total_xp || 0) / 100) + 1;
   const xpInCurrentLevel = (profile.total_xp || 0) % 100;
   const hasBadge = ownsItem(profile.inventory, 4);
 
-  if (isLoading || !profile) {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  const mealIcons = { Breakfast: "/images/breakfast.png", Lunch: "/images/lunch.png", Dinner: "/images/dinner.png" };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-[100] md:ml-[220px]">
+        <p className="text-[10px] font-black text-green-600 uppercase tracking-[0.4em] animate-pulse">
+          Nourishing your data...
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-[#F2FFF5] flex flex-col items-center justify-center z-[100]">
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="mb-4"
-      >
-      </motion.div>
-      <p className="text-[10px] font-black text-green-600 uppercase tracking-[0.4em] animate-pulse">
-        Nourishing your data...
-      </p>
-    </div>
-  );
-}
-  
-return (
-  //Franer Motion
-  <AnimatePresence mode="wait">
-    {isLoading || !profile ? (
-      <motion.div
-        key="loader"
-        initial={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#F2FFF5] flex flex-col items-center justify-center"
-      >
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <img src="/images/logo.png" alt="Logo" className="w-16 h-16 object-contain" />
-        </motion.div>
-      </motion.div>
-    ) : (
+    <AnimatePresence mode="wait">
       <motion.div
         key="dashboard"
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative min-h-screen bg-[#F2FFF5] font-sans text-slate-800 no-scrollbar"
+        className="min-h-screen font-sans text-slate-800 no-scrollbar"
       >
-        {/* Main Content */}
-        <main className="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-28 flex flex-col min-h-0">
-          <StreakWarningModal 
-            isOpen={showStreakModal} 
-            onClose={() => setShowStreakModal(false)} 
-            streakCount={profile.current_streak} 
-          />
+        <StreakWarningModal isOpen={showStreakModal} onClose={() => setShowStreakModal(false)} streakCount={profile.current_streak} />
 
-          {/* Welcome Message */}
-          <div className="flex flex-col items-center text-center mb-8 shrink-0">
-            <div className="flex justify-center items-center gap-3 mb-4">
-              <Link href="/settings" className="text-slate-400 hover:text-slate-700 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 1.65 0l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              </Link>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800 flex items-center gap-3">
-                Welcome Back, <span className="text-[#00b252]">{profile.name}</span>
-                {hasBadge && (
-                  <img src="/images/goldenbadge.png" alt="Golden Badge" className="w-8 h-8 object-contain drop-shadow-sm" />
-                )}
+        {/* ── Banner ── */}
+        <div className="bg-gradient-to-r from-green-800 to-emerald-600 p-6 lg:p-8 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_75%_50%,white_0%,transparent_65%)]" />
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-green-200 text-xs font-bold uppercase tracking-widest mb-1">
+                {new Date().toLocaleDateString("en-MY", { weekday: "long", day: "numeric", month: "long" })}
+              </p>
+              <h1 className="text-2xl lg:text-3xl font-black text-white flex items-center gap-3 flex-wrap">
+                {getGreeting()}, {profile.name}
+                {hasBadge && <img src="/images/goldenbadge.png" alt="Badge" className="w-8 h-8 object-contain drop-shadow" />}
               </h1>
+              <p className="text-green-100 text-sm mt-1">Track your meals and stay on top of your nutrition!</p>
+              {/* XP Bar */}
+              <div className="mt-4 max-w-xs">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-white text-xs font-black">Level {currentLevel}</span>
+                  <span className="text-green-200 text-xs font-bold">{xpInCurrentLevel}/100 XP</span>
+                </div>
+                <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white transition-all duration-1000 rounded-full" style={{ width: `${xpInCurrentLevel}%` }} />
+                </div>
+              </div>
             </div>
-            
-            <div className="max-w-md w-full bg-gradient-to-br from-white to-slate-50 p-4 rounded-2xl shadow-2xl border border-slate-100 hover:scale-105 transition-all">
-              <Link href="/progress" className="block">
-                <div className="flex justify-between items-center mb-1.5 px-3 py-1">
-                  <span className="text-[13px] font-black text-slate-400 uppercase tracking-tighter">Level {currentLevel}</span>
-                  <span className="text-[13px] font-bold text-indigo-600">{xpInCurrentLevel}/100 XP</span>
-                </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
-                    style={{ width: `${xpInCurrentLevel}%` }}
-                  />
-                </div>
+          </div>
+        </div>
+
+        {/* ── Main Content ── */}
+        <div className="p-6 lg:p-8 space-y-6">
+
+          {/* Stat Cards */}
+          <div className="grid grid-cols-3 gap-3 lg:gap-4">
+            {/* Streak */}
+            <div className="bg-gradient-to-br from-orange-400 to-amber-500 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-orange-100">
+              <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="text-2xl lg:text-3xl font-black">{profile.current_streak}</div>
+              <div className="text-orange-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Day Streak</div>
+              {profile.pause_streak && <div className="mt-1.5 text-[8px] bg-white/20 rounded-lg px-2 py-0.5 font-black uppercase text-white inline-block">Protected</div>}
+            </div>
+
+            {/* Weekly Score */}
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-green-100">
+              <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-2xl lg:text-3xl font-black">
+                {profile.display_numbers ? weeklyAvgScore : status.label}
+              </div>
+              <div className="text-green-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Weekly Score</div>
+            </div>
+
+            {/* Meals Today */}
+            <div className="bg-gradient-to-br from-teal-400 to-cyan-500 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-teal-100">
+              <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
+                </svg>
+              </div>
+              <div className="text-2xl lg:text-3xl font-black">{todayMeals.length}</div>
+              <div className="text-teal-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Meals Today</div>
+            </div>
+          </div>
+
+          {/* Today's Log */}
+          <div className="bg-white rounded-2xl shadow-sm border border-green-100 overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-green-50">
+              <h2 className="text-base font-black text-slate-900">Today's Log</h2>
+              <Link href="/logmeals" className="text-[10px] font-black text-[#00b252] bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-all uppercase tracking-widest">
+                + Add Meal
               </Link>
             </div>
-          </div>
-
-          {/* DASHBOARD GRID */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 flex-grow min-h-0">
-
-            {/* TODAY'S LOG - Column 1 */}
-            <div className="lg:col-span-7 bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-2xl border border-slate-100 flex flex-col min-h-0">
-              <div className="p-6 pb-3 border-b border-slate-50 shrink-0">
-                <h2 className="text-xl font-bold text-slate-800">Today's Log</h2>
-              </div>
-              
-              <div className="flex-grow p-6 pt-3 space-y-3 min-h-0">
-
-                {/*Animated Plate*/}
-                {todayMeals.length === 0 ? (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center justify-center py-12 px-6 text-center bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-100">
-
-                  <motion.div
-                    animate={{ y: [0, -8, 0], rotate: [0, 2, -2, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="relative mb-6">
-                    
-                    {/*Plate Logo*/}
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12" r="9" stroke="#cbd5e1" strokeWidth="1.5" />
-                      <circle cx="12" cy="12" r="6" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="2 2" />
-                      <path d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M7 8V16M5 8V10C5 11.1 5.9 12 7 12" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+            <div className="p-5 space-y-3">
+              {todayMeals.length === 0 ? (
+                <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="py-10 text-center">
+                  <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-7 h-7 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
                     </svg>
-                  </motion.div>
-
-                  <h3 className="text-sm font-black text-slate-800 mb-1">Your plate is a clean slate!</h3>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-[200px]">
-                    Fuel your day by logging your first meal.
-                  </p>
+                  </div>
+                  <p className="font-bold text-slate-700 text-sm">Your plate is a clean slate!</p>
+                  <p className="text-xs text-slate-400 mt-1">Log your first meal to get started.</p>
                 </motion.div>
-                ) : (
-                  todayMeals.map((meal) => (
-                    <div key={meal.id} className="group flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-white transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100">
-                          {getMealIcon(meal.meal_type)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-800 text-sm">{meal.dish_name}</p>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
-                            {meal.meal_type} • {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      </div>
+              ) : (
+                todayMeals.map((meal) => (
+                  <div key={meal.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center border border-slate-100 flex-shrink-0">
+                      <img src={mealIcons[meal.meal_type] || "/images/defaultmeal.png"} alt={meal.meal_type} className="w-7 h-7 object-contain" />
                     </div>
-                  ))
-                )}
-              </div>
-
-              <div className="p-6 pt-2 shrink-0">
-                <Link href="/logmeals" className="w-full border-2 border-dashed border-slate-200 text-slate-400 hover:text-[#00b252] hover:bg-[#00b252]/5 hover:scale-105 rounded-xl py-3 font-bold text-xs transition-all flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4"></path></svg>
-                  Quick Add Missing Meal
-                </Link>
-              </div>
-            </div>
-
-            {/* STATS & ACTIONS - Column 2 */}
-            <div className="lg:col-span-4 flex flex-col gap-6">
-              <div className="grid grid-cols-2 gap-4 shrink-0">
-                <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${status.bg} ${status.color}`}>
-                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  </div>
-                  <h3 className={`text-xl font-black ${profile.display_numbers ? 'text-emerald-600' : status.color}`}>
-                    {profile.display_numbers ? `${weeklyAvgScore}` : status.label}
-                  </h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Weekly Score</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-white to-slate-50 p-5 rounded-3xl shadow-2xl border border-slate-100 flex flex-col items-center justify-center text-center">
-                  <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mb-2">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path></svg>
-                  </div>
-                  <span className="text-2xl font-extrabold text-orange-600">{profile.current_streak}</span>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Day Streak</p>
-                  {profile.pause_streak && (
-                    <div className="mt-2 px-3 py-1 bg-amber-50 border border-amber-100 rounded-full flex items-center gap-1.5 animate-in fade-in zoom-in duration-300">
-                      <span className="text-[8px] font-black text-amber-600 uppercase">Protected</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-slate-800 text-sm truncate">{meal.dish_name}</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        {meal.meal_type} · {new Date(meal.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-white to-slate-50 p-6 rounded-3xl shadow-2xl border border-slate-100 flex flex-col gap-3 shrink-0">
-                <Link href="/logmeals" className="w-full bg-gradient-to-r from-green-600 to-indigo-600 text-white font-semibold py-3.5 rounded-xl transition-all hover:shadow-lg active:scale-95 text-sm text-center shadow-md shadow-green-100 hover:scale-105">
-                  Log New Meal
-                </Link>
-                <Link href="/history" className="py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl border border-slate-200 text-center text-xs hover:bg-slate-100 transition-all hover:scale-105">
-                  History
-                </Link>
-                <Link href="/rewards" className="py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl border border-slate-200 text-center text-xs hover:bg-slate-100 transition-all hover:scale-105">
-                  Rewards
-                </Link>
-              </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
-        </main>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 gap-4">
+            <Link href="/history" className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 group-hover:bg-blue-100 transition-colors flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-sm">History</p>
+                <p className="text-[10px] text-slate-400 font-medium">View past logs</p>
+              </div>
+            </Link>
+            <Link href="/progress" className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex items-center gap-3 group">
+              <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 group-hover:bg-green-100 transition-colors flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-bold text-slate-800 text-sm">Progress</p>
+                <p className="text-[10px] text-slate-400 font-medium">Weekly insights</p>
+              </div>
+            </Link>
+          </div>
+        </div>
       </motion.div>
-    )}
-  </AnimatePresence>
-);
+    </AnimatePresence>
+  );
 }
