@@ -4,36 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../../lib/supabaseClient";
-
-const features = [
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-      </svg>
-    ),
-    title: "Build your streak",
-    desc: "Log meals daily and watch your streak grow over time.",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v-1m0 0H8m4 0h4M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2h-3V3a1 1 0 00-1-1h-4a1 1 0 00-1 1v3H7a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: "Earn & spend rewards",
-    desc: "Collect points and unlock boosts or cosmetic badges.",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-    title: "AI nutrition insights",
-    desc: "Get personalized weekly analysis powered by AI.",
-  },
-];
+import { PlateIcon } from "../../components/icons/Icons";
 
 export default function Login() {
   const router = useRouter();
@@ -76,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex font-sans">
+    <div className="min-h-[100dvh] bg-slate-100 flex items-center justify-center p-6 font-sans">
 
       {/* Error Modal */}
       {error && (
@@ -96,7 +67,7 @@ export default function Login() {
               </p>
               <button
                 onClick={() => setError("")}
-                className="w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 active:scale-[0.98] transition-all"
+                className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black active:scale-[0.98] transition-all"
               >
                 Try Again
               </button>
@@ -105,53 +76,42 @@ export default function Login() {
         </div>
       )}
 
-      {/* ── Left Brand Panel ── */}
-      <div className="hidden lg:flex w-[45%] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 flex-col justify-between p-12 relative overflow-hidden flex-shrink-0">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_25%_75%,white_0%,transparent_65%)]" />
+      {/* Card */}
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden flex min-h-[500px]">
 
-        <div className="relative z-10">
-          <span className="text-white font-black text-2xl tracking-tight">
-          </span>
-        </div>
+        {/* Left — brand panel */}
+        <div className="hidden md:flex w-[42%] flex-shrink-0 bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 flex-col justify-between p-10 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_25%_75%,white_0%,transparent_65%)]" />
 
-        {/* Feature list */}
-        <div className="relative z-10 space-y-6">
-          <div className="mb-8">
-            <h2 className="text-white font-black text-3xl leading-tight mb-3">
+          <div className="relative z-10">
+            <span className="text-white font-black text-xl tracking-tight">
+              Simple<span className="text-green-300">Plate</span>
+            </span>
+          </div>
+
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center mb-5">
+              <PlateIcon className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-white font-black text-2xl leading-snug mb-3">
               Your nutrition,<br />gamified.
             </h2>
             <p className="text-green-200 text-sm leading-relaxed">
-              Track what you eat, build healthy habits, and earn rewards along the way.
+              Track meals, build streaks, and earn rewards for eating well.
             </p>
           </div>
-          {features.map((f, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0 text-white">
-                {f.icon}
-              </div>
-              <div>
-                <p className="text-white font-bold text-sm">{f.title}</p>
-                <p className="text-green-200 text-xs mt-0.5 leading-relaxed">{f.desc}</p>
-              </div>
-            </div>
-          ))}
+
+          <div className="relative z-10">
+            <p className="text-green-400 text-[11px] font-medium">SimplePlate v1.0</p>
+          </div>
         </div>
 
-        {/* Bottom tagline */}
-        <div className="relative z-10">
-          <p className="text-green-300 text-xs font-medium">
-            APU Final Year Project — SimplePlate v1.0
-          </p>
-        </div>
-      </div>
-
-      {/* ── Right Form Panel ── */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-white">
-        <div className="w-full max-w-md">
+        {/* Right — form panel */}
+        <div className="flex-1 flex flex-col justify-center px-10 py-12">
 
           {/* Mobile brand */}
-          <div className="lg:hidden text-center mb-8">
-            <span className="text-slate-900 font-black text-2xl">
+          <div className="md:hidden mb-8">
+            <span className="text-slate-900 font-black text-xl">
               Simple<span className="text-[#00b252]">Plate</span>
             </span>
           </div>
@@ -163,7 +123,7 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Email Address</label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -175,14 +135,14 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all placeholder-slate-400 text-slate-900"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all placeholder-slate-400 text-slate-900"
                   placeholder="name@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Password</label>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Password</label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -194,7 +154,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all placeholder-slate-400 text-slate-900"
+                  className="w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all placeholder-slate-400 text-slate-900"
                   placeholder="Your password"
                 />
                 <button
@@ -214,7 +174,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 mt-2 rounded-xl text-sm font-black text-white bg-[#00b252] hover:bg-green-700 active:scale-[0.98] disabled:opacity-70 transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2"
+              className="w-full py-3.5 mt-1 rounded-xl text-sm font-black text-white bg-[#00b252] hover:bg-green-700 active:scale-[0.98] disabled:opacity-70 transition-all flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -225,7 +185,7 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-400 mt-8 pt-6 border-t border-slate-100">
+          <p className="text-sm text-slate-400 mt-7 pt-6 border-t border-slate-100 text-center">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="font-black text-[#00b252] hover:underline">
               Create one here

@@ -63,16 +63,8 @@ export function WandIcon({ className = "w-6 h-6" }) {
 
 export function FireIcon({ className = "w-6 h-6" }) {
   return (
-    <svg 
-      className={className} 
-      fill="currentColor" 
-      viewBox="0 0 30 30"
-    >
-      <path 
-        fillRule="evenodd" 
-        clipRule="evenodd" 
-        d="M12.945 2.25c-1.026 0-1.92.65-2.22 1.628L8.187 11.23a.75.75 0 01-1.426-.14c-.114-.543-.173-1.103-.173-1.677 0-.58.06-1.144.173-1.69a.75.75 0 00-1.146-.807 8.25 8.25 0 003.543 13.92.75.75 0 01.378 1.182 4.498 4.498 0 01-3.522 1.747 9.75 9.75 0 1010.14-15.656.75.75 0 00-.814.793c.063.456.095.92.095 1.391 0 1.63-.385 3.17-1.066 4.534a.75.75 0 01-1.35-.045L12.945 2.25z" 
-      />
+    <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" />
     </svg>
   );
 }
@@ -105,7 +97,8 @@ export function RepeatIcon({ className = "w-6 h-6" }) {
 export function CutleryIcon({ className = "w-6 h-6" }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 2v4m2-4v4M7 6v14" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 2c2 0 2 5 0 5v13" />
     </svg>
   );
 }

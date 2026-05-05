@@ -31,6 +31,7 @@ export async function POST(req) {
           Return exactly 0 for these.
         - CAFFEINE/SUGAR (10-30): If it has no "food" value but contains bad elements 
           (e.g., Kopi O with sugar, sugary sodas, energy drinks, or deep-fried snacks with no protein).
+        - If the meal is not recognized or is too vague such as random strings, return a score of 0 with a note that it couldn't be analyzed due to it not being a recognized food item."
           
         Return ONLY a JSON object with:
         {

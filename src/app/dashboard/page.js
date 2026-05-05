@@ -8,6 +8,7 @@ import { ownsItem } from "../../lib/rewards";
 import StreakWarningModal from "@/components/streakwarningmodal";
 import { StreakCount } from "../../lib/streak";
 import { motion, AnimatePresence } from "framer-motion";
+import { FireIcon, CutleryIcon, PlateIcon } from "../../components/icons/Icons";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -162,9 +163,7 @@ export default function Dashboard() {
             {/* Streak */}
             <div className="bg-gradient-to-br from-orange-400 to-amber-500 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-orange-100">
               <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                </svg>
+                <FireIcon className="w-5 h-5" />
               </div>
               <div className="text-2xl lg:text-3xl font-black">{profile.current_streak}</div>
               <div className="text-orange-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Day Streak</div>
@@ -187,9 +186,7 @@ export default function Dashboard() {
             {/* Meals Today */}
             <div className="bg-gradient-to-br from-teal-400 to-cyan-500 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-teal-100">
               <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
-                </svg>
+                <CutleryIcon className="w-5 h-5" />
               </div>
               <div className="text-2xl lg:text-3xl font-black">{todayMeals.length}</div>
               <div className="text-teal-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Meals Today</div>
@@ -207,10 +204,8 @@ export default function Dashboard() {
             <div className="p-5 space-y-3">
               {todayMeals.length === 0 ? (
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="py-10 text-center">
-                  <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-7 h-7 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
-                    </svg>
+                  <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                   <PlateIcon className="w-10 h-10 text-green-600" />
                   </div>
                   <p className="font-bold text-slate-700 text-sm">Your plate is a clean slate!</p>
                   <p className="text-xs text-slate-400 mt-1">Log your first meal to get started.</p>

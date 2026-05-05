@@ -17,6 +17,7 @@ export default function Progress() {
   const [mealsData, setMealsData] = useState([]);
   const [aiInsight, setAiInsight] = useState(null);
   const [expandedMealId, setExpandedMealId] = useState(null);
+  const [displayNumbers, setDisplayNumbers] = useState(true);
 
   useEffect(() => {
     const fetchWeeklyProgress = async () => {
@@ -32,7 +33,7 @@ export default function Progress() {
 
       const [mealsRes, profileRes] = await Promise.all([
         supabase.from("meals").select("*").eq("user_id", session.user.id).gte("logged_at", startOfWeek.toISOString()).order("logged_at", { ascending: true }),
-        supabase.from("profiles").select("id, user_stats (total_xp, points, current_streak, inventory)").eq("id", session.user.id).single(),
+        supabase.from("profiles").select("id, user_stats (total_xp, points, current_streak, inventory), user_settings (display_numbers)").eq("id", session.user.id).single(),
       ]);
 
       if (profileRes.data) {
@@ -42,6 +43,7 @@ export default function Progress() {
           current_streak: Number(profileRes.data.user_stats?.current_streak || 0),
           inventory: (profileRes.data.user_stats?.inventory || []).map(Number),
         });
+        setDisplayNumbers(profileRes.data.user_settings?.display_numbers ?? true);
       }
 
       if (mealsRes.data) {
@@ -99,6 +101,14 @@ export default function Progress() {
     } catch (e) { console.error(e); } finally { setIsAiLoading(false); }
   };
 
+  const getNutrientLabel = (pct) => {
+    if (pct >= 60) return "High";
+    if (pct >= 30) return "Moderate";
+    if (pct >= 10) return "Low";
+    return "Minimal";
+  };
+
+
   const hasBadge = ownsItem(profile.inventory, 4);
   const getMealIcon = (type) => {
     const icons = { breakfast: "/images/breakfast.png", lunch: "/images/lunch.png", dinner: "/images/dinner.png" };
@@ -129,8 +139,8 @@ export default function Progress() {
           <div className="lg:col-span-5 space-y-4">
 
             {/* Level & Stats Card */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <div className="flex justify-between items-start mb-3">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+              <div className="flex justify-between items-start mb-5">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Rank Status</p>
                   <div className="flex items-center gap-2">
@@ -138,41 +148,44 @@ export default function Progress() {
                     {hasBadge && <img src="/images/goldenbadge.png" alt="Badge" className="w-8 h-8 object-contain" />}
                   </div>
                 </div>
-                <span className="text-[10px] font-black text-[#00b252] bg-green-50 px-2.5 py-1 rounded-lg uppercase tracking-tighter">
+                <span className="text-[10px] font-black text-[#00b252] bg-green-50 px-2.5 py-2 rounded-lg uppercase tracking-tighter">
                   {profile.total_xp} Total XP
                 </span>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-5">
                 <div className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-1000" style={{ width: `${(profile.total_xp || 0) % 100}%` }} />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="bg-green-50 rounded-xl p-3 text-center border border-green-100">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Balance</p>
                   <p className="font-black text-[#00b252] text-lg">{profile.points}</p>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-3 text-center border border-orange-100">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Streak</p>
-                  <p className="font-black text-orange-500 text-lg flex items-center justify-center gap-1">{profile.current_streak}<FireIcon className="w-4 h-4 text-orange-500" /></p>
+                  <p className="font-black text-orange-500 text-lg flex items-center justify-center gap-1">
+                    {profile.current_streak}
+                    <FireIcon className="w-4 h-4 text-orange-500" />
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Weekly Balance */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               <div className="flex justify-between items-center mb-3">
                 <div>
                   <h3 className="text-base font-black text-slate-900">Weekly Balance</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Nutrient Ratios</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Nutrient Ratios</p>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {nutrientBalance.map((stat, i) => (
                   <div key={i}>
                     <div className="flex justify-between mb-1 px-0.5">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stat.name}</span>
-                      <span className="text-xs font-black text-slate-900">{stat.pct}%</span>
+                      <span className="text-xs font-black text-slate-900">{displayNumbers ? `${stat.pct}%` : getNutrientLabel(Number(stat.pct))}</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                       <div className={`h-full ${stat.col} transition-all duration-1000 rounded-full`} style={{ width: `${stat.pct}%` }} />
                     </div>
                   </div>
@@ -195,7 +208,7 @@ export default function Progress() {
                 {!aiInsight ? (
                   <motion.div key="gen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-10 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                      Analyze your {mealsData.length} logs this week
+                      Analyze your {displayNumbers ? `${mealsData.length} logs` : "meals"} this week
                     </p>
                     <button
                       onClick={handleGenerateInsight}
@@ -242,7 +255,7 @@ export default function Progress() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           {/* Chart */}
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+          <div className={`${displayNumbers ? "lg:col-span-5" : "lg:col-span-12"} bg-white rounded-2xl border border-slate-200 shadow-sm p-6`}>
             <h3 className="text-base font-black text-slate-900 mb-4">Nourish Trend This Week</h3>
             <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -258,7 +271,7 @@ export default function Progress() {
           </div>
 
           {/* Weekly Breakdown */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-h-[340px] overflow-y-auto custom-scrollbar">
+          {displayNumbers && <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-h-[340px] overflow-y-auto custom-scrollbar">
             <h3 className="text-base font-black text-slate-900 mb-3">Weekly Breakdown</h3>
             {mealsData.length === 0 ? (
               <p className="py-10 text-center text-slate-400 text-sm italic">No meals logged this week.</p>
@@ -307,7 +320,7 @@ export default function Progress() {
                 })}
               </div>
             )}
-          </div>
+          </div>}
         </div>
       </div>
     </div>

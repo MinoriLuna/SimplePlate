@@ -7,11 +7,16 @@ import PointsModal from "@/components/PointsModal";
 import { submitMealLog } from "../../lib/logmeal";
 import { PlateIcon, CutleryIcon, DrinkIcon, CameraIcon, RepeatIcon } from "@/components/icons/Icons";
 
+const getMealIcon = (type) => {
+  const icons = { breakfast: "/images/breakfast.png", lunch: "/images/lunch.png", dinner: "/images/dinner.png" };
+  return icons[type?.trim().toLowerCase()] || "/images/default-meal.png";
+};
+
 const ITEMS_PER_PAGE = 4;
 
 const tips = [
-  { icon: <CutleryIcon className="w-4 h-4 text-[#00b252]" />, text: "Be specific — \"Chicken Rice\" gives better AI scores than just \"Rice\"" },
-  { icon: <DrinkIcon className="w-4 h-4 text-blue-500" />, text: "Log drinks and sides too — they affect your nutrient breakdown" },
+  { icon: <CutleryIcon className="w-4 h-4 text-[#00b252]" />, text: "Be specific like \"Chicken Rice\" gives better AI scores than just \"Rice\"" },
+  { icon: <DrinkIcon className="w-4 h-4 text-blue-500" />, text: "Log drinks and sides too. They affect your nutrient breakdown" },
   { icon: <CameraIcon className="w-4 h-4 text-amber-500" />, text: "Use Scan Image to auto-detect your dish from a photo" },
   { icon: <RepeatIcon className="w-4 h-4 text-purple-500" />, text: "Add each component separately for a more accurate plate" },
 ];
@@ -164,8 +169,8 @@ export default function LogMeal() {
                     {paginatedItems.map((item) => (
                       <div key={item.id} className="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-8 h-8 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0">
-                            <CutleryIcon className="w-4 h-4 text-[#00b252]" />
+                          <div className="w-8 h-8 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center flex-shrink-0 p-1">
+                            <img src={getMealIcon(mealType)} alt={mealType} className="w-full h-full object-contain" />
                           </div>
                           <div className="min-w-0">
                             <p className="font-bold text-slate-800 text-sm truncate">{item.dishName}</p>

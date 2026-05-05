@@ -10,6 +10,7 @@ export async function POST(req) {
     const prompt = `
       Identify the main food item in this image. 
       Be concise (e.g., "Nasi Lemak", "Chicken Chop", "Miso Soup").
+      If the food is not recognizable or the image is too vague, respond with "Unrecognized food item".
 
       Return ONLY a JSON object:
       {

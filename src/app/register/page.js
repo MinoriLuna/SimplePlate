@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../../lib/supabaseClient";
+import { PlateIcon } from "../../components/icons/Icons";
 
 export default function Register() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex font-sans">
+    <div className="min-h-[100dvh] bg-slate-100 flex items-center justify-center p-6 font-sans">
 
       {/* Error Modal */}
       {error && (
@@ -58,7 +59,7 @@ export default function Register() {
               <p className="text-slate-500 text-sm mb-6 leading-relaxed">{error}</p>
               <button
                 onClick={() => setError("")}
-                className="w-full bg-surface-dark text-white font-bold py-3 rounded-xl hover:bg-black active:scale-[0.98] transition-all"
+                className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black active:scale-[0.98] transition-all"
               >
                 Try Again
               </button>
@@ -67,83 +68,65 @@ export default function Register() {
         </div>
       )}
 
-      {/* ── Left Brand Panel ── */}
-      <div className="hidden lg:flex w-[40%] bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 flex-col justify-between p-12 relative overflow-hidden flex-shrink-0">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_75%_25%,white_0%,transparent_65%)]" />
+      {/* Card */}
+      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex min-h-[540px]">
 
-        <div className="relative z-10">
-          <span className="text-white font-black text-2xl tracking-tight">
-          </span>
-        </div>
+        {/* Left — brand panel */}
+        <div className="hidden md:flex w-[38%] flex-shrink-0 bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 flex-col justify-between p-10 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_75%_25%,white_0%,transparent_65%)]" />
 
-        {/* Center content */}
-        <div className="relative z-10">
-          <div className="w-16 h-16 bg-white/15 rounded-2xl flex items-center justify-center mb-6">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8V16M19 8V16M15 8V12C15 13.1 15.9 14 17 14M7 8V16M5 8V10C5 11.1 5.9 12 7 12" />
-            </svg>
+          <div className="relative z-10">
+            <span className="text-white font-black text-xl tracking-tight">
+              Simple<span className="text-green-300">Plate</span>
+            </span>
           </div>
-          <h2 className="text-white font-black text-3xl leading-tight mb-4">
-            Start your<br />healthy journey.
-          </h2>
-          <p className="text-green-200 text-sm leading-relaxed mb-8">
-            Join SimplePlate to track your meals, build streaks, and earn rewards for eating well.
-          </p>
 
-          <div className="space-y-3">
-            {[
-              "Free to use, no subscriptions",
-              "AI-powered meal analysis",
-              "Streak & points reward system",
-              "Weekly nutrition insights",
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-5 h-5 bg-green-400/30 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3 h-3 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <p className="text-green-100 text-sm">{item}</p>
-              </div>
-            ))}
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center mb-5">
+              <PlateIcon className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-white font-black text-2xl leading-snug mb-3">
+              Start your<br />healthy journey.
+            </h2>
+            <p className="text-green-200 text-sm leading-relaxed">
+              Log meals, build streaks, and earn rewards for eating well.
+            </p>
+          </div>
+
+          <div className="relative z-10">
+            <p className="text-green-400 text-[11px] font-medium">SimplePlate v1.0</p>
           </div>
         </div>
 
-        <div className="relative z-10">
-          <p className="text-green-300 text-xs font-medium">APU Final Year Project — SimplePlate v1.0</p>
-        </div>
-      </div>
-
-      {/* ── Right Form Panel ── */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-white overflow-y-auto">
-        <div className="w-full max-w-lg py-8">
+        {/* Right — form panel */}
+        <div className="flex-1 flex flex-col justify-center px-10 py-10 overflow-y-auto">
 
           {/* Mobile brand */}
-          <div className="lg:hidden text-center mb-8">
-            <span className="text-slate-900 font-black text-2xl">
+          <div className="md:hidden mb-6">
+            <span className="text-slate-900 font-black text-xl">
               Simple<span className="text-[#00b252]">Plate</span>
             </span>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-2xl font-black text-slate-900">Create your account</h1>
             <p className="text-slate-400 text-sm mt-1">Fill in the details below to get started.</p>
           </div>
 
           {successMsg && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95">
-              <svg className="w-5 h-5 text-[#00b252] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+            <div className="mb-5 p-3.5 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 animate-in fade-in zoom-in-95">
+              <svg className="w-4 h-4 text-[#00b252] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
               <p className="text-green-700 text-sm font-bold">{successMsg}</p>
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4">
 
             {/* Email */}
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Email Address <span className="text-red-400">*</span></label>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Email Address <span className="text-red-400">*</span></label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -154,16 +137,16 @@ export default function Register() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
                   placeholder="name@example.com"
                 />
               </div>
             </div>
 
             {/* Username + Name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Username <span className="text-red-400">*</span></label>
+                <label className="block text-xs font-bold text-slate-500 mb-2">Username <span className="text-red-400">*</span></label>
                 <div className="relative">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -174,13 +157,13 @@ export default function Register() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
                     placeholder="your_username"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Full Name</label>
+                <label className="block text-xs font-bold text-slate-500 mb-2">Full Name</label>
                 <div className="relative">
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -191,7 +174,7 @@ export default function Register() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
                     placeholder="Your full name"
                   />
                 </div>
@@ -200,7 +183,7 @@ export default function Register() {
 
             {/* Password */}
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Password <span className="text-red-400">*</span></label>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Password <span className="text-red-400">*</span></label>
               <div className="relative">
                 <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -211,7 +194,7 @@ export default function Register() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
+                  className="w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent transition-all text-slate-900 placeholder-slate-400"
                   placeholder="Create a strong password"
                 />
                 <button
@@ -230,14 +213,14 @@ export default function Register() {
 
             {/* Gender */}
             <div>
-              <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Gender</label>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Gender</label>
               <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
                 {["Male", "Female"].map((g) => (
                   <button
                     type="button"
                     key={g}
                     onClick={() => setGender(g)}
-                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all duration-200 ${
+                    className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
                       gender === g
                         ? "bg-white text-slate-900 shadow-sm border border-slate-100"
                         : "text-slate-500 hover:text-slate-700"
@@ -252,7 +235,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded-xl text-sm font-black text-white bg-[#00b252] hover:bg-green-700 active:scale-[0.98] disabled:opacity-70 transition-all shadow-lg shadow-green-100 flex items-center justify-center gap-2 mt-2"
+              className="w-full py-3.5 rounded-xl text-sm font-black text-white bg-[#00b252] hover:bg-green-700 active:scale-[0.98] disabled:opacity-70 transition-all flex items-center justify-center gap-2 mt-1"
             >
               {isLoading ? (
                 <>
@@ -263,7 +246,7 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-400 mt-8 pt-6 border-t border-slate-100">
+          <p className="text-sm text-slate-400 mt-6 pt-5 border-t border-slate-100 text-center">
             Already have an account?{" "}
             <Link href="/login" className="font-black text-[#00b252] hover:underline">
               Sign in here
