@@ -62,8 +62,11 @@ export default function HistoryPage() {
     <div className="min-h-screen font-sans text-slate-800 no-scrollbar">
       <AnimatePresence mode="wait">
         {isLoading || !profile ? (
-          <motion.div key="loader" exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-slate-100 flex items-center justify-center">
-            <p className="text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">Loading history...</p>
+          <motion.div key="loader" exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center">
+            <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
+              <span className="text-2xl font-black text-slate-900">Simple<span className="text-[#00b252]">Plate</span></span>
+            </motion.div>
+            <p className="mt-4 text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">Loading history...</p>
           </motion.div>
         ) : (
           <motion.div key="content" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>

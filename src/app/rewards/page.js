@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
 import { processRedemption, ownsItem } from "../../lib/rewards";
 import { GiftIcon } from "../../components/icons/Icons";
+import { motion } from "framer-motion";
 
 export default function Rewards() {
   const router = useRouter();
@@ -73,8 +74,11 @@ export default function Rewards() {
   const pointsTimer = getTimeLeft(profile.points_boost_expires_at);
 
   if (isLoading) return (
-    <div className="fixed inset-0 bg-slate-100 flex items-center justify-center z-[100] md:ml-[220px]">
-      <p className="text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">Loading rewards...</p>
+    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100]">
+      <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
+        <span className="text-2xl font-black text-slate-900">Simple<span className="text-[#00b252]">Plate</span></span>
+      </motion.div>
+      <p className="mt-4 text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">Loading rewards...</p>
     </div>
   );
 

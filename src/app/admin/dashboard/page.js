@@ -43,21 +43,24 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMessage({ text: "Saving...", type: "loading" });
     try {
-      const { error: profileErr } = await supabase
-        .from("profiles")
-        .update({ username: editingUser.username, is_admin: editingUser.is_admin })
-        .eq("id", editingUser.id);
-      if (profileErr) throw profileErr;
-
-      const { error: statsErr } = await supabase
-        .from("user_stats")
-        .update({
-          points: parseInt(editingUser.user_stats.points) || 0,
-          current_streak: parseInt(editingUser.user_stats.current_streak) || 0,
-          total_xp: parseInt(editingUser.user_stats.total_xp) || 0,
-        })
-        .eq("id", editingUser.id);
-      if (statsErr) throw statsErr;
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/admin/update-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          targetId: editingUser.id,
+          username: editingUser.username,
+          is_admin: editingUser.is_admin,
+          points: parseInt(editingUser.user_stats?.points) || 0,
+          current_streak: parseInt(editingUser.user_stats?.current_streak) || 0,
+          total_xp: parseInt(editingUser.user_stats?.total_xp) || 0,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Update failed");
 
       setMessage({ text: "User updated successfully!", type: "success" });
       setEditingUser(null);
