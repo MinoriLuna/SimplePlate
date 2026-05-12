@@ -53,6 +53,9 @@ export default function AdminDashboard() {
         body: JSON.stringify({
           targetId: editingUser.id,
           username: editingUser.username,
+          name: editingUser.name,
+          email: editingUser.email,
+          gender: editingUser.gender,
           is_admin: editingUser.is_admin,
           points: parseInt(editingUser.user_stats?.points) || 0,
           current_streak: parseInt(editingUser.user_stats?.current_streak) || 0,
@@ -198,6 +201,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <p className="font-bold text-slate-900 text-sm leading-tight">{u.username || "—"}</p>
+                        <p className="text-xs text-slate-500 leading-tight">{u.name || ""}</p>
                         <p className="text-xs text-slate-400 leading-tight">{u.email}</p>
                       </div>
                     </div>
@@ -240,14 +244,22 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="font-black text-slate-900 text-sm leading-tight">{u.username || "—"}</p>
-                    <p className="text-xs text-slate-400 leading-tight truncate max-w-[160px]">{u.email}</p>
+                    {u.name && <p className="text-xs text-slate-500 leading-tight">{u.name}</p>}
+                    <p className="text-xs text-slate-400 leading-tight truncate max-w-[140px]">{u.email}</p>
                   </div>
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                  u.is_admin ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-500"
-                }`}>
-                  {u.is_admin ? "Admin" : "User"}
-                </span>
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    u.is_admin ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {u.is_admin ? "Admin" : "User"}
+                  </span>
+                  {u.gender && (
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-50 text-green-600">
+                      {u.gender}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-2 mb-3">
                 <div className="bg-slate-50 rounded-xl p-2.5 text-center">
@@ -310,46 +322,102 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Username</label>
-                      <input
-                        type="text"
-                        value={editingUser.username || ""}
-                        onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
-                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Points</label>
-                      <input
-                        type="number"
-                        value={editingUser.user_stats?.points || 0}
-                        onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, points: e.target.value } })}
-                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Streak</label>
-                      <input
-                        type="number"
-                        value={editingUser.user_stats?.current_streak || 0}
-                        onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, current_streak: e.target.value } })}
-                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Total XP</label>
-                      <input
-                        type="number"
-                        value={editingUser.user_stats?.total_xp || 0}
-                        onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, total_xp: e.target.value } })}
-                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
-                      />
+                <form onSubmit={handleUpdateUser} className="p-6 space-y-5 overflow-y-auto max-h-[70vh] sm:max-h-none">
+
+                  {/* Account Info */}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Account Info</p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Email</label>
+                        <input
+                          type="email"
+                          value={editingUser.email || ""}
+                          onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                          className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                        />
+                        <p className="text-[10px] text-amber-500 font-bold mt-1">Changing email updates both auth and profile.</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Full Name</label>
+                          <input
+                            type="text"
+                            value={editingUser.name || ""}
+                            onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                            className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Username</label>
+                          <input
+                            type="text"
+                            value={editingUser.username || ""}
+                            onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                            className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Gender</label>
+                        <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
+                          {["Male", "Female"].map((g) => (
+                            <button
+                              type="button"
+                              key={g}
+                              onClick={() => setEditingUser({ ...editingUser, gender: g })}
+                              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                                (editingUser.gender || "Female") === g
+                                  ? "bg-white text-slate-900 shadow-sm border border-slate-200"
+                                  : "text-slate-500 hover:text-slate-700"
+                              }`}
+                            >
+                              {g}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
+                  {/* Game Stats */}
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Game Stats</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Points</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingUser.user_stats?.points || 0}
+                          onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, points: e.target.value } })}
+                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Streak</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingUser.user_stats?.current_streak || 0}
+                          onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, current_streak: e.target.value } })}
+                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Total XP</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingUser.user_stats?.total_xp || 0}
+                          onChange={(e) => setEditingUser({ ...editingUser, user_stats: { ...editingUser.user_stats, total_xp: e.target.value } })}
+                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00b252] focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Permissions */}
                   <label className="flex items-center gap-3 cursor-pointer p-3.5 bg-violet-50 border border-violet-100 rounded-xl">
                     <input
                       type="checkbox"

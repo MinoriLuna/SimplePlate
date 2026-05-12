@@ -22,14 +22,22 @@ export async function POST(req) {
     if (!targetId) return Response.json({ error: "Missing targetId" }, { status: 400 });
 
     const username = typeof body.username === "string" ? body.username.trim().slice(0, 50) : undefined;
+    const name = typeof body.name === "string" ? body.name.trim().slice(0, 100) : undefined;
+    const gender = ["Male", "Female"].includes(body.gender) ? body.gender : undefined;
+    const email = typeof body.email === "string" && body.email.trim() ? body.email.trim().toLowerCase() : undefined;
     const is_admin = typeof body.is_admin === "boolean" ? body.is_admin : undefined;
     const points = Number.isFinite(body.points) ? Math.max(0, Math.min(Math.round(body.points), 1_000_000)) : undefined;
     const current_streak = Number.isFinite(body.current_streak) ? Math.max(0, Math.min(Math.round(body.current_streak), 3650)) : undefined;
     const total_xp = Number.isFinite(body.total_xp) ? Math.max(0, Math.min(Math.round(body.total_xp), 1_000_000)) : undefined;
 
+    if (email) {
+      const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(targetId, { email });
+      if (authErr) throw authErr;
+    }
+
     const { error: profileErr } = await supabaseAdmin
       .from("profiles")
-      .update({ username, is_admin })
+      .update({ username, name, gender, is_admin, ...(email ? { email } : {}) })
       .eq("id", targetId);
     if (profileErr) throw profileErr;
 
