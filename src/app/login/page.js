@@ -107,7 +107,12 @@ export default function Login() {
         </div>
 
         {/* Right — form panel */}
-        <div className="flex-1 flex flex-col justify-center px-10 py-12">
+        <div className="flex-1 flex flex-col justify-center px-10 py-12 relative">
+
+          <Link href="/" className="absolute top-5 left-5 flex items-center gap-1.5 text-slate-400 hover:text-slate-700 text-xs font-bold transition-colors group">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            Back
+          </Link>
 
           {/* Mobile brand */}
           <div className="md:hidden mb-8">

@@ -15,6 +15,7 @@ export default function Settings() {
   const [displayNumbers, setDisplayNumbers] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [errors, setErrors] = useState({});
   const [stats, setStats] = useState({ points: 0, total_xp: 0, current_streak: 0, total_meals: 0 });
 
   useEffect(() => {
@@ -55,8 +56,17 @@ export default function Settings() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setSuccessMsg("");
+
+    const newErrors = {};
+    if (!name.trim()) newErrors.name = "Name cannot be empty.";
+    if (!username.trim()) newErrors.username = "Username cannot be empty.";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    setIsLoading(true);
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -218,25 +228,35 @@ export default function Settings() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Name</label>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                      Name <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="text"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => { setName(e.target.value); if (errors.name) setErrors(p => ({ ...p, name: undefined })); }}
                       placeholder="Your Name"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400 transition-all text-slate-900 placeholder-slate-300"
+                      className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder-slate-300 ${
+                        errors.name ? "border-red-400 focus:ring-red-300" : "border-slate-200 focus:ring-green-400"
+                      }`}
                     />
+                    {errors.name && <p className="text-xs text-red-500 font-semibold mt-1.5">{errors.name}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Username</label>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                      Username <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="text"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => { setUsername(e.target.value); if (errors.username) setErrors(p => ({ ...p, username: undefined })); }}
                       placeholder="Username"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-400 transition-all text-slate-900 placeholder-slate-300"
+                      className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder-slate-300 ${
+                        errors.username ? "border-red-400 focus:ring-red-300" : "border-slate-200 focus:ring-green-400"
+                      }`}
                     />
+                    {errors.username && <p className="text-xs text-red-500 font-semibold mt-1.5">{errors.username}</p>}
                   </div>
 
                   <div>
