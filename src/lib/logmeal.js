@@ -1,6 +1,14 @@
 // src/lib/logmeal.js
 import { calculateMealRewards } from "./rewards";
 
+const withTimeout = (promise, ms) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("ANALYSIS_TIMEOUT")), ms)
+    ),
+  ]);
+
 export const submitMealLog = async (supabase, session, currentPlate, mealType, healthGoal) => {
   if (!session) throw new Error("No session found");
 
@@ -18,11 +26,14 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
 
   // 2. AI ANALYSIS: This is where we get the "Score"
   const mealsToInsert = await Promise.all(currentPlate.map(async (item) => {
-    const aiResponse = await fetch("/api/analyze-meal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion, health_goal: healthGoal }),
-    });
+    const aiResponse = await withTimeout(
+      fetch("/api/analyze-meal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion, health_goal: healthGoal }),
+      }),
+      20000
+    );
     const nutrition = await aiResponse.json();
     
     // We return the full nutrition object to be saved in the 'meals' table

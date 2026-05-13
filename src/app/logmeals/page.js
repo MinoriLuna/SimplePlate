@@ -7,6 +7,21 @@ import PointsModal from "@/components/PointsModal";
 import { submitMealLog } from "../../lib/logmeal";
 import { PlateIcon, CutleryIcon, DrinkIcon, CameraIcon, RepeatIcon } from "@/components/icons/Icons";
 
+const compressImage = (dataUrl) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 800;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.src = dataUrl;
+  });
+
 const getMealIcon = (type) => {
   const icons = { breakfast: "/images/breakfast.png", lunch: "/images/lunch.png", dinner: "/images/dinner.png" };
   return icons[type?.trim().toLowerCase()] || "/images/default-meal.png";
@@ -60,14 +75,18 @@ export default function LogMeal() {
     const reader = new FileReader();
     reader.onloadend = async () => {
       try {
-        const res = await fetch("/api/analyze-vision", { method: "POST", body: JSON.stringify({ image: reader.result }) });
+        const compressed = await compressImage(reader.result);
+        const res = await Promise.race([
+          fetch("/api/analyze-vision", { method: "POST", body: JSON.stringify({ image: compressed }) }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("VISION_TIMEOUT")), 15000)),
+        ]);
         const data = await res.json();
         if (data.dish_name) {
           setDishName(data.dish_name);
           setStatus({ type: "success", message: `AI found: ${data.dish_name}` });
         }
-      } catch {
-        setStatus({ type: "error", message: "Vision scan failed." });
+      } catch (err) {
+        setStatus({ type: "error", message: err.message === "VISION_TIMEOUT" ? "Scan timed out. Please try again." : "Vision scan failed." });
       } finally {
         setIsVisionLoading(false);
       }
@@ -103,7 +122,12 @@ export default function LogMeal() {
       setShowPointsModal(true);
     } catch (err) {
       console.error(err);
-      setStatus({ type: "error", message: "Logging failed. Try again." });
+      setStatus({
+        type: "error",
+        message: err.message === "ANALYSIS_TIMEOUT"
+          ? "AI analysis timed out. Meal was not logged."
+          : "Logging failed. Try again.",
+      });
     } finally {
       setIsLoading(false);
     }
