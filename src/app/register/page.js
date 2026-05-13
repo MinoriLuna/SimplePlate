@@ -13,6 +13,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [gender, setGender] = useState("Female");
+  const [healthGoal, setHealthGoal] = useState("eat_cleaner");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -37,6 +38,9 @@ export default function Register() {
       setError(error.message);
       setIsLoading(false);
     } else {
+      if (data?.user) {
+        await supabase.from("profiles").update({ health_goal: healthGoal }).eq("id", data.user.id);
+      }
       setSuccessMsg("Account created! Redirecting you now...");
       setTimeout(() => router.push("/dashboard"), 1500);
     }
@@ -232,6 +236,31 @@ export default function Register() {
                     }`}
                   >
                     {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Health Goal */}
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-2">Health Goal</label>
+              <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
+                {[
+                  { value: "lose_weight", label: "Lose Weight" },
+                  { value: "maintain", label: "Maintain Lifestyle" },
+                  { value: "eat_cleaner", label: "Eat Cleaner" },
+                ].map((goal) => (
+                  <button
+                    type="button"
+                    key={goal.value}
+                    onClick={() => setHealthGoal(goal.value)}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-200 ${
+                      healthGoal === goal.value
+                        ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {goal.label}
                   </button>
                 ))}
               </div>

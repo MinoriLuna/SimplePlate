@@ -17,6 +17,7 @@ export default function HistoryPage() {
   const [activityDays, setActivityDays] = useState(new Set());
   const [mealHistory, setMealHistory] = useState([]);
   const [redemptionHistory, setRedemptionHistory] = useState([]);
+  const [expandedMealId, setExpandedMealId] = useState(null);
 
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const monthName = viewDate.toLocaleString("default", { month: "long" });
@@ -151,27 +152,41 @@ export default function HistoryPage() {
                           : score < 50 ? { bg: "bg-amber-50", text: "text-amber-600" }
                           : score < 80 ? { bg: "bg-blue-50", text: "text-blue-600" }
                           : { bg: "bg-emerald-50", text: "text-emerald-600" };
+                        const isExpanded = expandedMealId === meal.id;
                         return (
-                          <div key={meal.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
-                            <div className="flex items-center gap-3 min-w-0">
-                              <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center p-1.5 border border-slate-100 flex-shrink-0">
-                                <img src={`/images/${meal.meal_type?.toLowerCase()}.png`} alt="" className="w-full h-full object-contain" />
+                          <div key={meal.id} className="bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all overflow-hidden">
+                            <button
+                              onClick={() => setExpandedMealId(isExpanded ? null : meal.id)}
+                              className="w-full flex justify-between items-center p-4 text-left"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center p-1.5 border border-slate-100 flex-shrink-0">
+                                  <img src={`/images/${meal.meal_type?.toLowerCase()}.png`} alt="" className="w-full h-full object-contain" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-bold text-slate-800 text-sm truncate">{meal.dish_name}</p>
+                                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{meal.meal_type}</p>
+                                </div>
                               </div>
-                              <div className="min-w-0">
-                                <p className="font-bold text-slate-800 text-sm truncate">{meal.dish_name}</p>
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{meal.meal_type}</p>
+                              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                                {scoreBadge && displayNumbers && (
+                                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg ${scoreBadge.bg} ${scoreBadge.text}`}>
+                                    {score}
+                                  </span>
+                                )}
+                                <p className="text-[10px] font-bold text-slate-400">
+                                  {new Date(meal.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                </p>
+                                <svg className={`w-3.5 h-3.5 text-slate-400 transition-transform flex-shrink-0 ${isExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                              {scoreBadge && displayNumbers && (
-                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg ${scoreBadge.bg} ${scoreBadge.text}`}>
-                                  {score}
-                                </span>
-                              )}
-                              <p className="text-[10px] font-bold text-slate-400">
-                                {new Date(meal.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                              </p>
-                            </div>
+                            </button>
+                            {isExpanded && (
+                              <div className="px-4 pb-4 pt-0 border-t border-slate-100">
+                                <p className="text-xs text-slate-500 leading-relaxed pt-3">
+                                  {meal.score_note || "No note available. Log a new meal to see AI feedback here."}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         );
                       })

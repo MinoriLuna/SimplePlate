@@ -4,15 +4,23 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function POST(req) {
   try {
-    const { dish_name, portion_size } = await req.json();
+    const { dish_name, portion_size, health_goal } = await req.json();
+
+    const goalContext = health_goal === "lose_weight"
+      ? "USER GOAL: Lose weight — apply a slight penalty to high-calorie, high-fat, or sugary foods."
+      : health_goal === "maintain"
+      ? "USER GOAL: Maintain weight. Score based on overall nutritional balance."
+      : "USER GOAL: Eat cleaner. Reward whole, minimally processed foods; penalise heavily processed or junk food.";
 
     const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
     console.log("--- New AI Request ---");
-    console.log(`Dish: ${dish_name}, Portion: ${portion_size}`);
+    console.log(`Dish: ${dish_name}, Portion: ${portion_size}, Goal: ${health_goal}`);
 
     const prompt = `
+      ${goalContext}
+
       Analyze this log: "${dish_name}" with portion size "${portion_size}".
-        
+
         PORTION LOGIC:
         - If "Cup / Glass": Treat as a liquid beverage (250ml-300ml). Focus on sugar/carbs.
         - If "Small": Treat as a snack or 0.5x standard serving.
@@ -39,7 +47,8 @@ export async function POST(req) {
           "protein_g": number,
           "fat_g": number,
           "vitamins": number,
-          "nourish_score": number (0-100)
+          "nourish_score": number (0-100),
+          "score_note": string (1-2 sentences in plain English explaining why this specific dish received its score. Mention the dish name and its key nutritional characteristics or cooking method. If score is 0 and unrecognised, say so briefly.)
         }
       `;
 

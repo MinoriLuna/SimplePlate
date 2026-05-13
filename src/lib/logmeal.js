@@ -1,7 +1,7 @@
 // src/lib/logmeal.js
 import { calculateMealRewards } from "./rewards";
 
-export const submitMealLog = async (supabase, session, currentPlate, mealType) => {
+export const submitMealLog = async (supabase, session, currentPlate, mealType, healthGoal) => {
   if (!session) throw new Error("No session found");
 
   const startOfToday = new Date();
@@ -21,7 +21,7 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType) =
     const aiResponse = await fetch("/api/analyze-meal", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion }),
+      body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion, health_goal: healthGoal }),
     });
     const nutrition = await aiResponse.json();
     
@@ -35,7 +35,8 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType) =
       protein_g: nutrition.protein_g,
       fat_g: nutrition.fat_g,
       vitamins: nutrition.vitamins,
-      nourish_score: nutrition.nourish_score, // The "Score" lives here!
+      nourish_score: nutrition.nourish_score,
+      score_note: nutrition.score_note || null,
       logged_at: new Date().toISOString()
     };
   }));

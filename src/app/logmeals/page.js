@@ -34,6 +34,7 @@ export default function LogMeal() {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [rewardData, setRewardData] = useState(null);
   const [showPointsModal, setShowPointsModal] = useState(false);
+  const [healthGoal, setHealthGoal] = useState(null);
 
   const portionOptions = ["Small", "Normal/Plate", "Large", "Cup/Glass"];
   const mealTypes = ["Breakfast", "Lunch", "Dinner"];
@@ -45,6 +46,8 @@ export default function LogMeal() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
+      const { data: profile } = await supabase.from("profiles").select("health_goal").eq("id", session.user.id).single();
+      if (profile?.health_goal) setHealthGoal(profile.health_goal);
     };
     checkUser();
   }, [router]);
@@ -95,7 +98,7 @@ export default function LogMeal() {
     if (!session) return router.push("/login");
 
     try {
-      const result = await submitMealLog(supabase, session, currentPlate, mealType);
+      const result = await submitMealLog(supabase, session, currentPlate, mealType, healthGoal);
       setRewardData(result);
       setShowPointsModal(true);
     } catch (err) {

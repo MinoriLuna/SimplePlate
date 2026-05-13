@@ -12,6 +12,7 @@ export default function Settings() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState("Female");
+  const [healthGoal, setHealthGoal] = useState("eat_cleaner");
   const [displayNumbers, setDisplayNumbers] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -26,7 +27,7 @@ export default function Settings() {
       setEmail(session.user.email || "");
 
       const [profileRes, statsRes, mealsRes] = await Promise.all([
-        supabase.from("profiles").select("name, username, gender, user_settings (display_numbers)").eq("id", session.user.id).single(),
+        supabase.from("profiles").select("name, username, gender, health_goal, user_settings (display_numbers)").eq("id", session.user.id).single(),
         supabase.from("user_stats").select("points, total_xp, current_streak").eq("id", session.user.id).single(),
         supabase.from("meals").select("id", { count: "exact", head: true }).eq("user_id", session.user.id),
       ]);
@@ -35,6 +36,7 @@ export default function Settings() {
         setName(profileRes.data.name || "");
         setUsername(profileRes.data.username || "");
         setGender(profileRes.data.gender || "Female");
+        setHealthGoal(profileRes.data.health_goal || "eat_cleaner");
         if (profileRes.data.user_settings) setDisplayNumbers(profileRes.data.user_settings.display_numbers);
       }
 
@@ -74,7 +76,7 @@ export default function Settings() {
     try {
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ name, username, gender })
+        .update({ name, username, gender, health_goal: healthGoal })
         .eq("id", session.user.id);
       if (profileError) throw profileError;
 
@@ -288,6 +290,30 @@ export default function Settings() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Health Goal</label>
+                  <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
+                    {[
+                      { value: "lose_weight", label: "Lose Weight" },
+                      { value: "maintain", label: "Maintain" },
+                      { value: "eat_cleaner", label: "Eat Cleaner" },
+                    ].map((goal) => (
+                      <button
+                        type="button"
+                        key={goal.value}
+                        onClick={() => setHealthGoal(goal.value)}
+                        className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${
+                          healthGoal === goal.value
+                            ? "bg-[#00b252] text-white shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                        }`}
+                      >
+                        {goal.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
