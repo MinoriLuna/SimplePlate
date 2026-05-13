@@ -12,11 +12,11 @@ export default function NourishScoreModal({ onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90dvh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-start justify-between gap-4 flex-shrink-0">
           <div>
             <h2 className="text-lg font-black text-slate-900">What is a Nourish Score?</h2>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
@@ -31,7 +31,7 @@ export default function NourishScoreModal({ onClose }) {
         </div>
 
         {/* Tiers */}
-        <div className="px-6 py-4 space-y-2">
+        <div className="px-6 py-4 space-y-2 overflow-y-auto flex-1">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Score Breakdown</p>
           {tiers.map((t) => (
             <div key={t.label} className={`flex items-start gap-3 p-3 rounded-xl border ${t.bg} ${t.border}`}>
@@ -48,7 +48,7 @@ export default function NourishScoreModal({ onClose }) {
         </div>
 
         {/* Footer note */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 flex-shrink-0">
           <div className="bg-slate-50 rounded-xl border border-slate-100 px-4 py-3">
             <p className="text-[11px] text-slate-500 leading-relaxed">
               <span className="font-black text-slate-700">How it works: </span>

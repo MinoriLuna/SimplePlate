@@ -103,7 +103,7 @@ export default function Register() {
         </div>
 
         {/* Right — form panel */}
-        <div className="flex-1 flex flex-col justify-center px-10 py-10 overflow-y-auto relative">
+        <div className="flex-1 flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-10 overflow-y-auto relative">
 
           <Link href="/" className="absolute top-5 left-5 flex items-center gap-1.5 text-slate-400 hover:text-slate-700 text-xs font-bold transition-colors group">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -153,7 +153,7 @@ export default function Register() {
             </div>
 
             {/* Username + Name */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-2">Username <span className="text-red-400">*</span></label>
                 <div className="relative">
@@ -244,7 +244,7 @@ export default function Register() {
             {/* Health Goal */}
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-2">Health Goal</label>
-              <div className="bg-slate-100 p-1 rounded-xl flex border border-slate-200">
+              <div className="bg-slate-100 p-1 rounded-xl flex flex-col sm:flex-row gap-1 sm:gap-0 border border-slate-200">
                 {[
                   { value: "lose_weight", label: "Lose Weight" },
                   { value: "maintain", label: "Maintain Lifestyle" },
