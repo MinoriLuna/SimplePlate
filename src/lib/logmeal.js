@@ -32,7 +32,7 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dish_name: item.dishName, portion_size: item.portion, health_goal: healthGoal }),
       }),
-      20000
+      30000
     );
     const nutrition = await aiResponse.json();
     

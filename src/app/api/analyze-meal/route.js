@@ -12,7 +12,7 @@ export async function POST(req) {
       ? "USER GOAL: Maintain weight. Score based on overall nutritional balance."
       : "USER GOAL: Eat cleaner. Reward whole, minimally processed foods; penalise heavily processed or junk food.";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
     console.log("--- New AI Request ---");
     console.log(`Dish: ${dish_name}, Portion: ${portion_size}, Goal: ${health_goal}`);
 

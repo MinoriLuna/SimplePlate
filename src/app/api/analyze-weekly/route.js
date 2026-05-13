@@ -7,7 +7,7 @@ export async function POST(req) {
     const { meals, totals } = await req.json();
 
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-3.1-flash-lite-preview",
+      model: "gemini-3.1-flash-lite",
       generationConfig: { responseMimeType: "application/json" }
     });
 
