@@ -62,8 +62,13 @@ export default function AdminDashboard() {
           total_xp: parseInt(editingUser.user_stats?.total_xp) || 0,
         }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Update failed");
+      let json;
+      try {
+        json = await res.json();
+      } catch {
+        throw new Error(`Server returned an invalid response (HTTP ${res.status})`);
+      }
+      if (!res.ok) throw new Error(json?.error || "Update failed");
 
       setMessage({ text: "User updated successfully!", type: "success" });
       setEditingUser(null);

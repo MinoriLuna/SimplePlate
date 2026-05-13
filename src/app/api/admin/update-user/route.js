@@ -35,17 +35,29 @@ export async function POST(req) {
       if (authErr) throw authErr;
     }
 
-    const { error: profileErr } = await supabaseAdmin
-      .from("profiles")
-      .update({ username, name, gender, is_admin, ...(email ? { email } : {}) })
-      .eq("id", targetId);
-    if (profileErr) throw profileErr;
+    const profileFields = Object.fromEntries(
+      Object.entries({ username, name, gender, is_admin, ...(email ? { email } : {}) })
+        .filter(([, v]) => v !== undefined)
+    );
+    if (Object.keys(profileFields).length > 0) {
+      const { error: profileErr } = await supabaseAdmin
+        .from("profiles")
+        .update(profileFields)
+        .eq("id", targetId);
+      if (profileErr) throw profileErr;
+    }
 
-    const { error: statsErr } = await supabaseAdmin
-      .from("user_stats")
-      .update({ points, current_streak, total_xp })
-      .eq("id", targetId);
-    if (statsErr) throw statsErr;
+    const statsFields = Object.fromEntries(
+      Object.entries({ points, current_streak, total_xp })
+        .filter(([, v]) => v !== undefined)
+    );
+    if (Object.keys(statsFields).length > 0) {
+      const { error: statsErr } = await supabaseAdmin
+        .from("user_stats")
+        .update(statsFields)
+        .eq("id", targetId);
+      if (statsErr) throw statsErr;
+    }
 
     return Response.json({ success: true });
   } catch (err) {
