@@ -135,7 +135,7 @@ export default function Dashboard() {
         <StreakWarningModal isOpen={showStreakModal} onClose={() => setShowStreakModal(false)} streakCount={profile.current_streak} />
         {showScoreInfo && <NourishScoreModal onClose={() => setShowScoreInfo(false)} />}
 
-        {/* ── Banner ── */}
+        {/* Banner */}
         <div className="bg-gradient-to-r from-green-800 to-emerald-600 p-6 lg:p-8 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_75%_50%,white_0%,transparent_65%)]" />
           <div className="relative flex items-center justify-between gap-4">
@@ -162,7 +162,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Main Content ── */}
+        {/* Main content */}
         <div className="p-6 lg:p-8 space-y-6">
 
           {/* Stat Cards */}

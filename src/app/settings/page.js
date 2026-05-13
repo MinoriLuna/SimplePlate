@@ -133,7 +133,6 @@ export default function Settings() {
                 {gender}
               </span>
 
-              {/* Stats chips */}
               <div className="grid grid-cols-3 gap-2 w-full pt-1 border-t border-slate-100">
                 <div className="bg-orange-50 rounded-xl p-2.5 text-center border border-orange-100">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Streak</p>
@@ -217,7 +216,6 @@ export default function Settings() {
                 <h2 className="text-sm font-black text-slate-900">Account Details</h2>
               </div>
               <div className="p-5 space-y-4">
-                {/* Email — read only, full width */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Email Address</label>
                   <input

@@ -27,21 +27,18 @@ export async function middleware(request) {
     }
   )
 
-  // Check if the user is logged in
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const url = new URL(request.url)
 
-  // 1. If they ARE logged in, and they try to go to the login, register, or home page...
-  // Redirect them straight to their dashboard!
+  // logged-in users shouldn't land on public pages
   if (user && (url.pathname === '/' || url.pathname === '/login' || url.pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 2. If they are NOT logged in, and they try to access protected pages...
-  // Kick them to the login page!
+  // unauthenticated users can't access protected routes
   if (!user && (url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/rewards') || url.pathname.startsWith('/history') || url.pathname.startsWith('/settings'))) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -49,7 +46,6 @@ export async function middleware(request) {
   return supabaseResponse
 }
 
-// This tells the middleware which routes it should "watch"
 export const config = {
   matcher: [
     /*

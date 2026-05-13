@@ -1,4 +1,3 @@
-// src/lib/logmeal.js
 import { calculateMealRewards } from "./rewards";
 
 const withTimeout = (promise, ms) =>
@@ -15,7 +14,6 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
-  // 1. Check for streak logic
   const { count: mealsToday } = await supabase
     .from("meals")
     .select("*", { count: 'exact', head: true })
@@ -24,7 +22,6 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
 
   const isFirstLogToday = mealsToday === 0;
 
-  // 2. AI ANALYSIS: This is where we get the "Score"
   const mealsToInsert = await Promise.all(currentPlate.map(async (item) => {
     const aiResponse = await withTimeout(
       fetch("/api/analyze-meal", {
@@ -35,8 +32,7 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
       30000
     );
     const nutrition = await aiResponse.json();
-    
-    // We return the full nutrition object to be saved in the 'meals' table
+
     return {
       user_id: session.user.id,
       dish_name: item.dishName,
@@ -52,30 +48,27 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
     };
   }));
 
-  // 3. Insert into 'meals' table (This feeds your Progress page graphs)
   const { error: mealError } = await supabase.from("meals").insert(mealsToInsert);
   if (mealError) throw mealError;
 
-  // 4. Fetch User Stats
   const { data: stats } = await supabase
     .from("user_stats")
     .select("*")
     .eq("id", session.user.id)
     .single();
 
-  // 5. Calculate Rewards (Flat 10 XP, 10 Points per item)
   const { xpGained, pointsGained, isBoostedXP, isBoostedPoints } = calculateMealRewards(
-    currentPlate.length, 
+    currentPlate.length,
     stats
   );
 
-  // 6. Streak math
+  // Extend or reset the streak based on whether the user logged yesterday
   let newStreak = Number(stats.current_streak || 0);
   if (isFirstLogToday) {
     const yesterdayStart = new Date();
     yesterdayStart.setDate(yesterdayStart.getDate() - 1);
     yesterdayStart.setHours(0, 0, 0, 0);
-    
+
     const { data: yesterdayMeals } = await supabase
       .from("meals")
       .select("id")
@@ -87,7 +80,6 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
     newStreak = (yesterdayMeals && yesterdayMeals.length > 0) ? newStreak + 1 : 1;
   }
 
-  // 7. Update User Stats
   const { error: updateError } = await supabase.from("user_stats").update({
     points: Number(stats.points || 0) + pointsGained,
     total_xp: Number(stats.total_xp || 0) + xpGained,
@@ -97,8 +89,8 @@ export const submitMealLog = async (supabase, session, currentPlate, mealType, h
   if (updateError) throw updateError;
 
   if (typeof window !== "undefined") {
-  window.dispatchEvent(new Event("statsUpdated"));
-}
+    window.dispatchEvent(new Event("statsUpdated"));
+  }
 
   return { points: pointsGained, xp: xpGained, isBoostedXP, isBoostedPoints, streak: newStreak, isFirstLogToday };
 };

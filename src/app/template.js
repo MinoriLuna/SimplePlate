@@ -7,11 +7,11 @@ export default function Template({ children }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.96, y: 15 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 400, // High stiffness = Faster "Pop"
-        damping: 18,    // Lower damping = A bit of "Bounce"
-        mass: 0.8       // Lighter mass = Snappier movement
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 18,
+        mass: 0.8
       }}
       className="min-h-screen w-full"
     >

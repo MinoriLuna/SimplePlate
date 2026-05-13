@@ -151,7 +151,7 @@ export default function LogMeal() {
       <div className="p-5 lg:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-          {/* PLATE */}
+          {/* Plate card */}
           <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden lg:sticky lg:top-6 flex flex-col">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-base font-black text-slate-900">Your Plate</h2>
@@ -171,7 +171,7 @@ export default function LogMeal() {
                     <p className="text-slate-400 text-xs mt-1">Add food using the form →</p>
                   </div>
 
-                  {/* How it works */}
+                  {/* Extra tips for ppl*/}
                   <div className="space-y-2">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">How it works</p>
                     {[
@@ -191,7 +191,6 @@ export default function LogMeal() {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col">
-                  {/* Paginated items */}
                   <div className="space-y-2 flex-1">
                     {paginatedItems.map((item) => (
                       <div key={item.id} className="flex justify-between items-center p-3.5 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
@@ -253,7 +252,6 @@ export default function LogMeal() {
                 </div>
               )}
 
-              {/* Finish button at bottom of plate card */}
               <div className="mt-4 pt-4 border-t border-slate-100">
                 {status.message && (
                   <p className={`mb-2 text-center text-[10px] font-black uppercase tracking-widest ${status.type === "error" ? "text-red-500" : "text-[#00b252]"}`}>
@@ -276,7 +274,7 @@ export default function LogMeal() {
             </div>
           </div>
 
-          {/* FORM */}
+          {/* Add food form */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100">
               <h2 className="text-base font-black text-slate-900">Add Food</h2>
@@ -337,7 +335,6 @@ export default function LogMeal() {
                 </div>
               </div>
 
-              {/* Add Button */}
               <button
                 onClick={handleAddToPlate}
                 className="w-full py-3.5 rounded-xl text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200 flex justify-center items-center gap-2"
@@ -348,7 +345,6 @@ export default function LogMeal() {
                 Add to Plate
               </button>
 
-              {/* Divider */}
               <div className="border-t border-slate-100 pt-4">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Logging Tips</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

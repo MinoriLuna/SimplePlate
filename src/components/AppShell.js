@@ -112,7 +112,6 @@ export default function AppShell({ children }) {
         <div className="flex-1">
           {children}
         </div>
-        {/* Footer anchored at bottom of content area */}
         <footer className="hidden md:block border-t border-green-100/70 py-3 px-6 text-center">
           <p className="text-xs text-slate-400">© 2026 SimplePlate. All rights reserved.</p>
         </footer>

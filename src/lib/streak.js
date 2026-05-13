@@ -1,6 +1,5 @@
 export const StreakCount = async (supabase, userId) => {
   try {
-    // 1. Fetch current user stats
     const { data: stats, error } = await supabase
       .from("user_stats")
       .select("current_streak, pause_streak, lastchecked")
@@ -13,16 +12,14 @@ export const StreakCount = async (supabase, userId) => {
     const todayStr = now.toISOString().split('T')[0];
     const lastCheckStr = stats.lastchecked ? stats.lastchecked.split('T')[0] : null;
 
-    // Stop if we've already performed the check today
+    // already ran today — skip
     if (todayStr === lastCheckStr) return;
 
-    // 2. Define the "Yesterday" window
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const start = new Date(yesterday.setHours(0, 0, 0, 0)).toISOString();
     const end = new Date(yesterday.setHours(23, 59, 59, 999)).toISOString();
 
-    // 3. Check for logs from yesterday
     const { count: yesterdayLogs } = await supabase
       .from("meals")
       .select("*", { count: 'exact', head: true })
@@ -30,33 +27,28 @@ export const StreakCount = async (supabase, userId) => {
       .gte("logged_at", start)
       .lte("logged_at", end);
 
-    // 4. THE CORE LOGIC: Reset or Shield
     if (yesterdayLogs === 0) {
       if (stats.pause_streak) {
-        // SHIELD ACTIVE: Consume the shield but SAVE the streak number
+        // shield active: absorb the miss, clear the shield
         await supabase
           .from("user_stats")
-          .update({ 
-            pause_streak: false, 
-            lastchecked: now.toISOString() 
+          .update({
+            pause_streak: false,
+            lastchecked: now.toISOString()
           })
           .eq("id", userId);
-          
-        console.log("Shield used. Streak preserved.");
       } else {
-        // NO SHIELD: Wipe the streak
+        // no protection left, reset streak
         await supabase
           .from("user_stats")
-          .update({ 
-            current_streak: 0, 
-            lastchecked: now.toISOString() 
+          .update({
+            current_streak: 0,
+            lastchecked: now.toISOString()
           })
           .eq("id", userId);
-
-        console.log("No shield found. Streak reset to 0.");
       }
     } else {
-      // User logged yesterday, just mark today as checked
+      // user logged yesterday, mark today as checked without touching the streak count
       await supabase
         .from("user_stats")
         .update({ lastchecked: now.toISOString() })

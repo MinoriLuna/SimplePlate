@@ -16,9 +16,8 @@ export default function StreakWarningModal({ isOpen, onClose, streakCount }) {
       {/* Modal Card */}
       <div className="relative bg-white w-full max-w-sm rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 sm:p-10 overflow-hidden animate-in fade-in zoom-in duration-300">
         
-        {/* Warning Glow Effect */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-red-500/5 rounded-full blur-3xl" />
-        
+
         <div className="relative flex flex-col items-center text-center">
           {/* Icon */}
           <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[2rem] flex items-center justify-center mb-6 shadow-sm border border-red-100">
@@ -27,7 +26,6 @@ export default function StreakWarningModal({ isOpen, onClose, streakCount }) {
             </svg>
           </div>
 
-          {/* Text Content */}
           <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-tight">Streak at Risk!</h2>
           <p className="text-slate-500 text-sm font-medium leading-relaxed mb-8">
             You haven't logged any meals today. Log something before midnight to keep your <span className="text-red-600 font-bold">{streakCount}-day streak</span> active!

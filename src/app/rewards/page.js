@@ -100,10 +100,9 @@ export default function Rewards() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          {/* Left: Progress + Boosts */}
           <div className="lg:col-span-5 space-y-4">
 
-            {/* Progress Card */}
+            {/* Level progress */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
               <h2 className="text-base font-black text-slate-900 mb-4">Your Progress</h2>
               <div className="mb-4">
@@ -156,7 +155,6 @@ export default function Rewards() {
             </div>
           </div>
 
-          {/* Right: Item Shop */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col" style={{ maxHeight: "calc(100vh - 180px)" }}>
             <div className="px-5 py-4 border-b border-slate-100 flex-shrink-0">
               <h2 className="text-base font-black text-slate-900">Item Shop</h2>

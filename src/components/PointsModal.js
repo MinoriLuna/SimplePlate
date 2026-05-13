@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { GiftIcon, FireIcon } from "./icons/Icons";
 
-// Added xp and isBoosted to the props
 export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, streakIncreased, streakCount, onClose }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
@@ -28,7 +27,7 @@ export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, 
           </p>
         </div>
 
-        {/* --- DYNAMIC STREAK BADGE --- */}
+        {/* Streak badge */}
         {streakIncreased && (
           <div className="mb-4 animate-in zoom-in-50 duration-500 delay-300 fill-mode-both">
             <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-4 py-2 rounded-full shadow-sm">
@@ -40,7 +39,7 @@ export default function PointsModal({ points, xp, isBoostedXP, isBoostedPoints, 
           </div>
         )}
 
-        {/* --- REWARDS GRID --- */}
+        {/* Rewards earned */}
         <div className="grid grid-cols-2 gap-3 mb-10">
           
         {/* Points Box */}

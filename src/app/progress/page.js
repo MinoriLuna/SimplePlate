@@ -137,13 +137,11 @@ export default function Progress() {
 
       <div className="p-5 lg:p-8 space-y-6">
 
-        {/* Top Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          {/* Left: Stats */}
           <div className="lg:col-span-5 space-y-4">
 
-            {/* Level & Stats Card */}
+            {/* Level and stats */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
               <div className="flex justify-between items-start mb-5">
                 <div>
@@ -199,7 +197,7 @@ export default function Progress() {
             </div>
           </div>
 
-          {/* Right: AI Insights */}
+          {/* AI insights */}
           <div className="lg:col-span-7">
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 h-full">
               <div className="flex items-center gap-3 mb-4">
@@ -256,7 +254,6 @@ export default function Progress() {
           </div>
         </div>
 
-        {/* Chart + Weekly Breakdown side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
           {showScoreInfo && <NourishScoreModal onClose={() => setShowScoreInfo(false)} />}
