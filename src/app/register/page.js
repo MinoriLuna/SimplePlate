@@ -47,7 +47,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-slate-100 flex items-center justify-center p-6 font-sans">
+    <div className="min-h-[100dvh] bg-slate-100 flex items-start sm:items-center justify-center p-6 font-sans overflow-y-auto">
 
       {/* Error Modal */}
       {error && (

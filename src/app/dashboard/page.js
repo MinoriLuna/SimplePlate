@@ -189,7 +189,7 @@ export default function Dashboard() {
                   <span className="text-white text-[9px] font-black">?</span>
                 </button>
               </div>
-              <div className="text-2xl lg:text-3xl font-black">
+              <div className="text-base lg:text-3xl font-black leading-tight">
                 {profile.display_numbers ? weeklyAvgScore : status.label}
               </div>
               <div className="text-green-100 text-[10px] font-black uppercase tracking-widest mt-0.5">Weekly Score</div>
