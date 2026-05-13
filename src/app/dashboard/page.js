@@ -9,6 +9,7 @@ import StreakWarningModal from "@/components/streakwarningmodal";
 import { StreakCount } from "../../lib/streak";
 import { motion, AnimatePresence } from "framer-motion";
 import { FireIcon, CutleryIcon, PlateIcon } from "../../components/icons/Icons";
+import NourishScoreModal from "@/components/NourishScoreModal";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [weeklyAvgScore, setWeeklyAvgScore] = useState(0);
   const [weeklyMealCount, setWeeklyMealCount] = useState(0);
   const [showStreakModal, setShowStreakModal] = useState(false);
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -88,9 +90,10 @@ export default function Dashboard() {
 
   const getNourishStatus = (score) => {
     if (weeklyMealCount === 0) return { label: "No Logs", color: "text-slate-400" };
+    if (score === 0) return { label: "Neutral", color: "text-slate-400" };
     if (score < 25) return { label: "Needs Focus", color: "text-red-500" };
     if (score < 50) return { label: "Normal", color: "text-amber-500" };
-    if (score < 75) return { label: "Good!", color: "text-blue-500" };
+    if (score < 80) return { label: "Good!", color: "text-blue-500" };
     return { label: "Amazing!", color: "text-emerald-500" };
   };
 
@@ -130,6 +133,7 @@ export default function Dashboard() {
         className="min-h-screen font-sans text-slate-800 no-scrollbar"
       >
         <StreakWarningModal isOpen={showStreakModal} onClose={() => setShowStreakModal(false)} streakCount={profile.current_streak} />
+        {showScoreInfo && <NourishScoreModal onClose={() => setShowScoreInfo(false)} />}
 
         {/* ── Banner ── */}
         <div className="bg-gradient-to-r from-green-800 to-emerald-600 p-6 lg:p-8 relative overflow-hidden">
@@ -175,10 +179,15 @@ export default function Dashboard() {
 
             {/* Weekly Score */}
             <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-4 lg:p-5 text-white shadow-lg shadow-green-100">
-              <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center mb-3">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <button onClick={() => setShowScoreInfo(true)} className="w-5 h-5 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors flex-shrink-0">
+                  <span className="text-white text-[9px] font-black">?</span>
+                </button>
               </div>
               <div className="text-2xl lg:text-3xl font-black">
                 {profile.display_numbers ? weeklyAvgScore : status.label}

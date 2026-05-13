@@ -10,6 +10,8 @@ export default function HistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [displayNumbers, setDisplayNumbers] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
   const [activityDays, setActivityDays] = useState(new Set());
@@ -27,36 +29,44 @@ export default function HistoryPage() {
     const initPage = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push("/login"); return; }
-      const { data: profileData } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-      setProfile(profileData);
+      const uid = session.user.id;
+      setUserId(uid);
+      const [profileRes, settingsRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", uid).single(),
+        supabase.from("user_settings").select("display_numbers").eq("id", uid).single(),
+      ]);
+      if (profileRes.data) setProfile(profileRes.data);
+      if (settingsRes.data) setDisplayNumbers(settingsRes.data.display_numbers ?? true);
       setIsLoading(false);
     };
     initPage();
   }, [router]);
 
   useEffect(() => {
+    if (!userId) return;
     const fetchMonthHighlights = async () => {
       const start = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString();
       const end = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
-      const { data } = await supabase.from("meals").select("logged_at").gte("logged_at", start).lte("logged_at", end);
+      const { data } = await supabase.from("meals").select("logged_at").eq("user_id", userId).gte("logged_at", start).lte("logged_at", end);
       if (data) setActivityDays(new Set(data.map(m => m.logged_at.split("T")[0])));
     };
     fetchMonthHighlights();
-  }, [viewDate]);
+  }, [viewDate, userId]);
 
   useEffect(() => {
+    if (!userId) return;
     const fetchDailyRecords = async () => {
       setIsLoadingData(true);
       const start = new Date(selectedDate); start.setHours(0, 0, 0, 0);
       const end = new Date(selectedDate); end.setHours(23, 59, 59, 999);
-      const { data: meals } = await supabase.from("meals").select("*").gte("logged_at", start.toISOString()).lte("logged_at", end.toISOString()).order("logged_at", { ascending: false });
-      const { data: redemptions } = await supabase.from("redemptions").select("redeemed_at, rewards (title, cost)").gte("redeemed_at", start.toISOString()).lte("redeemed_at", end.toISOString()).order("redeemed_at", { ascending: false });
+      const { data: meals } = await supabase.from("meals").select("*").eq("user_id", userId).gte("logged_at", start.toISOString()).lte("logged_at", end.toISOString()).order("logged_at", { ascending: false });
+      const { data: redemptions } = await supabase.from("redemptions").select("redeemed_at, rewards (title, cost)").eq("user_id", userId).gte("redeemed_at", start.toISOString()).lte("redeemed_at", end.toISOString()).order("redeemed_at", { ascending: false });
       setMealHistory(meals || []);
       setRedemptionHistory(redemptions || []);
       setIsLoadingData(false);
     };
     fetchDailyRecords();
-  }, [selectedDate]);
+  }, [selectedDate, userId]);
 
   return (
     <div className="min-h-screen font-sans text-slate-800 no-scrollbar">
@@ -134,22 +144,37 @@ export default function HistoryPage() {
                     ) : mealHistory.length === 0 ? (
                       <p className="py-10 text-center text-slate-400 text-sm italic">No meals logged for this day.</p>
                     ) : (
-                      mealHistory.map(meal => (
-                        <div key={meal.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center p-1.5 border border-slate-100">
-                              <img src={`/images/${meal.meal_type?.toLowerCase()}.png`} alt="" className="w-full h-full object-contain" />
+                      mealHistory.map(meal => {
+                        const score = meal.nourish_score || 0;
+                        const scoreBadge = score === 0 ? null
+                          : score < 25 ? { bg: "bg-red-50", text: "text-red-500" }
+                          : score < 50 ? { bg: "bg-amber-50", text: "text-amber-600" }
+                          : score < 80 ? { bg: "bg-blue-50", text: "text-blue-600" }
+                          : { bg: "bg-emerald-50", text: "text-emerald-600" };
+                        return (
+                          <div key={meal.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-sm transition-all">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center p-1.5 border border-slate-100 flex-shrink-0">
+                                <img src={`/images/${meal.meal_type?.toLowerCase()}.png`} alt="" className="w-full h-full object-contain" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-slate-800 text-sm truncate">{meal.dish_name}</p>
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{meal.meal_type}</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-bold text-slate-800 text-sm">{meal.dish_name}</p>
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{meal.meal_type}</p>
+                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                              {scoreBadge && displayNumbers && (
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg ${scoreBadge.bg} ${scoreBadge.text}`}>
+                                  {score}
+                                </span>
+                              )}
+                              <p className="text-[10px] font-bold text-slate-400">
+                                {new Date(meal.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </p>
                             </div>
                           </div>
-                          <p className="text-[10px] font-bold text-slate-400 flex-shrink-0">
-                            {new Date(meal.logged_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>

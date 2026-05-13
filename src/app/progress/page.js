@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { motion, AnimatePresence } from "framer-motion";
 import { ownsItem } from "../../lib/rewards";
 import { BrainIcon, SparkIcon, LightningIcon, WandIcon, FireIcon } from "../../components/icons/Icons";
+import NourishScoreModal from "@/components/NourishScoreModal";
 
 export default function Progress() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function Progress() {
   const [aiInsight, setAiInsight] = useState(null);
   const [expandedMealId, setExpandedMealId] = useState(null);
   const [displayNumbers, setDisplayNumbers] = useState(true);
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   useEffect(() => {
     const fetchWeeklyProgress = async () => {
@@ -257,9 +259,16 @@ export default function Progress() {
         {/* Chart + Weekly Breakdown side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+          {showScoreInfo && <NourishScoreModal onClose={() => setShowScoreInfo(false)} />}
+
           {/* Chart */}
           <div className={`${displayNumbers ? "lg:col-span-5" : "lg:col-span-12"} bg-white rounded-2xl border border-slate-200 shadow-sm p-6`}>
-            <h3 className="text-base font-black text-slate-900 mb-4">Nourish Trend This Week</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-black text-slate-900">Nourish Trend This Week</h3>
+              <button onClick={() => setShowScoreInfo(true)} className="w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+                <span className="text-slate-500 text-[10px] font-black">?</span>
+              </button>
+            </div>
             <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
@@ -293,7 +302,13 @@ export default function Progress() {
                             <p className="font-black text-slate-900 text-sm truncate">{meal.dish_name}</p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{meal.meal_type}</span>
-                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase ${meal.nourish_score < 50 ? "bg-red-50 text-red-500" : "bg-green-50 text-[#00b252]"}`}>
+                              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase ${
+                                meal.nourish_score === 0 ? "bg-slate-100 text-slate-400"
+                                : meal.nourish_score < 25 ? "bg-red-50 text-red-500"
+                                : meal.nourish_score < 50 ? "bg-amber-50 text-amber-600"
+                                : meal.nourish_score < 80 ? "bg-blue-50 text-blue-600"
+                                : "bg-emerald-50 text-emerald-600"
+                              }`}>
                                 {meal.nourish_score}
                               </span>
                             </div>
