@@ -1,11 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req) {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
   try {
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
     const authHeader = req.headers.get("authorization");
     if (!authHeader) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -62,6 +63,7 @@ export async function POST(req) {
     return Response.json({ success: true });
   } catch (err) {
     console.error("Admin update-user error:", err);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    const message = err?.message || err?.error_description || String(err) || "Internal server error";
+    return Response.json({ error: message }, { status: 500 });
   }
 }
