@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import Sidebar from "./sidebar";
 import Header from "./header";
 import Footer from "./footer";
@@ -74,6 +75,13 @@ export default function AppShell({ children }) {
   const router = useRouter();
   const isHeaderPage = HEADER_PAGES.includes(pathname);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    setIsTransitioning(true);
+    const timer = setTimeout(() => setIsTransitioning(false), 100);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -108,7 +116,24 @@ export default function AppShell({ children }) {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <main className="flex-1 md:ml-[220px] pb-20 md:pb-0 flex flex-col">
+      <main className="flex-1 md:ml-[220px] pb-20 md:pb-0 flex flex-col relative">
+        {/* Page transition loading overlay - maintains layout */}
+        {isTransitioning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50"
+          >
+            <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
+              <span className="text-2xl font-black text-slate-900">Simple<span className="text-[#00b252]">Plate</span></span>
+            </motion.div>
+            <p className="mt-4 text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">
+              Loading...
+            </p>
+          </motion.div>
+        )}
         <div className="flex-1">
           {children}
         </div>

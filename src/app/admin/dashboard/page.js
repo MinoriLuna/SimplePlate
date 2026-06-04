@@ -17,10 +17,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkAdminAndFetchUsers = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push("/login"); return; }
+      if (!session) { router.push("/login"); return; } //If not logged in, redirect to login
 
       const { data: profile } = await supabase
-        .from("profiles").select("is_admin").eq("id", session.user.id).single();
+        .from("profiles").select("is_admin").eq("id", session.user.id).single(); //Making sure 
 
       if (profile?.is_admin) {
         setIsAdmin(true);
@@ -47,10 +47,10 @@ export default function AdminDashboard() {
       const res = await fetch("/api/admin/update-user", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`,
+          "Content-Type": "application/json", // Set content type to JSON
+          "Authorization": `Bearer ${session.access_token}`, //JWT Token for authentication
         },
-        body: JSON.stringify({
+        body: JSON.stringify({ //Sending it to HTTP body as JSON string. this is cause HTTP doesnt understand JS objects, we need to convert it to string first
           targetId: editingUser.id,
           username: editingUser.username,
           name: editingUser.name,
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
       });
       let json;
       try {
-        json = await res.json();
+        json = await res.json(); //Turning strings to JSON back
       } catch {
         throw new Error(`Server returned an invalid response (HTTP ${res.status})`);
       }
@@ -93,14 +93,7 @@ export default function AdminDashboard() {
     return colors[id.charCodeAt(0) % colors.length];
   };
 
-  if (isLoading) return (
-    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[100]">
-      <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>
-        <span className="text-2xl font-black text-slate-900">Simple<span className="text-[#00b252]">Plate</span></span>
-      </motion.div>
-      <p className="mt-4 text-[10px] font-black text-[#00b252] uppercase tracking-[0.4em] animate-pulse">Authorizing...</p>
-    </div>
-  );
+  if (isLoading) return null;  // AppShell shows transition overlay instead
   if (!isAdmin) return null;
 
   return (
