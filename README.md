@@ -9,7 +9,6 @@ SimplePlate is a mobile-first web application designed to transform the tedious 
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-22B5BF?style=for-the-badge&logo=chart-line&logoColor=white)
 
-Run the application locally, using command in terminal ```npx next dev```
 ---
 
 ##  Key Features
