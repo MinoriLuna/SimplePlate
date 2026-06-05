@@ -1,4 +1,4 @@
-# SimplePlate: Nourish Your Habits
+# 🥗 SimplePlate: Nourish Your Habits
 **A Gamified Habit-Builder for Healthy Eating**
 
 SimplePlate is a mobile-first web application designed to transform the tedious task of meal logging into a rewarding, RPG-like experience. Developed as a **Final Year Project (FYP)**, it focuses on user retention through "Poppy" UI animations, streak protection, and AI-driven nutritional feedback.
@@ -57,5 +57,5 @@ Using **PostgreSQL Triggers** in the `auth` schema, the system automates user in
 
 ---
 
-## Author
+## 👨‍💻 Author
 **Ashton Chai** *Lead Developer & UI Designer*
